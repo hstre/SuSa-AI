@@ -12,7 +12,7 @@ Grundlage ist der Bauauftrag `Claude_Uebergabe_Argumentanalyse.md` (Arbeitsfassu
 Ausgangsdaten: öffentlicher Metadatenexport von Mike Thickes Projekt
 [mc-lit-review](https://github.com/Epistemic-Technology/mc-lit-review) (siehe [NOTICE.md](NOTICE.md)).
 
-## Stand (3. November 2026, Version 0.2.0)
+## Stand (4. November 2026, Version 0.3.0)
 
 | Bereich | Stand |
 |---|---|
@@ -26,7 +26,7 @@ Ausgangsdaten: öffentlicher Metadatenexport von Mike Thickes Projekt
 | Oberfläche (Übersicht, Dokument, Suche, Kandidaten, Vergleich/Prüfung, Verlauf, Quellen, Export) | lauffähig, im Browser getestet |
 | Modellgestützte Rekonstruktion/Vergleich/Gegenprüfung | erster begrenzter Lauf über die Claude-CLI: 17 Aufrufe an synthetischen Fällen ([Bericht](docs/MODEL_ACCEPTANCE_1.md)) |
 | Abnahmefälle (DE + EN) | [Retrieval ohne Modell](docs/acceptance/v2_retrieval_ohne_modell.md), [mit Modell](docs/acceptance/v2_modell_claude_cli.md), [v1](docs/acceptance/v1_2026-11-03_ohne_modell.md) |
-| Reale Prüfauswahl | 10 Pilotpaare mit Blindansicht und deutschen Lesehilfen, **noch nicht beurteilt** ([Anleitung](docs/REVIEW_SET_1.md)) |
+| Reale Prüfauswahl | 10 Pilotpaare, vollständig übersetzt (lokal, ungeprüft), Blindansicht mit freiem Urteil vor Etiketten, **noch nicht beurteilt** ([Anleitung](docs/REVIEW_SET_1.md)) |
 | Echte Paare mit Modell bewertet | **keine** |
 | Goldstandard, Precision/Recall, Baselines A/B/C | **ausstehend** |
 
@@ -65,7 +65,9 @@ python -m susa acceptance                 # zwölf Abnahmefälle -> docs/ACCEPTA
 python -m susa report                     # Textabdeckung der Pilotdokumente
 python -m susa export ergebnisse.jsonl    # eigene Ergebnisse, ohne fremde Volltexte
 python -m susa review-set import pilot/review_set_1.json   # Prüfauswahl 1 wiederherstellen
-python -m susa review-set load-aids pilot/reading_aids_rs1.json --author "…" --method "…"
+python -m susa review-set load-translations data/review/translations_rs1_de_v2.json   # lokal, nicht versioniert
+python -m susa review-set verify rs-2026-11-03-20261103
+python -m susa review-set export-html rs-2026-11-03-20261103 data/export/blindpruefung_rs1.html
 python -m susa serve                      # Oberfläche auf http://127.0.0.1:5005
 python -m pytest                          # Tests
 ```

@@ -38,6 +38,8 @@ button.secondary { background:transparent; color:var(--accent); }
 details > summary { cursor:pointer; color:var(--accent); }
 dl.kv { display:grid; grid-template-columns:max-content 1fr; gap:2px 12px; margin:0; } dl.kv dt { color:var(--muted); } dl.kv dd { margin:0; }
 .wrap { overflow-wrap:anywhere; }
+table.seg td { vertical-align:top; } table.seg tr.ctx td { background:transparent; } table.seg tr.core td { border-left:3px solid var(--accent); }
+@media (max-width:800px) { table.seg td { display:block; } }
 .aid { background:var(--bg); border:1px dashed var(--line); border-radius:6px; padding:8px 10px; font-size:14px; }
 .checks { columns:2; font-size:13px; } @media (max-width:700px) { .checks { columns:1; } }
 </style>

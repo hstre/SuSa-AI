@@ -279,35 +279,49 @@ def create_app(cfg: Config | None = None) -> Flask:
 
     @app.route("/review-sets/<sid>/<int:pos>", methods=["GET", "POST"])
     def review_item(sid, pos):
+        """Blindprüfung. Diese Route löst nie einen Modellaufruf aus (kein Adapter wird erzeugt)."""
+        from .. import review_set as rs
         c = conn()
-        it = c.execute("SELECT * FROM review_set_items WHERE set_id=? AND position=?", (sid, pos)).fetchone()
+        it = c.execute("""SELECT i.*, cc.left_unit_id, cc.right_unit_id, cc.channels_json, cc.scores_json, cc.markers_json FROM review_set_items i
+                          JOIN candidate_comparisons cc ON cc.id=i.comparison_id WHERE set_id=? AND position=?""", (sid, pos)).fetchone()
         if it is None:
             abort(404)
         n = c.execute("SELECT COUNT(*) FROM review_set_items WHERE set_id=?", (sid,)).fetchone()[0]
         reviewer = (request.values.get("reviewer") or "").strip()
+        error = None
         if request.method == "POST":
+            act = request.form.get("action")
             lines = lambda k: [x.strip() for x in request.form.get(k, "").splitlines() if x.strip()]
-            payload = {k: request.form.get(k, "").strip() or None for k in ("added_thought", "reasoning_summary", "contribution_kind",
-                                                                            "interpretation_confidence", "shared_question")}
-            payload.update({"left_quotes": lines("left_quotes"), "right_quotes": lines("right_quotes"), "uncertainties": lines("uncertainties"),
-                            "review_set": sid, "position": pos, "blind": True})
-            analysis.add_manual_hypothesis(cfg, c, it["comparison_id"], reviewer or "unbenannt", request.form.getlist("relation_types"),
-                                           payload, kind="manual_blind")
-            return redirect(url_for("review_item", sid=sid, pos=pos, reviewer=reviewer or "unbenannt"))
-        cmp_ = c.execute("SELECT * FROM candidate_comparisons WHERE id=?", (it["comparison_id"],)).fetchone()
-        sides = {}
-        for side, key in (("left", "left_unit_id"), ("right", "right_unit_id")):
-            x = analysis.unit_context(cfg, c, cmp_[key])
-            aids = c.execute("SELECT * FROM reading_aids WHERE unit_id=? ORDER BY id DESC", (cmp_[key],)).fetchall()
-            sides[side] = {"x": x, "u": x["unit"], "aid": aids[0] if aids else None,
-                           "aid_stale": bool(aids and aids[0]["source_text_sha256"] != db.sha256_text(x["unit"]["text"]))}
-        mine = c.execute("SELECT * FROM relation_hypotheses WHERE comparison_id=? AND kind='manual_blind' AND author=? ORDER BY created_at",
-                         (it["comparison_id"], reviewer)).fetchall() if reviewer else []
-        revealed = bool(mine) or request.args.get("reveal") == "1"
-        others = c.execute("""SELECT h.*, r.adapter, r.model, r.prompt_version, r.is_real_model_run FROM relation_hypotheses h LEFT JOIN runs r ON r.id=h.run_id
-                              WHERE h.comparison_id=? AND h.kind!='manual_blind' ORDER BY h.created_at""", (it["comparison_id"],)).fetchall() if revealed else []
-        return render_template("review_item.html", it=it, n=n, sid=sid, pos=pos, cmp=cmp_, sides=sides, reviewer=reviewer, mine=mine,
-                               revealed=revealed, others=others)
+            try:
+                if act == "free":
+                    rs.add_blind_judgment(cfg, c, sid, pos, reviewer, "free", verdict=request.form.get("verdict"),
+                                          answers={q: request.form.get(q, "").strip() for q, _ in rs.QUESTIONS},
+                                          flags=request.form.getlist("flags"), quotes={"a": lines("quotes_a"), "b": lines("quotes_b")})
+                elif act == "labels":
+                    rs.add_blind_judgment(cfg, c, sid, pos, reviewer, "labels", relation_types=request.form.getlist("relation_types"),
+                                          answers={"contribution_kind": request.form.get("contribution_kind") or None,
+                                                   "comment": request.form.get("comment", "").strip()})
+                elif act in ("amendment", "correction"):
+                    rs.add_blind_judgment(cfg, c, sid, pos, reviewer, act,
+                                          verdict=request.form.get("verdict") or None if act == "correction" else None,
+                                          answers={"text": request.form.get("text", "").strip()}, flags=request.form.getlist("flags"),
+                                          quotes={"a": lines("quotes_a"), "b": lines("quotes_b")})
+                elif act == "reveal":
+                    rs.add_blind_judgment(cfg, c, sid, pos, reviewer, "reveal")
+                return redirect(url_for("review_item", sid=sid, pos=pos, reviewer=reviewer))
+            except ValueError as e:
+                error = str(e)
+        st = rs.reviewer_state(c, sid, pos, reviewer)
+        sides = {"A": rs.side_view(cfg, c, it["left_unit_id"]), "B": rs.side_view(cfg, c, it["right_unit_id"])}
+        revealed = st["revealed"]
+        extra = {}
+        if revealed:
+            extra["others"] = c.execute("""SELECT h.*, r.adapter, r.model, r.prompt_version FROM relation_hypotheses h LEFT JOIN runs r ON r.id=h.run_id
+                                           WHERE h.comparison_id=? ORDER BY h.created_at""", (it["comparison_id"],)).fetchall()
+            extra["aids"] = {k: c.execute("SELECT * FROM reading_aids WHERE unit_id=? ORDER BY id", (u,)).fetchall()
+                             for k, u in (("A", it["left_unit_id"]), ("B", it["right_unit_id"]))}
+        return render_template("review_item.html", it=it, n=n, sid=sid, pos=pos, sides=sides, reviewer=reviewer, st=st,
+                               revealed=revealed, extra=extra, error=error, Q=rs.QUESTIONS, VERDICTS=rs.VERDICTS, FLAGS=rs.FLAGS)
 
     @app.route("/budgets")
     def budgets():

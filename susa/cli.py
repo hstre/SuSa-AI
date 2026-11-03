@@ -101,10 +101,25 @@ def main(argv=None):
     p.add_argument("--only", choices=["real", "synthetic"])
     p = sub.add_parser("review-set", help="reale Prüfauswahl (ohne Modellaufrufe)")
     rsub = p.add_subparsers(dest="rcmd", required=True)
-    r = rsub.add_parser("create")
-    r.add_argument("--label", default="Reale Prüfauswahl 1")
+    r = rsub.add_parser("create", help="neue Auswahlversion (bestehende werden nie überschrieben)")
+    r.add_argument("--label", default="Reale Prüfauswahl")
     r.add_argument("--per-hypothesis", type=int, default=2)
     r.add_argument("--seed", type=int, default=20261103)
+    r.add_argument("--set-id")
+    r.add_argument("--supersedes")
+    r.add_argument("--reason")
+    r = rsub.add_parser("export", help="Auswahl als JSON (Anker, keine Texte)")
+    r.add_argument("set_id")
+    r.add_argument("out")
+    r = rsub.add_parser("load-translations", help="Übersetzungen laden (nur bei passendem Text-Hash)")
+    r.add_argument("path")
+    r = rsub.add_parser("verify", help="Anker, Textversionen und Übersetzungen der Auswahl prüfen")
+    r.add_argument("set_id")
+    r = rsub.add_parser("export-html", help="lokal öffnungsfähige Blindprüfung (enthält fremde Texte: nicht veröffentlichen)")
+    r.add_argument("set_id")
+    r.add_argument("out")
+    r = rsub.add_parser("import-judgments", help="Antworten aus der HTML-Fassung übernehmen")
+    r.add_argument("path")
     r = rsub.add_parser("show")
     r.add_argument("set_id")
     r = rsub.add_parser("import", help="Prüfauswahl aus JSON (z. B. pilot/review_set_1.json) wiederherstellen")
@@ -245,8 +260,28 @@ def main(argv=None):
         from . import review_set
         conn = _conn(cfg)
         if a.rcmd == "create":
-            sid, items = review_set.create_set(conn, a.label, a.per_hypothesis, a.seed)
+            try:
+                sid, items = review_set.create_set(conn, a.label, a.per_hypothesis, a.seed, set_id=a.set_id,
+                                                   supersedes=a.supersedes, change_reason=a.reason)
+            except review_set.SetFrozen as e:
+                sys.exit(str(e))
             print(sid, len(items))
+        elif a.rcmd == "export":
+            Path(a.out).write_text(json.dumps(review_set.export_set_file(conn, a.set_id), ensure_ascii=False, indent=1), "utf-8")
+        elif a.rcmd == "load-translations":
+            print(json.dumps(review_set.load_translations(cfg, conn, json.loads(Path(a.path).read_text("utf-8"))), ensure_ascii=False, indent=1))
+        elif a.rcmd == "verify":
+            res = review_set.verify_set(cfg, conn, a.set_id)
+            for r in res:
+                print(f"{'ok    ' if r['ok'] else 'FEHLER'} {r['check']}: {r['detail']}")
+            if not all(r["ok"] for r in res):
+                sys.exit(1)
+        elif a.rcmd == "export-html":
+            from .blind_html import export_html
+            print(export_html(cfg, conn, a.set_id, Path(a.out)))
+        elif a.rcmd == "import-judgments":
+            from .blind_html import import_judgments
+            print(json.dumps(import_judgments(cfg, conn, json.loads(Path(a.path).read_text("utf-8"))), ensure_ascii=False, indent=1))
         elif a.rcmd == "import":
             print(review_set.import_set(conn, json.loads(Path(a.path).read_text("utf-8"))))
         elif a.rcmd == "load-aids":

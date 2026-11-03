@@ -1,5 +1,8 @@
 # Modellabnahme 1 (synthetische Fälle, 3. November 2026)
 
+> **Revision 2 (3./4. November 2026):** Der ursprüngliche Bericht bleibt unten unverändert stehen. Überholte Formulierungen
+> sind mit [überholt] markiert. Die präzisierte Zählung steht im Abschnitt [Neubewertung (Revision 2)](#neubewertung-revision-2).
+
 Dieser Bericht fasst den ersten echten Modelllauf zusammen. Die vollständigen Ergebnisse stehen in
 [acceptance/v2_modell_claude_cli.md](acceptance/v2_modell_claude_cli.md), jeder Aufruf in
 [acceptance/v2_modell_aufrufprotokoll.md](acceptance/v2_modell_aufrufprotokoll.md).
@@ -50,7 +53,7 @@ die Abnahme im selben Budget; das Ergebnis des Testaufrufs wurde wiederverwendet
 | 1, 7, 9, 11 | en | B | nicht ausgeführt | bewusst nicht im Plan (Budget) |
 | 12 Versionierung | de | – | bestanden | Replay-Funktionstest, kein Modelllauf |
 
-Zählung der 17 echten Modellprüfungen: 15 bestanden, 1 gescheitert, 1 unentscheidbar. Unter den 15 sind
+[überholt, siehe Neubewertung] Zählung der 17 echten Modellprüfungen: 15 bestanden, 1 gescheitert, 1 unentscheidbar. Unter den 15 sind
 2 Gegenprüfungen, bei denen „bestanden“ nur formal belegt heißt. Mit Vorbehalt stehen außerdem Fall 2 (DE, EN) und
 Fall 10 (DE, EN), deren Primärurteile zusätzliche, nicht gedeckte Typen enthalten, sowie Fall 7 EN (zu nachsichtig
 bewertet). Ohne Vorbehalt bestanden damit 8.
@@ -65,7 +68,7 @@ bewertet). Ohne Vorbehalt bestanden damit 8.
 | 3 sprachübergreifend | nicht unterstützt (Rang 46/52) | – |
 | 5 späte Passage | – | gefunden, Rang 1 |
 
-**Fall 10, Sprache oder Sache:** Die englische Fassung landet gegen das englische Embedding-Modell auf demselben
+**Fall 10, Sprache oder Sache:** [überholt, siehe Neubewertung] Die englische Fassung landet gegen das englische Embedding-Modell auf demselben
 Rang wie die deutsche. Die Sprache ist also nicht die Ursache. Die beiden Sätze teilen kaum Vokabular („isolated model
 … memories between calls“ / „agent … retrieve earlier conversations from a database“), und das Modell setzt sie nicht
 nahe beieinander. Genau solche Paare über verschiedene Systemgrenzen verpasst die Suche. Das Sprachmodell bewertet
@@ -96,3 +99,68 @@ unbelegte Typen nur, wenn sie ausdrücklich ausgeschlossen sind.
 3. Gegenprüfung nicht nur stichprobenhaft, sondern für alle als belegt ausgewiesenen Funde vor der menschlichen Prüfung.
 4. Fall 10 als Grund für einen zusätzlichen Suchweg aufnehmen (z. B. „gemeinsame Bezugsbehauptung“ über
    rekonstruierte Claims), statt k zu erhöhen.
+
+
+## Neubewertung (Revision 2)
+
+Grundlage: dieselben 17 gespeicherten Antworten, dieselben Prüfergebnisse wie oben. Es gab keine neuen
+Modellaufrufe. Die Ergebnisse in [acceptance/v2_modell_claude_cli.md](acceptance/v2_modell_claude_cli.md) bleiben
+unverändert. Neu sind nur Gliederung und Zählung.
+
+Die inhaltliche Einordnung beruht auf der automatischen Abnahmeregel, den zwei Gegenprüfungen und meiner Sichtung
+in dieser Sitzung. **Kein Ergebnis wurde von einem Menschen geprüft.**
+
+### Ebenen
+
+| Ebene | Anzahl | Anmerkung |
+|---|---|---|
+| Aufrufe technisch erfolgreich | 17 / 17 | Antwort empfangen, keine Fehler, keine Wiederholungen |
+| Antwort formal gültig (Schema) | 16 / 17 | Fall 7 DE (Prompt A): Pflichtfeld fehlt |
+| Belegprüfung bestanden | 15 / 17 | dazu 1 begründete Enthaltung (Fall 9 DE) und 1 Schemafehler |
+| Gegenprüfungen | 2 | beide technisch und formal in Ordnung, beide mit Urteil **„korrigiert“** |
+
+### Primärergebnisse (15 = 11 × Prompt B, 4 × Prompt A), inhaltlich eingeordnet
+
+| Einordnung | Anzahl | Fälle |
+|---|---|---|
+| inhaltlich unbeanstandet | 6 | B: 3, 4 DE, 4 EN, 11 DE · A: 6 DE, 6 EN |
+| durch Gegenprüfung korrigiert | 2 | B: 1 DE, 2 DE |
+| erwarteter Typ vorhanden, zusätzliche Typen nicht gegengeprüft | 4 | B: 2 EN, 7 DE, 10 DE, 10 EN |
+| Abnahmeregel zu nachsichtig | 1 | A: 7 EN (Bericht und Folgerung in einer Behauptung) |
+| begründete Enthaltung, unentscheidbar | 1 | B: 9 DE |
+| formal gescheitert | 1 | A: 7 DE |
+
+Eine Gegenprüfung mit dem Urteil „korrigiert“ wird **nicht** als Bestätigung des Primärurteils gezählt. Die frühere
+Angabe „15 bestanden“ vermischte formale Gültigkeit, die Abnahmeregel und die Gegenprüfungen.
+
+### Zusätzliche Beziehungstypen
+
+„Zusätzlich“ heißt: nicht in der Liste der erwarteten Typen des Falls. Ob ein solcher Typ unbelegt ist, lässt sich
+nur durch Gegenprüfung oder menschliche Prüfung sagen.
+
+| Fall | erwartet (einer davon) | vom Modell zusätzlich | Status |
+|---|---|---|---|
+| 1 DE | refines, restricts_scope, extends | challenges_assumption | Gegenprüfung behält den Typ bei, beanstandet aber Formulierung und Vergleichbarkeitsangaben |
+| 2 DE | apparent_conflict_due_to_definition | refines, challenges_assumption | **von der Gegenprüfung als unbelegt beanstandet** |
+| 2 EN | apparent_conflict_due_to_definition | challenges_assumption, restricts_scope | nicht gegengeprüft |
+| 7 DE | extends, challenges_assumption, unresolved, supports | different_question | nicht gegengeprüft |
+| 10 DE | apparent_conflict_due_to_system_or_time, different_question | apparent_conflict_due_to_definition | nicht gegengeprüft |
+| 10 EN | wie DE | apparent_conflict_due_to_definition | nicht gegengeprüft |
+| 3, 4 DE, 4 EN, 11 DE | – | keine | – |
+
+Die Abnahmeregel prüft weiterhin nur, ob ein erwarteter Typ vorkommt und ob ausgeschlossene Typen fehlen. Eine
+Verschärfung ist vorgeschlagen, aber nicht umgesetzt, damit die Ergebnisse oben vergleichbar bleiben.
+
+### Fall 10, enger formuliert
+
+Im untersuchten Lauf wurde die Partnerpassage in beiden Sprachfassungen nicht gefunden (semantischer Rang jeweils
+23 von 53, kein lexikalischer Treffer). Deutsch allein erklärt den Fehler damit nicht. Ob die Suche Paare mit
+unterschiedlicher Systemgrenze allgemein verpasst, ist **nicht nachgewiesen**: Dafür gibt es nur diesen einen
+synthetischen Fall in einem kleinen Suchbestand.
+
+### Was die reale Prüfauswahl messen kann
+
+Die zehn realen Prüfpaare stammen aus bereits gefundenen Kandidaten. Sie können die Qualität dieser Kandidaten und
+später die Übereinstimmung zwischen menschlicher und maschineller Rekonstruktion untersuchen. Sie können nicht
+messen, welche relevanten Paare die Suche ganz verpasst (Recall). Dafür bräuchte es Paare, die unabhängig von der
+Suche zusammengestellt wurden.

@@ -1,7 +1,11 @@
 {
  "set_id": "rs-2026-11-03-20261103",
  "label": "Reale Prüfauswahl 1 (Pilot, 10 Paare)",
+ "version": 1,
+ "supersedes": null,
+ "change_reason": null,
  "seed": 20261103,
+ "items_sha256": "eb4f480ce0a29578ddb149f02591023aecad20eaa476cb356de6a3525f678896",
  "hinweis": "Suchhypothesen sind Auswahlgründe, keine richtigen Antworten. Vor der eigenen Blindbeurteilung nicht lesen.",
  "items": [
   {

@@ -15,7 +15,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-DB_SCHEMA_VERSION = 2
+DB_SCHEMA_VERSION = 3
 
 SCHEMA = r"""
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
@@ -242,6 +242,39 @@ CREATE TABLE IF NOT EXISTS review_set_items (
   PRIMARY KEY (set_id, position)
 );
 
+-- Übersetzungen der angezeigten Textauswahl. Verankert an Dokument, Textversion (Hash) und Zeichenbereich;
+-- source_sha256 ist der Hash des übersetzten Originalsegments. Inhalte bleiben lokal (fremde Texte).
+CREATE TABLE IF NOT EXISTS translations (
+  id INTEGER PRIMARY KEY,
+  translation_set TEXT NOT NULL, lang TEXT NOT NULL,
+  document_id TEXT NOT NULL, version_text_sha256 TEXT NOT NULL,
+  start_char INTEGER NOT NULL, end_char INTEGER NOT NULL, source_sha256 TEXT NOT NULL,
+  text TEXT NOT NULL, notes_json TEXT,
+  method TEXT NOT NULL, created_by TEXT NOT NULL, review_status TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  UNIQUE (translation_set, document_id, start_char, end_char, source_sha256)
+);
+
+-- Blindurteile: append-only. stage = free (erstes freies Urteil) | labels | amendment | correction | reveal
+CREATE TABLE IF NOT EXISTS blind_judgments (
+  id INTEGER PRIMARY KEY,
+  set_id TEXT NOT NULL, position INTEGER NOT NULL, comparison_id TEXT NOT NULL,
+  reviewer TEXT NOT NULL,
+  stage TEXT NOT NULL,
+  parent_id INTEGER REFERENCES blind_judgments(id),
+  verdict TEXT,                       -- difference | no_relevant_difference | undecidable
+  answers_json TEXT, relation_types_json TEXT, flags_json TEXT, quote_check_json TEXT,
+  revealed_before INTEGER NOT NULL DEFAULT 0,
+  source_state_json TEXT,             -- Hashes der angezeigten Originale und Übersetzungen zum Zeitpunkt des Urteils
+  origin TEXT NOT NULL DEFAULT 'web', -- web | html_import
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_blind ON blind_judgments(set_id, position, reviewer);
+CREATE TRIGGER IF NOT EXISTS blind_no_update BEFORE UPDATE ON blind_judgments
+  BEGIN SELECT RAISE(ABORT, 'blind_judgments sind append-only'); END;
+CREATE TRIGGER IF NOT EXISTS blind_no_delete BEFORE DELETE ON blind_judgments
+  BEGIN SELECT RAISE(ABORT, 'blind_judgments sind append-only'); END;
+
 CREATE TABLE IF NOT EXISTS revisions (
   id INTEGER PRIMARY KEY,
   entity_type TEXT NOT NULL, entity_id TEXT NOT NULL,
@@ -274,7 +307,9 @@ def connect(path: Path | str) -> sqlite3.Connection:
     conn.execute("PRAGMA journal_mode=WAL")
     conn.executescript(SCHEMA)
     _migrate(conn)
-    conn.execute("INSERT OR REPLACE INTO meta(key, value) VALUES('db_schema_version', ?)", (str(DB_SCHEMA_VERSION),))
+    cur = conn.execute("SELECT value FROM meta WHERE key='db_schema_version'").fetchone()
+    if cur is None or cur[0] != str(DB_SCHEMA_VERSION):
+        conn.execute("INSERT OR REPLACE INTO meta(key, value) VALUES('db_schema_version', ?)", (str(DB_SCHEMA_VERSION),))
     conn.commit()
     return conn
 
@@ -284,6 +319,7 @@ MIGRATIONS = {
     # Getrennte Prüfebenen (Schema v2): Antwort empfangen / Schema gültig / Anker geprüft / Modellurteil
     "relation_hypotheses": [("response_status", "TEXT"), ("schema_status", "TEXT"), ("schema_errors_json", "TEXT"),
                             ("anchor_status", "TEXT"), ("judgment", "TEXT"), ("evidence_status", "TEXT")],
+    "review_sets": [("version", "INTEGER"), ("supersedes", "TEXT"), ("change_reason", "TEXT"), ("items_sha256", "TEXT")],
     "claim_candidates": [("response_status", "TEXT"), ("schema_status", "TEXT"), ("schema_errors_json", "TEXT"),
                          ("anchor_status", "TEXT"), ("judgment", "TEXT"), ("evidence_status", "TEXT")],
 }

@@ -4,67 +4,133 @@
 <h1>Prüfpaar {{ pos }} von {{ n }}</h1>
 <p class="small">{% if pos > 1 %}<a href="{{ url_for('review_item', sid=sid, pos=pos-1, reviewer=reviewer) }}">← vorheriges</a> · {% endif %}
 {% if pos < n %}<a href="{{ url_for('review_item', sid=sid, pos=pos+1, reviewer=reviewer) }}">nächstes →</a> · {% endif %}
-<a href="{{ url_for('review_sets') }}">Übersicht</a></p>
-{% if not revealed %}
-<div class="banner warn">Blindansicht: Auswahlgrund, Suchwerte, heuristische Hinweise und Modellurteile sind verborgen, bis du ein eigenes Urteil gespeichert hast.
-Die deutsche Lesehilfe ist eine ungeprüfte sinngemäße Zusammenfassung und ersetzt nicht das englische Original.</div>
+<a href="{{ url_for('review_sets') }}">Übersicht</a> · Prüfer: <b>{{ reviewer or '–' }}</b></p>
+{% if error %}<div class="banner bad">{{ error }}</div>{% endif %}
+{% if not reviewer %}<div class="banner warn">Bitte zuerst über die <a href="{{ url_for('review_sets') }}">Übersicht</a> mit Prüfernamen beginnen.</div>{% endif %}
+{% if not st.free %}
+<div class="banner warn">Blindansicht: Titel, Autor, Publikation, Datum, Quelle, Reaktionszahlen, historische Positionscodes, Auswahlgrund,
+Ähnlichkeitswerte, heuristische Hinweise und Modellurteile sind verborgen. Die Passagen heißen neutral A und B.
+Die deutsche Übersetzung ist ungeprüft; maßgeblich ist das englische Original.</div>
 {% endif %}
 
-<div class="cols">
-{% for side, label in [('left','Passage L'), ('right','Passage R')] %}
-{% set s = sides[side] %}{% set u = s.u %}
+{% for key in ['A', 'B'] %}{% set s = sides[key] %}
 <div class="card">
-  <h3>{{ label }}</h3>
-  <div class="small muted"><a href="{{ url_for('document', doc_id=u.document_id) }}#u-{{ u.seq }}">{{ u.title }}</a><br>
-    {{ u.author }} · {{ u.date }} · {% if u.canonical_url %}<a href="{{ u.canonical_url }}" target="_blank" rel="noopener">Original</a>{% endif %}<br>
-    Text: {{ u.text_status|status_label }} · Zeichen {{ u.start_char }}–{{ u.end_char }}</div>
-  <h3>Original</h3>
-  {% if s.x.before %}<div class="passage ctx">{{ s.x.before }}</div><hr>{% endif %}
-  <div class="passage">{{ s.x.core }}</div>
-  {% if s.x.after %}<hr><div class="passage ctx">{{ s.x.after }}</div>{% endif %}
-  {% if s.x.quoted_paragraphs %}<p class="small banner warn">Enthält Blockzitate: Sprecher ist möglicherweise nicht der Autor.</p>{% endif %}
-  <h3>Deutsche Lesehilfe <span class="tag">kein Original</span></h3>
-  {% if s.aid %}<div class="aid">{{ s.aid.text }}</div>
-    <div class="small muted">{{ s.aid.method }} · erstellt von {{ s.aid.author }} · {{ s.aid.created_at }}{% if s.aid_stale %} · <span class="tag bad">Originaltext geändert</span>{% endif %}</div>
-  {% else %}<div class="small muted">keine Lesehilfe vorhanden</div>{% endif %}
+  <h2>Passage {{ key }}</h2>
+  {% if s.findings %}<div class="small banner warn">Befunde zur Textauswahl: {{ s.findings|join(' · ') }}</div>{% endif %}
+  <table class="seg">
+  <tr><th style="width:50%">Original (Englisch)</th><th>Deutsche Übersetzung <span class="tag">kein Original</span></th></tr>
+  {% for sg in s.segments %}{% if sg.text %}
+  <tr class="{{ 'core' if sg.name == 'core' else 'ctx' }}">
+    <td><div class="small muted">{{ {'before':'Kontext davor','core':'Kernabschnitt','after':'Kontext danach'}[sg.name] }} · {{ sg.words }} Wörter</div>
+        <div class="passage {{ '' if sg.name == 'core' else 'ctx' }}" lang="en">{{ sg.text|replace('\n\n', '\n')|e|replace('\n', '<br><br>'|safe) }}</div></td>
+    <td>{% if sg.translation %}
+          <div class="passage {{ '' if sg.name == 'core' else 'ctx' }}" lang="de">{{ sg.translation.text|e|replace('\n\n', '<br><br>'|safe) }}</div>
+          {% set notes = sg.translation.notes_json|fromjson %}
+          {% if notes %}<details class="small"><summary>Übersetzungshinweise ({{ notes|length }})</summary>{% for nt in notes %}<div>• {{ nt }}</div>{% endfor %}</details>{% endif %}
+        {% elif sg.translation_mismatch %}<div class="banner bad small">Eine Übersetzung existiert, gehört aber zu einer anderen Textfassung (Hash weicht ab) und wird nicht angezeigt.</div>
+        {% else %}<div class="small muted">keine Übersetzung vorhanden</div>{% endif %}</td>
+  </tr>{% endif %}{% endfor %}
+  </table>
+  {% if s.segments[0].translation %}{% set t = s.segments[1].translation or s.segments[0].translation %}
+  <div class="small muted">Übersetzung: {{ t.created_by }} · {{ t.created_at[:10] }} · Prüfstatus: {{ t.review_status }} · Satz {{ t.translation_set }}
+   · Original: Textversion {{ s.version_text_sha256[:12] }}…, Kernsegment {{ s.segments[1].source_sha256[:12] }}…</div>{% endif %}
 </div>
 {% endfor %}
-</div>
 
+{% if reviewer and not st.free %}
 <div class="card">
-  <h3>Dein Urteil</h3>
-  {% for m in mine %}
-    <div class="small">{{ m.created_at }} · {{ m.author }}: {% for t in m.relation_types_json|fromjson %}<span class="tag">{{ t }}</span>{% endfor %}
-      · Belege {{ m.anchor_status }} {% set p = m.payload_json|fromjson %}{% if p.added_thought %}· {{ p.added_thought }}{% endif %}</div>
-  {% endfor %}
-  <form method="post" class="small">
-    Prüfer <input type="text" name="reviewer" size="14" value="{{ reviewer }}" required>
-    <div class="checks">{% for t in RELATION_TYPES %}<label><input type="checkbox" name="relation_types" value="{{ t }}"> {{ t }}</label><br>{% endfor %}</div>
-    Art des Beitrags von R gegenüber L
-    <select name="contribution_kind"><option value="">–</option>{% for k in ['reasoned_extension','unreasoned_assertion','new_evidence_same_claim','rephrasing','different_topic','none','unclear'] %}<option>{{ k }}</option>{% endfor %}</select>
-    Sicherheit <select name="interpretation_confidence"><option>low</option><option selected>medium</option><option>high</option></select>
-    <input type="text" name="shared_question" placeholder="Gemeinsame Frage (falls vorhanden)" style="width:100%">
-    <textarea name="added_thought" rows="2" placeholder="Was fügt R hinzu, schränkt ein oder greift an?"></textarea>
-    <textarea name="reasoning_summary" rows="2" placeholder="Begründung deines Urteils"></textarea>
-    <textarea name="left_quotes" rows="2" placeholder="Belegzitate aus L (englisches Original, eines pro Zeile)"></textarea>
-    <textarea name="right_quotes" rows="2" placeholder="Belegzitate aus R"></textarea>
-    <textarea name="uncertainties" rows="2" placeholder="Offene Punkte"></textarea>
-    <button>Urteil speichern</button>
+  <h2>1. Freies Urteil</h2>
+  <p class="small muted">Erst in eigenen Worten, ohne Etiketten. Alle drei Gesamteinschätzungen sind gleichwertig. Das Urteil wird unverändert aufbewahrt; Ergänzungen und Korrekturen sind später als neue Einträge möglich.</p>
+  <form method="post">
+    <input type="hidden" name="action" value="free"><input type="hidden" name="reviewer" value="{{ reviewer }}">
+    {% for q, label in Q %}<label class="small"><b>{{ loop.index }}. {{ label }}</b></label><textarea name="{{ q }}" rows="3"></textarea>{% endfor %}
+    <div class="small"><b>Gesamteinschätzung</b> (Pflicht)<br>
+    {% for k, label in VERDICTS.items() %}<label><input type="radio" name="verdict" value="{{ k }}" required> {{ label }}</label><br>{% endfor %}</div>
+    <div class="small"><b>Befunde zum Paar</b> (optional)<br>{% for k, label in FLAGS.items() %}<label><input type="checkbox" name="flags" value="{{ k }}"> {{ label }}</label><br>{% endfor %}</div>
+    <div class="cols small">
+      <div>Wörtliche Belegstellen aus A (englisch, eine pro Zeile, optional)<textarea name="quotes_a" rows="2"></textarea></div>
+      <div>Wörtliche Belegstellen aus B<textarea name="quotes_b" rows="2"></textarea></div>
+    </div>
+    <button>Freies Urteil speichern</button>
   </form>
-  {% if not revealed %}<p class="small"><a href="{{ url_for('review_item', sid=sid, pos=pos, reviewer=reviewer, reveal=1) }}">ohne eigenes Urteil aufdecken</a> <span class="muted">(verdirbt den Blindvergleich für dieses Paar)</span></p>{% endif %}
+</div>
+{% endif %}
+
+{% if st.free %}
+<div class="card">
+  <h2>Deine Einträge (unveränderlich)</h2>
+  {% for e in st.entries %}
+  <div class="small" style="border-top:1px solid var(--line); padding:6px 0">
+    <b>#{{ e.id }} {{ {'free':'Freies Urteil','labels':'Etiketten','amendment':'Ergänzung','correction':'Korrektur','reveal':'Aufgedeckt'}[e.stage] }}</b>
+    · {{ e.created_at }} {% if e.revealed_before %}· <span class="tag">nach dem Aufdecken</span>{% endif %}
+    {% if e.verdict %}<div>Gesamteinschätzung: <b>{{ VERDICTS[e.verdict] }}</b></div>{% endif %}
+    {% set a = e.answers_json|fromjson or {} %}
+    {% for q, label in Q %}{% if a.get(q) %}<div><i>{{ label }}</i><br>{{ a[q] }}</div>{% endif %}{% endfor %}
+    {% if a.get('text') %}<div>{{ a.text }}</div>{% endif %}
+    {% if a.get('contribution_kind') %}<div>Art des Beitrags: {{ a.contribution_kind }}</div>{% endif %}{% if a.get('comment') %}<div>{{ a.comment }}</div>{% endif %}
+    {% if e.relation_types_json %}<div>{% for t in e.relation_types_json|fromjson %}<span class="tag">{{ t }}</span>{% else %}keine Etiketten gewählt{% endfor %}</div>{% endif %}
+    {% for f in e.flags_json|fromjson or [] %}<span class="tag bad">{{ FLAGS[f] }}</span>{% endfor %}
+    {% set qc = e.quote_check_json|fromjson %}{% if qc %}{% for side in ['a','b'] %}{% for q in qc[side] %}<div>{{ side|upper }}: {% if q.found %}<span class="tag ok">im Original gefunden</span>{% else %}<span class="tag bad">nicht wörtlich im Original</span>{% endif %} „{{ q.quote }}“</div>{% endfor %}{% endfor %}{% endif %}
+  </div>
+  {% endfor %}
 </div>
 
-{% if revealed %}
+<div class="cols">
 <div class="card">
-  <h3>Aufgedeckt</h3>
-  <dl class="kv small">
-    <dt>Suchhypothese der Auswahl</dt><dd>{{ it.search_hypothesis }} <span class="muted">(Auswahlgrund, keine richtige Antwort)</span></dd>
-    <dt>Auswahlbegründung</dt><dd>{{ it.selection_reason }}</dd>
-    <dt>Suchwege</dt><dd>{% for ch in cmp.channels_json|fromjson %}<span class="tag">{{ ch }}</span>{% endfor %} {{ cmp.scores_json }}</dd>
-    <dt>Heuristische Hinweise</dt><dd>{% for m in cmp.markers_json|fromjson or [] %}<span class="tag">{{ m }}</span>{% endfor %}</dd>
-    <dt>Weitere Interpretationen</dt><dd>{% for h in others %}<div>{{ h.kind }} {{ h.author or h.model or '' }}: {{ h.relation_types_json }} · {{ h.evidence_status }}</div>{% else %}keine (kein Modelllauf für dieses Paar)</dd>{% endfor %}
-  </dl>
-  <a href="{{ url_for('compare', cid=cmp.id) }}">Vollständige Vergleichsansicht</a>
+  <h3>2. Optionale Beziehungsetiketten</h3>
+  <p class="small muted">Mehrere möglich, keines ist Pflicht. Wird als neuer Eintrag gespeichert; das freie Urteil bleibt unverändert.</p>
+  <form method="post" class="small">
+    <input type="hidden" name="action" value="labels"><input type="hidden" name="reviewer" value="{{ reviewer }}">
+    <div class="checks">{% for t in RELATION_TYPES %}<label><input type="checkbox" name="relation_types" value="{{ t }}"> {{ t }}</label><br>{% endfor %}</div>
+    Art des Beitrags von B gegenüber A
+    <select name="contribution_kind"><option value="">–</option>{% for k in ['reasoned_extension','unreasoned_assertion','new_evidence_same_claim','rephrasing','different_topic','none','unclear'] %}<option>{{ k }}</option>{% endfor %}</select>
+    <textarea name="comment" rows="2" placeholder="Anmerkung zu den Etiketten"></textarea>
+    <button>Etiketten speichern</button>
+  </form>
 </div>
+<div class="card">
+  <h3>Ergänzung oder Korrektur</h3>
+  <form method="post" class="small">
+    <input type="hidden" name="reviewer" value="{{ reviewer }}">
+    <select name="action"><option value="amendment">Ergänzung</option><option value="correction">Korrektur</option></select>
+    <textarea name="text" rows="3" placeholder="Was ergänzt oder korrigiert wird, und warum"></textarea>
+    Neue Gesamteinschätzung (nur bei Korrektur, optional)
+    <select name="verdict"><option value="">–</option>{% for k, label in VERDICTS.items() %}<option value="{{ k }}">{{ label }}</option>{% endfor %}</select><br>
+    {% for k, label in FLAGS.items() %}<label><input type="checkbox" name="flags" value="{{ k }}"> {{ label }}</label><br>{% endfor %}
+    <div class="cols"><textarea name="quotes_a" rows="2" placeholder="Belegstellen A"></textarea><textarea name="quotes_b" rows="2" placeholder="Belegstellen B"></textarea></div>
+    <button>Als neuen Eintrag speichern</button>
+  </form>
+</div>
+</div>
+
+{% if not revealed %}
+<div class="card">
+  <form method="post"><input type="hidden" name="action" value="reveal"><input type="hidden" name="reviewer" value="{{ reviewer }}">
+  <button class="secondary">Quellen, Metadaten und Auswahlgrund aufdecken</button>
+  <span class="small muted">Wird protokolliert. Etiketten, die danach gespeichert werden, sind als „nach dem Aufdecken“ markiert.</span></form>
+</div>
+{% else %}
+<div class="card">
+  <h2>Aufgedeckt</h2>
+  <div class="cols">
+  {% for key in ['A', 'B'] %}{% set m = sides[key].meta %}
+  <div><h3>{{ key }}</h3><dl class="kv small">
+    <dt>Titel</dt><dd>{{ m.title }}</dd><dt>Autor</dt><dd>{{ m.author }}</dd><dt>Publikation</dt><dd>{{ m.publication }}</dd>
+    <dt>Datum</dt><dd>{{ m.date }}</dd><dt>Quelle</dt><dd class="wrap">{% if m.url %}<a href="{{ m.url }}" target="_blank" rel="noopener">{{ m.url }}</a>{% endif %}</dd>
+    <dt>Reaktionen / Restacks</dt><dd>{{ m.reactions }} / {{ m.restacks }}</dd>
+    <dt>Hist. Positionscodes</dt><dd>{% if m.upstream_axes %}{% for k, v in m.upstream_axes.items() %}{{ k }}: {{ v }}<br>{% endfor %}<span class="muted">(Fremdcodes mc-lit-review, nicht neu geprüft)</span>{% endif %}</dd>
+    <dt>Archivierte Lesehilfe</dt><dd>{% for a in extra.aids[key] %}<div class="aid">{{ a.text }}</div><div class="muted">{{ a.method }} · {{ a.author }}</div>{% else %}–{% endfor %}</dd>
+  </dl></div>
+  {% endfor %}
+  </div>
+  <dl class="kv small">
+    <dt>Suchhypothese</dt><dd>{{ it.search_hypothesis }} <span class="muted">(Auswahlgrund, keine richtige Antwort)</span></dd>
+    <dt>Auswahlbegründung</dt><dd>{{ it.selection_reason }}</dd>
+    <dt>Suchwege, Werte</dt><dd>{{ it.channels_json }} {{ it.scores_json }}</dd>
+    <dt>Heuristische Hinweise</dt><dd>{% for mk in it.markers_json|fromjson or [] %}<span class="tag">{{ mk }}</span>{% endfor %}</dd>
+    <dt>Andere Interpretationen</dt><dd>{% for h in extra.others %}<div>{{ h.kind }} {{ h.author or h.model or '' }}: {{ h.relation_types_json }} · {{ h.evidence_status }}</div>{% else %}keine (kein Modelllauf für dieses Paar)</dd>{% endfor %}
+  </dl>
+</div>
+{% endif %}
 {% endif %}
 {% endblock %}

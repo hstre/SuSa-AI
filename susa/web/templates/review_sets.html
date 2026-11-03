@@ -2,10 +2,11 @@
 {% block title %}Prüfauswahl{% endblock %}
 {% block body %}
 <h1>Reale Prüfauswahl</h1>
-<p class="small muted">Kleine Auswahl echter Pilotpaare zur Blindbeurteilung. Die Auswahl folgt dokumentierten Suchhypothesen; die Reihenfolge ist gemischt.</p>
+<p class="small muted">Kleine Auswahl echter Pilotpaare zur Blindbeurteilung. Die Auswahl stammt aus bereits gefundenen Kandidaten: Sie kann deren Qualität untersuchen, aber nicht messen, welche relevanten Paare die Suche ganz verpasst. Die Auswahl folgt dokumentierten Suchhypothesen; die Reihenfolge ist gemischt.</p>
 {% for s in sets %}
 <div class="card">
-  <b>{{ s.label }}</b> <span class="muted small">{{ s.id }} · {{ s.n }} Paare · {{ s.created_at }}</span>
+  <b>{{ s.label }}</b> <span class="muted small">{{ s.id }} · Version {{ s.version or 1 }} · {{ s.n }} Paare · Auswahl-Hash {{ (s.items_sha256 or 'nicht festgeschrieben')[:12] }} · {{ s.created_at }}</span>
+  {% if s.supersedes %}<div class="small">ersetzt {{ s.supersedes }}: {{ s.change_reason }}</div>{% endif %}
   <form method="get" action="{{ url_for('review_item', sid=s.id, pos=1) }}" class="small">Prüfer <input type="text" name="reviewer" size="14" required> <button>Beginnen</button></form>
 </div>
 {% else %}<p class="muted">Noch keine Prüfauswahl angelegt (<code>python -m susa review-set create</code>).</p>{% endfor %}

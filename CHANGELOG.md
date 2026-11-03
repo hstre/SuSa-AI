@@ -1,5 +1,27 @@
 # Änderungsprotokoll
 
+## 0.3.0 – 3./4. November 2026 (Blindbeurteilung vorbereitet)
+
+- **Vollständige Übersetzungen** statt Zusammenfassungen: Kontext davor, Kern und Kontext danach, getreu übersetzt,
+  mit getrennten Übersetzungshinweisen. Verankert an Dokument, Textversions-Hash, Zeichenbereich und Segment-Hash
+  (Tabelle `translations`). Bei abweichendem Hash wird nichts angezeigt. Die Übersetzungen bleiben lokal
+  (`data/review/`). Version v2 ersetzt v1 (neutrale Formen statt erschlossenem Geschlecht).
+- **Freies Urteil vor Etiketten:** sechs offene Fragen und drei gleichwertige Gesamteinschätzungen. Etiketten,
+  Ergänzungen, Korrekturen und das Aufdecken sind jeweils neue Einträge in `blind_judgments` (append-only, per
+  Trigger erzwungen). Gespeichert wird auch der Quellstand (Text- und Übersetzungs-Hashes) zum Urteilszeitpunkt.
+- **Blindheit:** Bis zum ersten Urteil sind Titel, Autor, Publikation, Datum, Quelle, Reaktionszahlen, historische
+  Codes, Suchhypothese, Suchwerte, Hinweise, Lesehilfen und Modellurteile verborgen; die Seiten heißen A und B.
+  Die Blindansicht erzeugt keinen Modelladapter (per Test abgesichert). Autoren- und Publikationsnamen im
+  Originaltext selbst werden als Befund gemeldet, nicht entfernt.
+- **Auswahl eingefroren:** `items_sha256`, Versionen mit `supersedes` und Pflichtbegründung. Eine bestehende
+  Auswahl wird nie überschrieben. `review-set verify` prüft Anker, Textversionen und Übersetzungen.
+- **HTML-Fassung** (`review-set export-html`) für die lokale Nutzung ohne laufendes Werkzeug, mit
+  Rückimport (`review-set import-judgments`); der Quellstand wird dabei abgeglichen.
+- **Berichte:** Neubewertung der Modellabnahme mit getrennten Ebenen, Korrekturen durch Gegenprüfung und
+  zusätzlichen Typen; Fall 10 enger formuliert; die Grenze der Prüfauswahl (kein Recall) ist festgehalten.
+- Kleinere Korrekturen: Leere Kontextsegmente werden nicht als fehlende Übersetzung gezählt. `connect()` schreibt
+  die Schemaversion nur noch bei Änderung.
+
 ## 0.2.0 – 3. November 2026 (Modellabnahme)
 
 ### Behobene Fehler
