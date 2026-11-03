@@ -38,6 +38,7 @@ button.secondary { background:transparent; color:var(--accent); }
 details > summary { cursor:pointer; color:var(--accent); }
 dl.kv { display:grid; grid-template-columns:max-content 1fr; gap:2px 12px; margin:0; } dl.kv dt { color:var(--muted); } dl.kv dd { margin:0; }
 .wrap { overflow-wrap:anywhere; }
+.aid { background:var(--bg); border:1px dashed var(--line); border-radius:6px; padding:8px 10px; font-size:14px; }
 .checks { columns:2; font-size:13px; } @media (max-width:700px) { .checks { columns:1; } }
 </style>
 </head>
@@ -47,7 +48,9 @@ dl.kv { display:grid; grid-template-columns:max-content 1fr; gap:2px 12px; margi
   <a href="{{ url_for('overview') }}">Korpus</a>
   <a href="{{ url_for('search') }}">Suche</a>
   <a href="{{ url_for('sources') }}">Quellen</a>
+  <a href="{{ url_for('review_sets') }}">Prüfauswahl</a>
   <a href="{{ url_for('history') }}">Verlauf</a>
+  <a href="{{ url_for('budgets') }}">Budgets</a>
   <a href="{{ url_for('export') }}">Export (JSONL)</a>
   <span class="muted small">Forschungswerkzeug mit menschlicher Prüfung · kein Wahrheitsurteil</span>
 </header>

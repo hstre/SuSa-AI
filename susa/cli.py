@@ -62,19 +62,36 @@ def main(argv=None):
     p = sub.add_parser("search", help="Freitextsuche (semantisch + lexikalisch)")
     p.add_argument("query")
     p.add_argument("--k", type=int, default=10)
+    p = sub.add_parser("budget", help="Aufrufbudget anlegen oder anzeigen")
+    bsub = p.add_subparsers(dest="bcmd", required=True)
+    b = bsub.add_parser("create")
+    b.add_argument("--label", required=True)
+    b.add_argument("--max-calls", type=int, required=True)
+    b.add_argument("--adapter")
+    b.add_argument("--notes", default="")
+    b = bsub.add_parser("status")
+    b.add_argument("budget_id")
+    b = bsub.add_parser("close")
+    b.add_argument("budget_id")
     p = sub.add_parser("compare", help="Paarvergleich mit Modelladapter (Prompt B)")
     p.add_argument("comparison_ids", nargs="+")
     p.add_argument("--adapter")
+    p.add_argument("--budget")
     p.add_argument("--dry-run", action="store_true", help="nur Aufwandsschätzung, kein Aufruf")
     p = sub.add_parser("countercheck", help="Gegenprüfung (Prompt C)")
     p.add_argument("hypothesis_id")
     p.add_argument("--adapter")
+    p.add_argument("--budget")
     p = sub.add_parser("reconstruct", help="Argumentrekonstruktion (Prompt A)")
     p.add_argument("unit_id")
     p.add_argument("--adapter")
-    p = sub.add_parser("acceptance", help="zwölf Abnahmefälle ausführen, Bericht nach docs/ACCEPTANCE_REPORT.md")
+    p.add_argument("--budget")
+    p = sub.add_parser("acceptance", help="Abnahmefälle ausführen")
     p.add_argument("--adapter")
+    p.add_argument("--budget")
     p.add_argument("--backend", choices=["onnx-bge-small", "test-hash"])
+    p.add_argument("--plan", nargs="*", help="Modellprüfungen, z. B. B:case10:en A:case06:de (Default: alle)")
+    p.add_argument("--countercheck", nargs="*", default=[], help="Gegenprüfungen, z. B. C:case02:de")
     p.add_argument("--out", default="docs/ACCEPTANCE_REPORT.md")
     p = sub.add_parser("report", help="Abdeckungsbericht für die Pilotdokumente")
     p.add_argument("--out", default="docs/pilot_coverage.json")
@@ -82,6 +99,18 @@ def main(argv=None):
     p.add_argument("out")
     p.add_argument("--include-quotes", action="store_true")
     p.add_argument("--only", choices=["real", "synthetic"])
+    p = sub.add_parser("review-set", help="reale Prüfauswahl (ohne Modellaufrufe)")
+    rsub = p.add_subparsers(dest="rcmd", required=True)
+    r = rsub.add_parser("create")
+    r.add_argument("--label", default="Reale Prüfauswahl 1")
+    r.add_argument("--per-hypothesis", type=int, default=2)
+    r.add_argument("--seed", type=int, default=20261103)
+    r = rsub.add_parser("show")
+    r.add_argument("set_id")
+    r = rsub.add_parser("load-aids", help="Lesehilfen aus JSON laden ({unit_id: text})")
+    r.add_argument("path")
+    r.add_argument("--author", required=True)
+    r.add_argument("--method", required=True)
     p = sub.add_parser("serve", help="lokale Oberfläche starten")
     p.add_argument("--port", type=int, default=5005)
     p.add_argument("--host", default="127.0.0.1")
@@ -156,36 +185,49 @@ def main(argv=None):
             for uid, score in hits:
                 u = conn.execute("SELECT u.text, d.title FROM argument_units u JOIN documents d ON d.id=u.document_id WHERE u.id=?", (uid,)).fetchone()
                 print(f"{score:8.3f}  {uid}  {u['title'][:50]!r}  {u['text'][:100]!r}")
-    elif a.cmd == "compare":
-        from . import analysis
-        from .llm import get_adapter
+    elif a.cmd == "budget":
+        from .llm import budget_status, create_budget
         conn = _conn(cfg)
-        if a.dry_run:
+        if a.bcmd == "create":
+            bid = create_budget(conn, a.label, a.max_calls, a.adapter, cfg.section("llm").get("model"), a.notes)
+            print(bid)
+        elif a.bcmd == "close":
+            conn.execute("UPDATE model_budgets SET closed_at=? WHERE id=?", (db.now(), a.budget_id))
+            conn.commit()
+        print(json.dumps(budget_status(conn, a.budget_id if a.bcmd != "create" else bid), ensure_ascii=False))
+    elif a.cmd in ("compare", "countercheck", "reconstruct"):
+        from . import analysis
+        from .llm import NotConfigured, get_adapter
+        conn = _conn(cfg)
+        if a.cmd == "compare" and a.dry_run:
             print(json.dumps(analysis.estimate(cfg, conn, a.comparison_ids), ensure_ascii=False, indent=1))
             return
-        ad = get_adapter(cfg.section("llm"), a.adapter)
-        for cid in a.comparison_ids:
-            print(json.dumps(analysis.compare(cfg, conn, cid, adapter=ad), ensure_ascii=False))
-    elif a.cmd == "countercheck":
-        from . import analysis
-        from .llm import get_adapter
-        print(analysis.countercheck(cfg, _conn(cfg), a.hypothesis_id, get_adapter(cfg.section("llm"), a.adapter)))
-    elif a.cmd == "reconstruct":
-        from . import analysis
-        from .llm import get_adapter
-        print(analysis.reconstruct(cfg, _conn(cfg), a.unit_id, get_adapter(cfg.section("llm"), a.adapter)))
+        try:
+            ad = get_adapter(cfg.section("llm"), a.adapter, conn=conn, budget_id=a.budget)
+        except NotConfigured as e:
+            sys.exit(str(e))
+        if a.cmd == "compare":
+            for cid in a.comparison_ids:
+                print(json.dumps(analysis.compare(cfg, conn, cid, adapter=ad), ensure_ascii=False))
+        elif a.cmd == "countercheck":
+            print(json.dumps(analysis.countercheck(cfg, conn, a.hypothesis_id, ad), ensure_ascii=False))
+        else:
+            print(json.dumps(analysis.reconstruct(cfg, conn, a.unit_id, ad), ensure_ascii=False))
     elif a.cmd == "acceptance":
         from .acceptance import render_markdown, run_acceptance
-        rep = run_acceptance(cfg, _conn(cfg), a.adapter, a.backend)
+        rep = run_acceptance(cfg, _conn(cfg), a.adapter, a.backend, budget_id=a.budget,
+                             model_plan=set(a.plan) if a.plan is not None else None, countercheck_plan=set(a.countercheck))
         out = cfg.root / a.out
         out.parent.mkdir(exist_ok=True)
         out.write_text(render_markdown(rep), "utf-8")
         for r in rep["cases"]:
-            d = "–" if r["deterministic_ok"] is None else ("ok" if r["deterministic_ok"] else "FEHLER")
-            m = "–" if r["model"] is None else r["model"].get("model_part")
-            print(f"{r['case']}  deterministisch: {d:<7} Modell: {m:<18} {r['title']}")
+            print(f"{r['case']:<7} {r['lang']:<6} {r['part']:<16} {r['result']:<17} {(r['detail'] or {}).get('run_kind', '')}")
         for f in rep["formal"]:
             print(f"formal: {'ok ' if f['ok'] else 'FEHLER'} {f['check']} ({f['fehler']})")
+        if rep.get("budget"):
+            print("Budget:", json.dumps(rep["budget"], ensure_ascii=False))
+        if rep.get("stopped"):
+            print("GESTOPPT:", rep["stopped"])
         print(f"Bericht: {out}")
     elif a.cmd == "report":
         from .pilot import coverage_report
@@ -197,6 +239,21 @@ def main(argv=None):
         from .export import export_jsonl
         only = None if a.only is None else (a.only == "synthetic")
         print(export_jsonl(_conn(cfg), Path(a.out), a.include_quotes, only))
+    elif a.cmd == "review-set":
+        from . import review_set
+        conn = _conn(cfg)
+        if a.rcmd == "create":
+            sid, items = review_set.create_set(conn, a.label, a.per_hypothesis, a.seed)
+            print(sid, len(items))
+        elif a.rcmd == "load-aids":
+            data = json.loads(Path(a.path).read_text("utf-8"))
+            for uid, text in data["aids"].items():
+                review_set.add_reading_aid(conn, uid, text, a.author, a.method)
+            print(f"{len(data['aids'])} Lesehilfen geladen")
+        else:
+            for r in conn.execute("""SELECT i.*, cc.left_unit_id, cc.right_unit_id FROM review_set_items i JOIN candidate_comparisons cc
+                                     ON cc.id=i.comparison_id WHERE set_id=? ORDER BY position""", (a.set_id,)):
+                print(r["position"], r["search_hypothesis"], r["comparison_id"], r["selection_reason"])
     elif a.cmd == "serve":
         from .web.app import create_app
         create_app(cfg).run(host=a.host, port=a.port, debug=False)

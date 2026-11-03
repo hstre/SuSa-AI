@@ -153,7 +153,7 @@ def temporal(left_date: str | None, right_date: str | None) -> str:
     return "right_later" if right_date > left_date else "right_earlier"
 
 
-def find_candidates(cfg: Config, conn, unit_id: str, *, prefix: str | None = None, include_random: bool = True,
+def find_candidates(cfg: Config, conn, unit_id: str, *, prefix: str | tuple | None = None, include_random: bool = True,
                     searcher: Searcher | None = None) -> dict:
     sc = cfg.section("search")
     s = searcher or Searcher(cfg, conn)
@@ -207,7 +207,9 @@ def find_candidates(cfg: Config, conn, unit_id: str, *, prefix: str | None = Non
         created.append(cid)
     conn.commit()
     return {"unit_id": unit_id, "search_run_id": run_id, "scope": scope, "semantic": len(sem), "lexical": len(lex),
-            "candidates": created}
+            "candidates": created,
+            # Suchwege NUR aus diesem Lauf (candidate_comparisons vereinigt Suchwege über mehrere Läufe)
+            "this_run": {uid: {"channels": m["channels"], "scores": m["scores"]} for uid, m in kept.items()}}
 
 
 def ensure_comparison(conn, left: str, right: str, channel: str = "manual_pair") -> str:

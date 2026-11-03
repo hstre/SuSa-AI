@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Budgets{% endblock %}
+{% block body %}
+<h1>Modellbudgets und Aufrufprotokoll</h1>
+<p class="small muted">Jeder Aufrufversuch wird vor dem Aufruf eingetragen und zählt, auch Fehler und Wiederholungen. Abgelehnte Versuche (Budget erschöpft) zählen nicht.</p>
+<table class="small"><tr><th>Budget</th><th>Bezeichnung</th><th>verbraucht</th><th>Ergebnisse</th><th>geschlossen</th></tr>
+{% for b in rows %}<tr><td><code>{{ b.id }}</code></td><td>{{ b.label }}</td><td>{{ b.used }} / {{ b.max_calls }}</td><td>{{ b.by_outcome }}</td><td>{{ b.closed_at or '' }}</td></tr>
+{% else %}<tr><td colspan="5" class="muted">keine</td></tr>{% endfor %}</table>
+<h2>Aufrufe</h2>
+<table class="small"><tr><th>#</th><th>Budget</th><th>Zweck</th><th>Versuch</th><th>Adapter</th><th>Modell (angefragt / gemeldet)</th><th>echt</th><th>Ergebnis</th><th>Start</th><th>Fehler</th></tr>
+{% for c in calls %}<tr><td>{{ c.id }}</td><td class="wrap">{{ c.budget_id }}</td><td class="wrap">{{ c.purpose }}</td><td>{{ c.attempt }}</td><td>{{ c.adapter }}</td>
+<td>{{ c.model_requested }} / {{ c.model_reported or '–' }}</td><td>{{ 'ja' if c.is_real_service else 'nein' }}</td><td>{{ c.outcome }}</td><td>{{ c.started_at }}</td><td class="wrap">{{ (c.error or '')[:160] }}</td></tr>{% endfor %}</table>
+{% endblock %}

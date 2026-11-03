@@ -43,7 +43,10 @@ Menschliche Bestätigung gilt nur für diese konkrete Interpretation.</p>
     {% if h.kind == 'manual' %}<span class="tag ok">menschlich</span> {{ h.author }}{% else %}<span class="tag">maschinell</span>
       {{ h.kind }} · Adapter {{ h.adapter }} · Modell {{ h.model }} · Prompt {{ h.prompt_version }}
       {% if not h.is_real_model_run %}<span class="tag bad">kein echter Modelllauf</span>{% endif %}{% endif %}
-    · Status <b>{{ h.status }}</b> {% if h.status == 'quote_unverified' %}<span class="tag bad">Zitate nicht vollständig im Original gefunden</span>{% endif %}
+    <br>Antwort: {{ h.response_status or '–' }} · Schema: {% if h.schema_status == 'valid' %}<span class="tag ok">gültig</span>{% elif h.schema_status %}<span class="tag bad">ungültig</span>{% else %}–{% endif %}
+    · Belege: {% if h.anchor_status == 'complete' %}<span class="tag ok">beidseitig gefunden</span>{% elif h.anchor_status %}<span class="tag bad">{{ h.anchor_status }}</span>{% else %}–{% endif %}
+    · Ergebnis: <b>{{ {'anchored':'belegt','abstention':'begründete Enthaltung (kein belegter Befund)','anchors_failed':'Belegprüfung nicht bestanden','schema_invalid':'Schema ungültig','no_response':'keine verwertbare Antwort','no_quotes':'ohne Belegzitate'}.get(h.evidence_status, h.status) }}</b>
+    {% if h.schema_errors_json and h.schema_errors_json != '[]' %}<details><summary>Schemafehler</summary>{% for e in h.schema_errors_json|fromjson %}<div class="wrap">{{ e }}</div>{% endfor %}</details>{% endif %}
     · {{ h.created_at }} {% if h.parent_id %}· Gegenprüfung zu {{ h.parent_id }}{% endif %}
   </div>
   <div>{% for t in h.relation_types_json|fromjson or [] %}<span class="tag">{{ t }}</span>{% endfor %}</div>

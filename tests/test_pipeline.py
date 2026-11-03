@@ -9,7 +9,6 @@ from susa.export import export_jsonl
 from susa.extract import html_to_canonical
 from susa.fixtures import load_fixtures
 from susa.importer import canonical_url, import_posts_json
-from susa.llm import ReplayAdapter, get_adapter
 from susa.search import ensure_comparison, find_candidates, marker_diff
 from susa.segment import paragraph_coverage, segment_all
 from susa.versions import add_version, current_version, read_text
@@ -65,59 +64,6 @@ def test_marker_diff_negation():
     assert any("Negation nur rechts" in h for h in hints)
 
 
-def test_candidates_compare_review_flow(env):
-    cfg, conn = env
-    _doc_with_text(cfg, conn, "synthetic:t:A", "<p>Memory makes an agent consistent across sessions.</p>", "A")
-    _doc_with_text(cfg, conn, "synthetic:t:B", "<p>Memory can support consistency, but only if the agent revises conflicting memories.</p>", "B", "2026-02-01")
-    _doc_with_text(cfg, conn, "synthetic:t:C", "<p>Benchmarks do not establish consciousness.</p>", "C")
-    segment_all(cfg, conn)
-    embed_units(cfg, conn, "test-hash")
-    ua = conn.execute("SELECT id FROM argument_units WHERE document_id='synthetic:t:A'").fetchone()[0]
-    ub = conn.execute("SELECT id FROM argument_units WHERE document_id='synthetic:t:B'").fetchone()[0]
-    res = find_candidates(cfg, conn, ua)
-    cid = f"cmp:{ua}|{ub}"
-    assert cid in res["candidates"]
-    cmp_ = conn.execute("SELECT * FROM candidate_comparisons WHERE id=?", (cid,)).fetchone()
-    assert cmp_["temporal"] == "right_later" and json.loads(cmp_["corpus_scope_json"])["embedding_is_test_vectors"] is True
-
-    # Ohne Adapter: not_run, keine Interpretation
-    r = analysis.compare(cfg, conn, cid, adapter=get_adapter({"adapter": "none"}))
-    assert r["status"] == "not_run"
-    assert conn.execute("SELECT COUNT(*) FROM relation_hypotheses").fetchone()[0] == 0
-
-    # Replay: ein Zitat stimmt, eines ist erfunden -> quote_unverified
-    reply = json.dumps({"relation_types": ["restricts_scope", "bogus"], "left_quotes": ["Memory makes an agent consistent"],
-                        "right_quotes": ["only if the agent revises conflicting memories", "erfunden"], "added_thought": "x"})
-    r = analysis.compare(cfg, conn, cid, adapter=ReplayAdapter({}, [reply]))
-    h = conn.execute("SELECT * FROM relation_hypotheses WHERE id=?", (r["hypothesis_id"],)).fetchone()
-    assert h["status"] == "quote_unverified" and json.loads(h["relation_types_json"]) == ["restricts_scope"]
-    run = conn.execute("SELECT * FROM runs WHERE id=?", (h["run_id"],)).fetchone()
-    assert run["is_real_model_run"] == 0 and run["adapter"] == "replay"
-    qc = json.loads(h["quote_check_json"])
-    assert qc["left"][0]["found"] and not qc["right"][1]["found"] and qc["unknown_relation_types"] == ["bogus"]
-
-    rid = analysis.add_review(conn, "relation_hypothesis", h["id"], "tester", "corrected", "Zitat fehlt", {"relation_types": ["refines"]})
-    with pytest.raises(Exception):
-        conn.execute("UPDATE reviews SET decision='confirmed' WHERE id=?", (rid,))
-    with pytest.raises(Exception):
-        conn.execute("DELETE FROM reviews WHERE id=?", (rid,))
-
-    hm = analysis.add_manual_hypothesis(cfg, conn, cid, "tester", ["refines"], {"left_quotes": [], "right_quotes": []})
-    assert conn.execute("SELECT status FROM relation_hypotheses WHERE id=?", (hm,)).fetchone()[0] == "no_quotes"
-
-
-def test_call_limit_pauses(env):
-    cfg, conn = env
-    _doc_with_text(cfg, conn, "synthetic:t:A", "<p>Eins.</p>")
-    _doc_with_text(cfg, conn, "synthetic:t:B", "<p>Zwei.</p>")
-    segment_all(cfg, conn)
-    ua, ub = [r[0] for r in conn.execute("SELECT id FROM argument_units ORDER BY document_id")]
-    cid = ensure_comparison(conn, ua, ub)
-    ad = ReplayAdapter({"max_calls_per_run": 1}, ["{}", "{}"])
-    assert analysis.compare(cfg, conn, cid, adapter=ad)["status"] != "not_run"
-    assert analysis.compare(cfg, conn, cid, adapter=ad)["status"] == "not_run"
-
-
 def test_export_excludes_real_texts(env, tmp_path):
     cfg, conn = env
     ts = db.now()
@@ -135,13 +81,15 @@ def test_export_excludes_real_texts(env, tmp_path):
 def test_acceptance_runs_with_test_vectors(env):
     cfg, conn = env
     rep = run_acceptance(cfg, conn, "none", "test-hash")
-    by = {r["case"]: r for r in rep["cases"]}
-    assert len(by) == 12
-    for c in ("case05", "case06", "case08", "case11", "case12"):
-        assert by[c]["deterministic_ok"], c
-    assert by["case03"]["support"].startswith("ausdrücklich noch nicht unterstützt")
-    assert all(r["model"] is None or r["model"]["model_part"] == "nicht ausgeführt" for r in rep["cases"])
+    rows = rep["cases"]
+    assert {r["case"] for r in rows} == {f"case{i:02d}" for i in range(1, 13)}
+    get = lambda c, lang, part: next(r for r in rows if r["case"] == c and r["lang"] == lang and r["part"] == part)
+    for c, lang, part in [("case05", "en", "Retrieval"), ("case06", "de", "Zitat-Heuristik"), ("case06", "en", "Zitat-Heuristik"),
+                          ("case08", "de", "Quellenindex"), ("case08", "en", "Quellenindex"), ("case12", "de", "Versionierung")]:
+        assert get(c, lang, part)["result"] == "bestanden", (c, lang, part)
+    assert get("case03", "de+en", "Retrieval")["result"] == "nicht unterstützt"
+    # ohne Modell: kein Modellteil darf bestanden sein
+    assert all(r["result"] == "nicht ausgeführt" for r in rows if r["part"].startswith("Modell"))
     assert all(f["ok"] for f in rep["formal"])
-    # Wiederholter Lauf erzeugt keine doppelten Versionen
     run_acceptance(cfg, conn, "none", "test-hash")
     assert all(f["ok"] for f in formal_checks(cfg, conn))

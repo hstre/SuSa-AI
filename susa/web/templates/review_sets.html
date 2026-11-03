@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Prüfauswahl{% endblock %}
+{% block body %}
+<h1>Reale Prüfauswahl</h1>
+<p class="small muted">Kleine Auswahl echter Pilotpaare zur Blindbeurteilung. Die Auswahl folgt dokumentierten Suchhypothesen; die Reihenfolge ist gemischt.</p>
+{% for s in sets %}
+<div class="card">
+  <b>{{ s.label }}</b> <span class="muted small">{{ s.id }} · {{ s.n }} Paare · {{ s.created_at }}</span>
+  <form method="get" action="{{ url_for('review_item', sid=s.id, pos=1) }}" class="small">Prüfer <input type="text" name="reviewer" size="14" required> <button>Beginnen</button></form>
+</div>
+{% else %}<p class="muted">Noch keine Prüfauswahl angelegt (<code>python -m susa review-set create</code>).</p>{% endfor %}
+{% endblock %}

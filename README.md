@@ -77,9 +77,23 @@ Prüfung funktionieren trotzdem. Ein Lauf ohne Modell wird als `not_run` protoko
 | `claude_cli` | lokal installierte Claude-Code-CLI (`claude -p`), wie im Ausgangsprojekt |
 | `replay` | JSON-Datei mit vorbereiteten Antworten; nur für Tests, nie als echter Lauf markiert |
 
-`llm.max_calls_per_run` begrenzt Aufrufe pro Lauf (Standard 20); bei Erreichen pausiert der Lauf. Keine langen
-Retry-Schleifen. Prompts liegen versioniert in `prompts/` (A Rekonstruktion, B Vergleich, C Gegenprüfung).
-Beide echten Adapter sind implementiert, aber in dieser Umgebung noch nicht gegen einen echten Dienst gelaufen.
+Echte Dienste laufen nur mit einem ausdrücklich angelegten **Budget**:
+
+```bash
+python -m susa budget create --label "Lauf X" --max-calls 20 --adapter claude_cli   # gibt die Budget-ID aus
+python -m susa reconstruct <unit_id> --adapter claude_cli --budget <ID>
+python -m susa acceptance --adapter claude_cli --budget <ID> --plan B:case10:en A:case06:de --countercheck C:case02:de
+python -m susa budget status <ID>
+```
+
+Der Zähler liegt in der Datenbank (`model_calls`). Jeder Versuch, auch Fehlversuche und Wiederholungen, wird vor dem
+Aufruf eingetragen und zählt. Neue Adapterinstanzen, die Oberfläche oder ein Neustart setzen ihn nicht zurück. Bei
+erschöpftem Budget stoppt der Lauf. Ergebnisse, die im selben Budget schon bezahlt wurden, werden wiederverwendet.
+Die Oberfläche nutzt `llm.budget_id` aus `config.toml`.
+
+Jede Modellantwort wird auf fünf Ebenen getrennt gespeichert und angezeigt: Antwort empfangen, Schema gültig,
+Belege beidseitig gefunden, Modellurteil, menschliche Prüfung. Siehe `susa/validate.py`.
+Prompts liegen versioniert in `prompts/` (A Rekonstruktion, B Vergleich, C Gegenprüfung; aktuell v2).
 
 ## Grenzen
 

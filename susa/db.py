@@ -15,7 +15,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-DB_SCHEMA_VERSION = 1
+DB_SCHEMA_VERSION = 2
 
 SCHEMA = r"""
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
@@ -194,6 +194,54 @@ CREATE TRIGGER IF NOT EXISTS reviews_no_update BEFORE UPDATE ON reviews
 CREATE TRIGGER IF NOT EXISTS reviews_no_delete BEFORE DELETE ON reviews
   BEGIN SELECT RAISE(ABORT, 'reviews sind append-only'); END;
 
+CREATE TABLE IF NOT EXISTS model_budgets (
+  id TEXT PRIMARY KEY,                -- ausdrücklich angelegter Lauf mit gemeinsamem Aufrufbudget
+  label TEXT NOT NULL,
+  max_calls INTEGER NOT NULL,
+  adapter TEXT, model TEXT,
+  created_at TEXT NOT NULL, closed_at TEXT, notes TEXT
+);
+
+-- Jeder Aufrufversuch (auch Fehler und Wiederholungen) wird VOR dem Aufruf eingetragen und zählt.
+-- Abgelehnte Versuche (Budget erschöpft) werden mit outcome='refused_budget' protokolliert und zählen nicht.
+CREATE TABLE IF NOT EXISTS model_calls (
+  id INTEGER PRIMARY KEY,
+  budget_id TEXT REFERENCES model_budgets(id),
+  run_id TEXT,
+  attempt INTEGER NOT NULL,           -- 1 = Erstversuch, 2.. = Wiederholung innerhalb desselben Laufs
+  adapter TEXT NOT NULL, model_requested TEXT, model_reported TEXT,
+  is_real_service INTEGER NOT NULL,
+  purpose TEXT,
+  est_input_tokens INTEGER, max_output_tokens INTEGER,
+  started_at TEXT NOT NULL, finished_at TEXT,
+  outcome TEXT NOT NULL,              -- started | success | error | refused_budget
+  error TEXT, usage_json TEXT, raw_path TEXT
+);
+CREATE INDEX IF NOT EXISTS ix_calls_budget ON model_calls(budget_id);
+
+CREATE TABLE IF NOT EXISTS reading_aids (
+  id INTEGER PRIMARY KEY,
+  unit_id TEXT NOT NULL REFERENCES argument_units(id),
+  lang TEXT NOT NULL,
+  text TEXT NOT NULL,
+  author TEXT NOT NULL,               -- wer die Lesehilfe erstellt hat
+  method TEXT NOT NULL,               -- z. B. 'sinngemäße Zusammenfassung, ungeprüft'
+  source_text_sha256 TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS review_sets (
+  id TEXT PRIMARY KEY, label TEXT NOT NULL, method_json TEXT, created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS review_set_items (
+  set_id TEXT NOT NULL REFERENCES review_sets(id),
+  position INTEGER NOT NULL,
+  comparison_id TEXT NOT NULL REFERENCES candidate_comparisons(id),
+  search_hypothesis TEXT NOT NULL,    -- Suchhypothese der Auswahl, KEINE richtige Antwort
+  selection_reason TEXT,
+  PRIMARY KEY (set_id, position)
+);
+
 CREATE TABLE IF NOT EXISTS revisions (
   id INTEGER PRIMARY KEY,
   entity_type TEXT NOT NULL, entity_id TEXT NOT NULL,
@@ -225,9 +273,28 @@ def connect(path: Path | str) -> sqlite3.Connection:
     conn.execute("PRAGMA foreign_keys=ON")
     conn.execute("PRAGMA journal_mode=WAL")
     conn.executescript(SCHEMA)
-    conn.execute("INSERT OR IGNORE INTO meta(key, value) VALUES('db_schema_version', ?)", (str(DB_SCHEMA_VERSION),))
+    _migrate(conn)
+    conn.execute("INSERT OR REPLACE INTO meta(key, value) VALUES('db_schema_version', ?)", (str(DB_SCHEMA_VERSION),))
     conn.commit()
     return conn
+
+
+MIGRATIONS = {
+    "runs": [("budget_id", "TEXT")],
+    # Getrennte Prüfebenen (Schema v2): Antwort empfangen / Schema gültig / Anker geprüft / Modellurteil
+    "relation_hypotheses": [("response_status", "TEXT"), ("schema_status", "TEXT"), ("schema_errors_json", "TEXT"),
+                            ("anchor_status", "TEXT"), ("judgment", "TEXT"), ("evidence_status", "TEXT")],
+    "claim_candidates": [("response_status", "TEXT"), ("schema_status", "TEXT"), ("schema_errors_json", "TEXT"),
+                         ("anchor_status", "TEXT"), ("judgment", "TEXT"), ("evidence_status", "TEXT")],
+}
+
+
+def _migrate(conn) -> None:
+    for table, cols in MIGRATIONS.items():
+        have = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+        for name, typ in cols:
+            if name not in have:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {typ}")
 
 
 def add_revision(conn, entity_type: str, entity_id: str, before, change, reason: str, author: str) -> None:

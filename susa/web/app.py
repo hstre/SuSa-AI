@@ -13,7 +13,7 @@ from markupsafe import Markup, escape
 from .. import analysis, db
 from ..config import Config
 from ..export import export_jsonl
-from ..llm import get_adapter
+from ..llm import NotConfigured, budget_status, get_adapter
 from ..search import Searcher, find_candidates, markers_for, shared_sources, source_index
 from ..versions import current_version, read_text
 
@@ -201,10 +201,16 @@ def create_app(cfg: Config | None = None) -> Flask:
             act = request.form.get("action")
             reviewer = request.form.get("reviewer", "").strip() or "unbenannt"
             if act == "model_compare":
-                r = analysis.compare(cfg, c, cid, adapter=get_adapter(cfg.section("llm")))
+                try:  # Budget kommt aus llm.budget_id; Zähler liegt in der DB und gilt über alle Aufrufe
+                    r = analysis.compare(cfg, c, cid, adapter=get_adapter(cfg.section("llm"), conn=c))
+                except NotConfigured as e:
+                    r = {"status": "not_run", "reason": str(e)}
                 msg = f"Modellvergleich: {r.get('status')} {r.get('reason') or ''}"
             elif act == "countercheck":
-                r = analysis.countercheck(cfg, c, request.form["hypothesis_id"], adapter=get_adapter(cfg.section("llm")))
+                try:
+                    r = analysis.countercheck(cfg, c, request.form["hypothesis_id"], adapter=get_adapter(cfg.section("llm"), conn=c))
+                except NotConfigured as e:
+                    r = {"status": "not_run", "reason": str(e)}
                 msg = f"Gegenprüfung: {r.get('status')} {r.get('reason') or ''}"
             elif act == "manual":
                 lines = lambda k: [x.strip() for x in request.form.get(k, "").splitlines() if x.strip()]
@@ -263,5 +269,50 @@ def create_app(cfg: Config | None = None) -> Flask:
         path.unlink()
         return Response(data, mimetype="application/x-ndjson",
                         headers={"Content-Disposition": "attachment; filename=susa-export.jsonl"})
+
+    @app.route("/review-sets")
+    def review_sets():
+        c = conn()
+        sets = c.execute("""SELECT s.*, (SELECT COUNT(*) FROM review_set_items i WHERE i.set_id=s.id) n FROM review_sets s ORDER BY created_at DESC""").fetchall()
+        return render_template("review_sets.html", sets=sets)
+
+    @app.route("/review-sets/<sid>/<int:pos>", methods=["GET", "POST"])
+    def review_item(sid, pos):
+        c = conn()
+        it = c.execute("SELECT * FROM review_set_items WHERE set_id=? AND position=?", (sid, pos)).fetchone()
+        if it is None:
+            abort(404)
+        n = c.execute("SELECT COUNT(*) FROM review_set_items WHERE set_id=?", (sid,)).fetchone()[0]
+        reviewer = (request.values.get("reviewer") or "").strip()
+        if request.method == "POST":
+            lines = lambda k: [x.strip() for x in request.form.get(k, "").splitlines() if x.strip()]
+            payload = {k: request.form.get(k, "").strip() or None for k in ("added_thought", "reasoning_summary", "contribution_kind",
+                                                                            "interpretation_confidence", "shared_question")}
+            payload.update({"left_quotes": lines("left_quotes"), "right_quotes": lines("right_quotes"), "uncertainties": lines("uncertainties"),
+                            "review_set": sid, "position": pos, "blind": True})
+            analysis.add_manual_hypothesis(cfg, c, it["comparison_id"], reviewer or "unbenannt", request.form.getlist("relation_types"),
+                                           payload, kind="manual_blind")
+            return redirect(url_for("review_item", sid=sid, pos=pos, reviewer=reviewer or "unbenannt"))
+        cmp_ = c.execute("SELECT * FROM candidate_comparisons WHERE id=?", (it["comparison_id"],)).fetchone()
+        sides = {}
+        for side, key in (("left", "left_unit_id"), ("right", "right_unit_id")):
+            x = analysis.unit_context(cfg, c, cmp_[key])
+            aids = c.execute("SELECT * FROM reading_aids WHERE unit_id=? ORDER BY id DESC", (cmp_[key],)).fetchall()
+            sides[side] = {"x": x, "u": x["unit"], "aid": aids[0] if aids else None,
+                           "aid_stale": bool(aids and aids[0]["source_text_sha256"] != db.sha256_text(x["unit"]["text"]))}
+        mine = c.execute("SELECT * FROM relation_hypotheses WHERE comparison_id=? AND kind='manual_blind' AND author=? ORDER BY created_at",
+                         (it["comparison_id"], reviewer)).fetchall() if reviewer else []
+        revealed = bool(mine) or request.args.get("reveal") == "1"
+        others = c.execute("""SELECT h.*, r.adapter, r.model, r.prompt_version, r.is_real_model_run FROM relation_hypotheses h LEFT JOIN runs r ON r.id=h.run_id
+                              WHERE h.comparison_id=? AND h.kind!='manual_blind' ORDER BY h.created_at""", (it["comparison_id"],)).fetchall() if revealed else []
+        return render_template("review_item.html", it=it, n=n, sid=sid, pos=pos, cmp=cmp_, sides=sides, reviewer=reviewer, mine=mine,
+                               revealed=revealed, others=others)
+
+    @app.route("/budgets")
+    def budgets():
+        c = conn()
+        rows = [budget_status(c, r["id"]) for r in c.execute("SELECT id FROM model_budgets ORDER BY created_at DESC")]
+        calls = c.execute("SELECT * FROM model_calls ORDER BY id DESC LIMIT 200").fetchall()
+        return render_template("budgets.html", rows=rows, calls=calls)
 
     return app

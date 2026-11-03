@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Prüfpaar {{ pos }}{% endblock %}
+{% block body %}
+<h1>Prüfpaar {{ pos }} von {{ n }}</h1>
+<p class="small">{% if pos > 1 %}<a href="{{ url_for('review_item', sid=sid, pos=pos-1, reviewer=reviewer) }}">← vorheriges</a> · {% endif %}
+{% if pos < n %}<a href="{{ url_for('review_item', sid=sid, pos=pos+1, reviewer=reviewer) }}">nächstes →</a> · {% endif %}
+<a href="{{ url_for('review_sets') }}">Übersicht</a></p>
+{% if not revealed %}
+<div class="banner warn">Blindansicht: Auswahlgrund, Suchwerte, heuristische Hinweise und Modellurteile sind verborgen, bis du ein eigenes Urteil gespeichert hast.
+Die deutsche Lesehilfe ist eine ungeprüfte sinngemäße Zusammenfassung und ersetzt nicht das englische Original.</div>
+{% endif %}
+
+<div class="cols">
+{% for side, label in [('left','Passage L'), ('right','Passage R')] %}
+{% set s = sides[side] %}{% set u = s.u %}
+<div class="card">
+  <h3>{{ label }}</h3>
+  <div class="small muted"><a href="{{ url_for('document', doc_id=u.document_id) }}#u-{{ u.seq }}">{{ u.title }}</a><br>
+    {{ u.author }} · {{ u.date }} · {% if u.canonical_url %}<a href="{{ u.canonical_url }}" target="_blank" rel="noopener">Original</a>{% endif %}<br>
+    Text: {{ u.text_status|status_label }} · Zeichen {{ u.start_char }}–{{ u.end_char }}</div>
+  <h3>Original</h3>
+  {% if s.x.before %}<div class="passage ctx">{{ s.x.before }}</div><hr>{% endif %}
+  <div class="passage">{{ s.x.core }}</div>
+  {% if s.x.after %}<hr><div class="passage ctx">{{ s.x.after }}</div>{% endif %}
+  {% if s.x.quoted_paragraphs %}<p class="small banner warn">Enthält Blockzitate: Sprecher ist möglicherweise nicht der Autor.</p>{% endif %}
+  <h3>Deutsche Lesehilfe <span class="tag">kein Original</span></h3>
+  {% if s.aid %}<div class="aid">{{ s.aid.text }}</div>
+    <div class="small muted">{{ s.aid.method }} · erstellt von {{ s.aid.author }} · {{ s.aid.created_at }}{% if s.aid_stale %} · <span class="tag bad">Originaltext geändert</span>{% endif %}</div>
+  {% else %}<div class="small muted">keine Lesehilfe vorhanden</div>{% endif %}
+</div>
+{% endfor %}
+</div>
+
+<div class="card">
+  <h3>Dein Urteil</h3>
+  {% for m in mine %}
+    <div class="small">{{ m.created_at }} · {{ m.author }}: {% for t in m.relation_types_json|fromjson %}<span class="tag">{{ t }}</span>{% endfor %}
+      · Belege {{ m.anchor_status }} {% set p = m.payload_json|fromjson %}{% if p.added_thought %}· {{ p.added_thought }}{% endif %}</div>
+  {% endfor %}
+  <form method="post" class="small">
+    Prüfer <input type="text" name="reviewer" size="14" value="{{ reviewer }}" required>
+    <div class="checks">{% for t in RELATION_TYPES %}<label><input type="checkbox" name="relation_types" value="{{ t }}"> {{ t }}</label><br>{% endfor %}</div>
+    Art des Beitrags von R gegenüber L
+    <select name="contribution_kind"><option value="">–</option>{% for k in ['reasoned_extension','unreasoned_assertion','new_evidence_same_claim','rephrasing','different_topic','none','unclear'] %}<option>{{ k }}</option>{% endfor %}</select>
+    Sicherheit <select name="interpretation_confidence"><option>low</option><option selected>medium</option><option>high</option></select>
+    <input type="text" name="shared_question" placeholder="Gemeinsame Frage (falls vorhanden)" style="width:100%">
+    <textarea name="added_thought" rows="2" placeholder="Was fügt R hinzu, schränkt ein oder greift an?"></textarea>
+    <textarea name="reasoning_summary" rows="2" placeholder="Begründung deines Urteils"></textarea>
+    <textarea name="left_quotes" rows="2" placeholder="Belegzitate aus L (englisches Original, eines pro Zeile)"></textarea>
+    <textarea name="right_quotes" rows="2" placeholder="Belegzitate aus R"></textarea>
+    <textarea name="uncertainties" rows="2" placeholder="Offene Punkte"></textarea>
+    <button>Urteil speichern</button>
+  </form>
+  {% if not revealed %}<p class="small"><a href="{{ url_for('review_item', sid=sid, pos=pos, reviewer=reviewer, reveal=1) }}">ohne eigenes Urteil aufdecken</a> <span class="muted">(verdirbt den Blindvergleich für dieses Paar)</span></p>{% endif %}
+</div>
+
+{% if revealed %}
+<div class="card">
+  <h3>Aufgedeckt</h3>
+  <dl class="kv small">
+    <dt>Suchhypothese der Auswahl</dt><dd>{{ it.search_hypothesis }} <span class="muted">(Auswahlgrund, keine richtige Antwort)</span></dd>
+    <dt>Auswahlbegründung</dt><dd>{{ it.selection_reason }}</dd>
+    <dt>Suchwege</dt><dd>{% for ch in cmp.channels_json|fromjson %}<span class="tag">{{ ch }}</span>{% endfor %} {{ cmp.scores_json }}</dd>
+    <dt>Heuristische Hinweise</dt><dd>{% for m in cmp.markers_json|fromjson or [] %}<span class="tag">{{ m }}</span>{% endfor %}</dd>
+    <dt>Weitere Interpretationen</dt><dd>{% for h in others %}<div>{{ h.kind }} {{ h.author or h.model or '' }}: {{ h.relation_types_json }} · {{ h.evidence_status }}</div>{% else %}keine (kein Modelllauf für dieses Paar)</dd>{% endfor %}
+  </dl>
+  <a href="{{ url_for('compare', cid=cmp.id) }}">Vollständige Vergleichsansicht</a>
+</div>
+{% endif %}
+{% endblock %}
