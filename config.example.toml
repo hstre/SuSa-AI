@@ -1,0 +1,47 @@
+# Beispielkonfiguration. Kopieren nach config.toml und anpassen. Enthält keine Geheimnisse:
+# API-Schlüssel werden ausschließlich aus Umgebungsvariablen gelesen (z. B. ANTHROPIC_API_KEY).
+
+[paths]
+data_dir = "data"            # SQLite, Textversionen, Rohantworten, Vektoren (von Git ausgeschlossen)
+models_dir = "models"        # lokale Modelldateien
+
+[upstream]
+# Versionsfester Stand des Ausgangsprojekts (Mike Thicke, mc-lit-review). Bei jedem Import neu prüfen.
+commit = "37f371984dda64ebbded0d3eca1bd1b61b1542c1"
+posts_json_url = "https://raw.githubusercontent.com/Epistemic-Technology/mc-lit-review/{commit}/site/src/data/posts.json"
+summary_json_url = "https://raw.githubusercontent.com/Epistemic-Technology/mc-lit-review/{commit}/site/src/data/summary.json"
+license_data = "CC BY 4.0 (laut README des Ausgangsprojekts)"
+license_code = "MIT, Copyright 2026 Mike Thicke"
+
+[fetch]
+user_agent = "susa-ai research prototype (local, non-commercial)"
+concurrency = 1              # bewusst seriell
+min_interval_seconds = 2.0   # Mindestabstand zwischen zwei Anfragen
+timeout_seconds = 30
+max_retries = 2              # keine langen Retry-Schleifen
+backoff_seconds = 30         # Wartezeit nach HTTP 429 / 5xx
+
+[segment]
+min_tokens = 150
+max_tokens = 350
+hard_max_tokens = 500        # bge-small verarbeitet höchstens 512 Tokens
+
+[embed]
+backend = "onnx-bge-small"   # oder "test-hash" (Testvektoren, keine semantische Suche)
+model_id = "BAAI/bge-small-en-v1.5"
+model_revision = "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a"
+batch_size = 16
+
+[search]
+k_semantic = 15
+k_lexical = 15
+max_per_author = 3
+random_controls = 2
+seed = 20261103
+
+[llm]
+adapter = "none"             # none | anthropic_api | claude_cli | replay
+model = "claude-opus-5-5"
+max_tokens = 4000
+max_calls_per_run = 20       # harte Obergrenze pro Lauf; der Lauf pausiert sauber bei Erreichen
+timeout_seconds = 300

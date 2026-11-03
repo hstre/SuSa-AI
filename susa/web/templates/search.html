@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Suche{% endblock %}
+{% block body %}
+<h1>Suche nach Frage, Fachbegriff oder eigener Passage</h1>
+<form method="get" class="card">
+  <textarea name="q" rows="3" placeholder="z. B. Are self-reports comparable across model versions?">{{ q }}</textarea>
+  <select name="only"><option value="real" {{ 'selected' if only=='real' }}>nur echte Texte</option><option value="synthetic" {{ 'selected' if only=='synthetic' }}>nur synthetische</option><option value="all" {{ 'selected' if only=='all' }}>alle</option></select>
+  <button>Suchen</button>
+  {% if eset %}<span class="small muted">Vektorsatz <code>{{ eset.id }}</code>{% if eset.is_test_vectors %} <span class="tag bad">Testvektoren</span>{% endif %}. Das Modell ist englischsprachig; deutsche Anfragen an englische Texte sind unzuverlässig.</span>{% endif %}
+</form>
+{% if q %}
+<div class="cols">
+{% for ch, label in [('semantic','Semantische Nachbarn'), ('lexical','Lexikalische Treffer (BM25)')] %}
+<div>
+<h2>{{ label }}</h2>
+{% for r in res.get(ch, []) %}
+<div class="card">
+  <div class="small muted">{% if r.u.is_synthetic %}<span class="tag synth">synthetisch</span>{% endif %}{{ '%.3f'|format(r.score) }} · <a href="{{ url_for('document', doc_id=r.u.document_id) }}#u-{{ r.u.seq }}">{{ r.u.title }}</a> · {{ r.u.author }} · {{ r.u.date }}</div>
+  <div class="passage small">{{ r.u.text[:500] }}{% if r.u.text|length > 500 %} …{% endif %}</div>
+  <div class="small"><a href="{{ url_for('unit', uid=r.u.id) }}">Kandidaten für diese Einheit</a></div>
+</div>
+{% else %}<p class="muted">Keine Treffer.</p>{% endfor %}
+</div>
+{% endfor %}
+</div>
+{% endif %}
+{% endblock %}

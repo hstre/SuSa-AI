@@ -1,0 +1,36 @@
+[project]
+name = "susa-ai"
+version = "0.1.0"
+description = "Lokales Forschungswerkzeug: begründete Erweiterungen, Einschränkungen und Widersprüche in Substack-Argumenten auffinden und prüfen"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Steffen Rentschler" }]
+dependencies = [
+  "numpy>=1.26",
+  "beautifulsoup4>=4.12",
+  "lxml>=5",
+  "requests>=2.31",
+  "flask>=3.0",
+  "tokenizers>=0.15",
+  "onnxruntime>=1.17",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+anthropic = ["anthropic>=0.40"]
+
+[project.scripts]
+susa = "susa.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["susa*"]
+
+[tool.setuptools.package-data]
+susa = ["web/templates/*.html"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

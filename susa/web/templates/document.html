@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ d.title }}{% endblock %}
+{% block body %}
+<h1>{% if d.is_synthetic %}<span class="tag synth">synthetisch</span> {% endif %}{{ d.title }}</h1>
+<div class="cols">
+<div class="card small">
+  <dl class="kv">
+    <dt>ID</dt><dd class="wrap"><code>{{ d.id }}</code></dd>
+    {% if d.upstream_id %}<dt>Upstream-ID</dt><dd>{{ d.upstream_ns }} / {{ d.upstream_id }} <span class="muted">(projektinterne ID, keine Substack-ID)</span></dd>{% endif %}
+    <dt>Autor</dt><dd>{{ d.author or '–' }}</dd>
+    <dt>Publikation</dt><dd>{{ d.publication or '–' }}</dd>
+    <dt>Datum</dt><dd>{{ d.date or '–' }} <span class="muted">(Publikationsdatum, nicht Entstehungszeitpunkt eines Gedankens)</span></dd>
+    {% if d.canonical_url %}<dt>Original</dt><dd class="wrap"><a href="{{ d.canonical_url }}" rel="noopener" target="_blank">{{ d.canonical_url }}</a></dd>{% endif %}
+    {% if d.upstream_words %}<dt>Wörter (Upstream)</dt><dd>{{ d.upstream_words }}</dd>{% endif %}
+  </dl>
+</div>
+<div class="card small">
+  {% if codes %}
+  <b>Historische Fremdcodes</b> <span class="muted">(mc-lit-review, Codebook {{ codes.codebook_version or '?' }}; nicht neu geprüft, bezogen auf den damals erfassten Text)</span>
+  <dl class="kv">
+    <dt>Relevanz / Genre</dt><dd>{{ codes.relevance }} / {{ codes.genre }} / {{ codes.claim_object }}</dd>
+    <dt>Gruppe</dt><dd>{{ codes.grp }} ({{ codes.community }})</dd>
+    {% for a in axes %}<dt>{{ a }}</dt><dd>{{ codes[a] or '–' }}</dd>{% endfor %}
+    <dt>axes_source</dt><dd>{{ codes.axes_source }}</dd>
+    <dt>Argumenttypen</dt><dd>{% for x in (codes.arguments_json|fromjson or []) %}<span class="tag">{{ x }}</span>{% endfor %}</dd>
+    <dt>Themencluster</dt><dd>{{ codes.cluster_label or '–' }}</dd>
+    {% if codes.view_revised and codes.view_revised != 'none' %}<dt>view_revised</dt><dd>{{ codes.view_revised }}{% if payload.view_revised_quote %}<br><i>„{{ payload.view_revised_quote }}“</i> <span class="muted">(fremdes Originalzitat)</span>{% endif %}</dd>{% endif %}
+  </dl>
+  <details><summary>Unveränderter Upstream-Datensatz</summary><pre class="small wrap" style="white-space:pre-wrap">{{ payload|tojson(indent=1) }}</pre></details>
+  {% else %}<span class="muted">Keine Fremdcodes.</span>{% endif %}
+</div>
+</div>
+
+<h2>Textversionen</h2>
+<table class="small">
+<tr><th>#</th><th>Abruf</th><th>Quelle</th><th>Status</th><th>Verfügbarkeit</th><th>Details</th><th>SHA-256</th><th></th></tr>
+{% for x in versions %}
+<tr><td>{{ x.id }}</td><td>{{ x.fetched_at }}</td><td>{{ x.source }}</td><td>{{ x.status|status_label }}</td>
+<td>{% if x.availability == 'full' %}<span class="tag ok">vollständig</span>{% elif x.availability in ['partial','preview'] %}<span class="tag bad">{{ x.availability }}</span>{% else %}<span class="tag bad">nicht verfügbar</span>{% endif %}</td>
+<td class="wrap">{{ x.status_detail or '' }}</td><td><code>{{ (x.text_sha256 or '')[:12] }}</code></td>
+<td>{% if x.is_current %}<b>aktuell</b>{% elif x.text_path %}<a href="?version={{ x.id }}">ansehen</a>{% endif %}</td></tr>
+{% else %}<tr><td colspan="8" class="muted">Kein Text abgerufen. Abruf: <code>python -m susa fetch --doc {{ d.id }}</code> oder manueller Import mit <code>import-text</code>.</td></tr>{% endfor %}
+</table>
+
+{% if body %}
+<h2>Originaltext mit Ankern {% if v and not v.is_current %}<span class="tag bad">ältere Version</span>{% endif %}</h2>
+<p class="small muted">Jeder Block ist eine Argumentationseinheit mit exakten Zeichenpositionen im gespeicherten Text ({{ body.text_len }} Zeichen).
+<mark class="quote">Zitat (Heuristik)</mark> <mark class="evidence">Belegstelle aus Interpretation</mark> <mark class="link">Link</mark>.
+Blockzitate sind kursiv und können Fremdpositionen enthalten.</p>
+{% for b in body.blocks %}
+<div class="unit" id="u-{{ b.unit.seq }}">
+  <div class="small muted">Einheit {{ b.unit.seq }} · Zeichen {{ b.unit.start_char }}–{{ b.unit.end_char }} · {{ b.unit.n_tokens }} Tokens ({{ b.unit.token_counter }})
+    {% if b.unit.heading %}· Abschnitt „{{ b.unit.heading }}“{% endif %}
+    · <a href="{{ url_for('unit', uid=b.unit.id) }}">Kandidaten / Vergleich</a></div>
+  <div class="passage">{% for p in b.paras %}<div class="para {{ p.kind }}">{{ p.html }}{% if p.speaker == 'quoted_other' %} <span class="tag">Blockzitat</span>{% endif %}</div>{% endfor %}</div>
+</div>
+{% endfor %}
+{% if links %}
+<details><summary>Links im Text ({{ links|length }})</summary><table class="small">{% for l in links %}<tr><td class="wrap">{{ l.target }}</td><td class="wrap muted">{{ l.href }}</td></tr>{% endfor %}</table></details>
+{% endif %}
+{% endif %}
+{% endblock %}

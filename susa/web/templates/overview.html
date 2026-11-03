@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Korpus{% endblock %}
+{% block body %}
+<h1>Korpusübersicht</h1>
+{% if llm.adapter == 'none' %}<div class="banner warn">Kein Modelladapter konfiguriert. Suche, manuelle Interpretation und Prüfung funktionieren; Modellvergleiche werden als „nicht ausgeführt“ protokolliert.</div>{% endif %}
+{% for e in esets if e.is_test_vectors %}<div class="banner warn">Vektorsatz <code>{{ e.id }}</code> besteht aus Testvektoren (keine semantische Suche).</div>{% endfor %}
+<div class="cols">
+<div class="card">
+  <h3>Bestand</h3>
+  <dl class="kv">
+    <dt>Echte Dokumente (Metadaten)</dt><dd>{{ stats.docs_real }}</dd>
+    <dt>Synthetische Testdokumente</dt><dd>{{ stats.docs_synth }}</dd>
+    <dt>Argumentationseinheiten</dt><dd>{% for u in stats.units %}{{ 'synthetisch' if u.is_synthetic else 'echt' }}: {{ u.n }}{% if not loop.last %} · {% endif %}{% endfor %}</dd>
+    <dt>Kandidatenpaare</dt><dd>{{ stats.comparisons }}</dd>
+    <dt>Interpretationen</dt><dd>{% for h in stats.hypotheses %}{{ h.kind }}: {{ h.n }} {% else %}keine{% endfor %}</dd>
+    <dt>Prüfentscheidungen</dt><dd>{{ stats.reviews }}</dd>
+  </dl>
+  <h3>Textabdeckung (aktuelle Versionen)</h3>
+  <table>{% for v in stats.versions %}<tr><td>{% if v.is_synthetic %}<span class="tag synth">synthetisch</span>{% else %}echt{% endif %}</td><td>{{ v.status|status_label }}</td><td>{{ v.n }}</td></tr>{% else %}<tr><td class="muted">Noch keine Texte abgerufen.</td></tr>{% endfor %}</table>
+  <p class="small muted">Beiträge ohne Eintrag wurden nicht abgerufen. Der Export des Ausgangsprojekts enthält keine Volltexte.</p>
+</div>
+<div class="card">
+  <h3>Importstand</h3>
+  <table>{% for i in imports %}<tr><td>#{{ i.id }}</td><td>{{ i.kind }}</td><td class="small wrap">{{ i.upstream_commit or '' }}<br><span class="muted">SHA-256 {{ (i.sha256 or '')[:16] }}…</span></td><td>{{ i.n_records or '' }}</td><td class="small">{{ i.started_at }}</td></tr>{% endfor %}</table>
+  <h3>Vektorsätze</h3>
+  <table>{% for e in esets %}<tr><td class="wrap"><code>{{ e.id }}</code></td><td>{{ e.n_vectors }} Vektoren</td><td>{% if e.is_test_vectors %}<span class="tag bad">Testvektoren</span>{% else %}{{ e.model_id }}{% endif %}</td></tr>{% else %}<tr><td class="muted">keine</td></tr>{% endfor %}</table>
+  <p class="small muted">Metadaten und Klassifikationen: Mike Thicke, mc-lit-review, CC BY 4.0. Klassifikationen sind historische Fremdcodes, nicht neu geprüft.</p>
+</div>
+</div>
+
+<h2>Dokumente ({{ total }})</h2>
+<form method="get" class="card small">
+  <input type="text" name="q" value="{{ f.q }}" placeholder="Titel, Autor, Publikation">
+  <select name="kind"><option value="">echt + synthetisch</option><option value="real" {{ 'selected' if f.kind=='real' }}>nur echt</option><option value="synthetic" {{ 'selected' if f.kind=='synthetic' }}>nur synthetisch</option></select>
+  <select name="text"><option value="">Text: alle</option><option value="with" {{ 'selected' if f.text=='with' }}>mit Text</option><option value="without" {{ 'selected' if f.text=='without' }}>abgerufen, ohne Text</option><option value="notfetched" {{ 'selected' if f.text=='notfetched' }}>nicht abgerufen</option></select>
+  <select name="relevance"><option value="">Relevanz</option>{% for r in ['central','substantial'] %}<option {{ 'selected' if f.relevance==r }}>{{ r }}</option>{% endfor %}</select>
+  <select name="grp"><option value="">Gruppe</option>{% for gname in groups %}<option {{ 'selected' if f.grp==gname }}>{{ gname }}</option>{% endfor %}</select>
+  <select name="axis"><option value="">Achse</option>{% for a in axes %}<option {{ 'selected' if f.axis==a }}>{{ a }}</option>{% endfor %}</select>
+  <select name="value"><option value="">Wert</option>{% for v in ['yes','yes_qualified','unsure','discussed','no','not_addressed'] %}<option {{ 'selected' if f.value==v }}>{{ v }}</option>{% endfor %}</select>
+  <button>Filtern</button>
+  <span class="muted">Positionsfilter dienen der Orientierung; Vergleiche zwischen gleichen Positionen bleiben möglich.</span>
+</form>
+<table>
+<tr><th>Datum</th><th>Titel</th><th>Autor</th><th>Fremdcodes</th><th>Text</th></tr>
+{% for r in rows %}
+<tr>
+  <td class="small">{{ r.date or '' }}</td>
+  <td>{% if r.is_synthetic %}<span class="tag synth">synthetisch</span> {% endif %}<a href="{{ url_for('document', doc_id=r.id) }}">{{ r.title }}</a></td>
+  <td class="small">{{ r.author or '' }}</td>
+  <td class="small">{% if r.relevance %}{{ r.relevance }} · {{ r.grp }} · exp: {{ r.experience_now }}{% endif %}</td>
+  <td class="small">{% if r.vstatus %}{{ r.vstatus|status_label }}{% else %}<span class="muted">nicht abgerufen</span>{% endif %}</td>
+</tr>
+{% endfor %}
+</table>
+<p>{% if page > 1 %}<a href="?{{ request.query_string.decode()|replace('page='~page, '') }}&page={{ page-1 }}">← zurück</a>{% endif %}
+   Seite {{ page }} {% if page*50 < total %}<a href="?{{ request.query_string.decode()|replace('page='~page, '') }}&page={{ page+1 }}">weiter →</a>{% endif %}</p>
+{% endblock %}

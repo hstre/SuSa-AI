@@ -1,0 +1,12 @@
+# Lokale Arbeitsdaten: Datenbank, fremde Volltexte, Rohantworten, Vektoren, Modelldateien.
+# Fremde Volltexte werden bewusst nicht versioniert (siehe README, Abschnitt Lizenzen).
+/data/
+/models/
+config.toml
+.env
+
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/

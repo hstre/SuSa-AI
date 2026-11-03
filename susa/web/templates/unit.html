@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Einheit{% endblock %}
+{% block body %}
+{% set u = c.unit %}
+<h1>Argumentationseinheit</h1>
+<div class="card">
+  <div class="small muted">{% if u.is_synthetic %}<span class="tag synth">synthetisch</span>{% endif %}
+    <a href="{{ url_for('document', doc_id=u.document_id) }}#u-{{ u.seq }}">{{ u.title }}</a> · {{ u.author }} · {{ u.date }} · Text: {{ u.text_status|status_label }}
+    {% if not u.is_current %}<span class="tag bad">Textversion veraltet</span>{% endif %}</div>
+  {% if c.before %}<details><summary>Kontext davor</summary><div class="passage ctx">{{ c.before }}</div></details>{% endif %}
+  <div class="passage">{{ c.core }}</div>
+  {% if c.after %}<details><summary>Kontext danach</summary><div class="passage ctx">{{ c.after }}</div></details>{% endif %}
+</div>
+<form method="post" class="card small">
+  <button>Kandidaten suchen</button>
+  <span class="muted">Semantisch (bis 15) + lexikalisch (bis 15), höchstens 3 je Autor, plus 2 Zufallskontrollen. Gleiches Dokument ausgeschlossen; echte und synthetische Texte werden nicht gemischt.</span>
+</form>
+
+<h2>Kandidaten ({{ cands|length }})</h2>
+<p class="small muted">Retrieval ist kein Urteil. Nähe bedeutet weder Zustimmung noch Wiederholung; Distanz bedeutet keine Neuheit.</p>
+<table>
+<tr><th>Suchwege</th><th>Werte</th><th>Passage</th><th>Hinweise (heuristisch)</th><th></th></tr>
+{% for k in cands %}
+<tr>
+  <td class="small">{% for ch in k.channels_json|fromjson %}<span class="tag {{ 'synth' if ch=='random_control' }}">{{ ch }}</span>{% endfor %}</td>
+  <td class="small">{% for ch, s in (k.scores_json|fromjson or {}).items() %}{{ ch }}: {{ s.score }} (#{{ s.rank }})<br>{% endfor %}</td>
+  <td><div class="small muted">{{ k.title }} · {{ k.author }} · {{ k.date }} · {{ k.temporal }}{% if k.rstatus not in ['ok_full','synthetic_fixture','manual_import'] %} · <span class="tag bad">{{ k.rstatus|status_label }}</span>{% endif %}</div>
+      <div class="passage small">{{ k.rtext[:420] }}{% if k.rtext|length > 420 %} …{% endif %}</div></td>
+  <td class="small">{% for m in k.markers_json|fromjson or [] %}<div>{{ m }}</div>{% endfor %}</td>
+  <td><a href="{{ url_for('compare', cid=k.id) }}">Vergleich</a>{% if k.n_hyp %} <span class="tag">{{ k.n_hyp }}</span>{% endif %}</td>
+</tr>
+{% else %}<tr><td colspan="5" class="muted">Noch keine Kandidaten gesucht.</td></tr>{% endfor %}
+</table>
+{% endblock %}

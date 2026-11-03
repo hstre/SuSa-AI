@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Vergleich{% endblock %}
+{% block body %}
+<h1>Vergleich und Prüfung</h1>
+{% if msg %}<div class="banner ok">{{ msg }}</div>{% endif %}
+<div class="card small">
+  <dl class="kv">
+    <dt>Suchwege</dt><dd>{% for ch in cmp.channels_json|fromjson %}<span class="tag">{{ ch }}</span>{% endfor %}
+      {% for ch, s in (cmp.scores_json|fromjson or {}).items() %} {{ ch }} {{ s.score }} (Rang {{ s.rank }}){% endfor %}</dd>
+    <dt>Zeitliche Lage</dt><dd>{{ {'right_later':'rechts später publiziert','right_earlier':'rechts früher publiziert','same_date':'gleiches Datum','undated':'undatiert'}.get(cmp.temporal, cmp.temporal) }}</dd>
+    <dt>Durchsuchter Bestand</dt><dd>{% set sc = cmp.corpus_scope_json|fromjson %}{% if sc %}{{ sc.units_searched }} Einheiten aus {{ sc.documents_searched }} Dokumenten · Vektorsatz {{ sc.embedding_set }}{% if sc.embedding_is_test_vectors %} <span class="tag bad">Testvektoren</span>{% endif %}{% else %}explizit angelegtes Paar (kein Suchlauf){% endif %}</dd>
+    <dt>Heuristische Hinweise</dt><dd>{% for m in cmp.markers_json|fromjson or [] %}<span class="tag">{{ m }}</span>{% else %}–{% endfor %} <span class="muted">(Wortmarker, keine Interpretation)</span></dd>
+    <dt>Gemeinsam zitierte Quellen</dt><dd>{% for s in shared %}<span class="tag">{{ s }}</span>{% else %}keine{% endfor %} <span class="muted">(dieselbe Quelle zählt nicht als unabhängige Bestätigung)</span></dd>
+  </dl>
+</div>
+
+<div class="cols">
+{% for side, label in [('left','Links (Bezug)'), ('right','Rechts (Kandidat)')] %}
+{% set s = sides[side] %}{% set u = s.u %}
+<div class="card">
+  <h3>{{ label }}</h3>
+  <div class="small muted">{% if u.is_synthetic %}<span class="tag synth">synthetisch</span>{% endif %}
+    <a href="{{ url_for('document', doc_id=u.document_id) }}#u-{{ u.seq }}">{{ u.title }}</a><br>{{ u.author }} · {{ u.date }}
+    {% if u.canonical_url %}· <a href="{{ u.canonical_url }}" target="_blank" rel="noopener">Original</a>{% endif %}<br>
+    Text: {{ u.text_status|status_label }} {% if u.availability != 'full' %}<span class="tag bad">{{ u.availability }}</span>{% endif %}
+    {% if not u.is_current %}<span class="tag bad">veraltete Textversion</span>{% endif %}
+    · Zeichen {{ u.start_char }}–{{ u.end_char }}</div>
+  {% if s.x.before %}<details><summary>Kontext davor</summary><div class="passage ctx">{{ s.before }}</div></details>{% endif %}
+  <div class="passage">{{ s.core }}</div>
+  {% if s.x.after %}<details><summary>Kontext danach</summary><div class="passage ctx">{{ s.after }}</div></details>{% endif %}
+  {% if s.x.quoted_paragraphs %}<p class="small banner warn">Enthält Blockzitate: Sprecher ist möglicherweise nicht der Autor.</p>{% endif %}
+</div>
+{% endfor %}
+</div>
+
+<h2>Interpretationen</h2>
+<p class="small muted">Maschinelle Interpretationen sind überprüfbare Vorschläge. Konfidenz ist unkalibriert und keine Wahrscheinlichkeit für Wahrheit oder Originalität.
+Menschliche Bestätigung gilt nur für diese konkrete Interpretation.</p>
+{% for h in hyps %}
+{% set p = h.payload_json|fromjson or {} %}{% set qc = h.quote_check_json|fromjson or {} %}
+<div class="card">
+  <div class="small">
+    {% if h.kind == 'manual' %}<span class="tag ok">menschlich</span> {{ h.author }}{% else %}<span class="tag">maschinell</span>
+      {{ h.kind }} · Adapter {{ h.adapter }} · Modell {{ h.model }} · Prompt {{ h.prompt_version }}
+      {% if not h.is_real_model_run %}<span class="tag bad">kein echter Modelllauf</span>{% endif %}{% endif %}
+    · Status <b>{{ h.status }}</b> {% if h.status == 'quote_unverified' %}<span class="tag bad">Zitate nicht vollständig im Original gefunden</span>{% endif %}
+    · {{ h.created_at }} {% if h.parent_id %}· Gegenprüfung zu {{ h.parent_id }}{% endif %}
+  </div>
+  <div>{% for t in h.relation_types_json|fromjson or [] %}<span class="tag">{{ t }}</span>{% endfor %}</div>
+  <dl class="kv small">
+    {% for k, label in [('shared_question','Gemeinsame Frage'), ('left_claim','Behauptung links'), ('right_claim','Behauptung rechts'), ('repeated_thought','Wiederholter Gedanke'),
+        ('added_thought','Hinzugefügt / angegriffen'), ('contribution_kind','Art des Beitrags'), ('changes_conclusion_or_scope','Verändert Folgerung/Geltung'),
+        ('reasoning_present_in_text','Begründung im Text vorhanden'), ('reasoning_summary','Begründung der Interpretation'), ('decision','Entscheidung'),
+        ('reasoning','Begründung'), ('interpretation_confidence','Konfidenz (unkalibriert)')] %}
+      {% if p.get(k) is not none and p.get(k) != '' %}<dt>{{ label }}</dt><dd>{{ p.get(k) }}</dd>{% endif %}
+    {% endfor %}
+    {% if p.comparability %}<dt>Vergleichbarkeit</dt><dd>{% for k, v in p.comparability.items() %}{{ k }}: {{ v }}{% if not loop.last %} · {% endif %}{% endfor %}</dd>{% endif %}
+    {% for k, label in [('uncertainties','Offene Punkte'), ('alternative_readings','Alternative Lesarten'), ('problems_found','Gefundene Probleme')] %}
+      {% if p.get(k) %}<dt>{{ label }}</dt><dd>{% for x in p[k] %}<div>• {{ x }}</div>{% endfor %}</dd>{% endif %}
+    {% endfor %}
+    {% for side in ['left', 'right'] %}{% if qc.get(side) %}<dt>Belege {{ 'links' if side=='left' else 'rechts' }}</dt><dd>{% for q in qc[side] %}<div>{% if q.found %}<span class="tag ok">gefunden {{ q.start_char }}–{{ q.end_char }}</span>{% else %}<span class="tag bad">nicht gefunden</span>{% endif %} „{{ q.quote }}“</div>{% endfor %}</dd>{% endif %}{% endfor %}
+    {% if p.parse_error %}<dt>Fehler</dt><dd class="wrap">{{ p.parse_error }}</dd>{% endif %}
+  </dl>
+  <h3>Prüfentscheidungen</h3>
+  {% for r in reviews[h.id] %}<div class="small">{{ r.created_at }} · <b>{{ DECISION_LABELS[r.decision] }}</b> durch {{ r.reviewer }}{% if r.comment %}: {{ r.comment }}{% endif %}{% if r.corrected_json %} · Korrektur: {{ r.corrected_json }}{% endif %}</div>{% else %}<div class="small muted">ungeprüft</div>{% endfor %}
+  <details><summary>Entscheidung erfassen</summary>
+  <form method="post" class="small">
+    <input type="hidden" name="action" value="review"><input type="hidden" name="hypothesis_id" value="{{ h.id }}">
+    Prüfer <input type="text" name="reviewer" size="12" required>
+    <select name="decision">{% for k, v in DECISION_LABELS.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select>
+    <textarea name="comment" rows="2" placeholder="Begründung, Bezug auf Textstellen"></textarea>
+    <div class="muted">Bei „korrigiert“: zutreffende Beziehungstypen</div>
+    <div class="checks">{% for t in RELATION_TYPES %}<label><input type="checkbox" name="corr_relation_types" value="{{ t }}"> {{ t }}</label><br>{% endfor %}</div>
+    <input type="text" name="corr_added_thought" size="60" placeholder="korrigierter zusätzlicher Gedanke (optional)">
+    <button>Speichern</button>
+  </form>
+  </details>
+  {% if h.kind == 'model_primary' %}<form method="post" class="inline"><input type="hidden" name="action" value="countercheck"><input type="hidden" name="hypothesis_id" value="{{ h.id }}"><button class="secondary">Modell-Gegenprüfung (Prompt C)</button></form>{% endif %}
+</div>
+{% else %}<p class="muted">Noch keine Interpretation zu diesem Paar.</p>{% endfor %}
+
+<div class="cols">
+<div class="card">
+  <h3>Modellvergleich (Prompt B)</h3>
+  <p class="small">Adapter: <code>{{ llm.adapter }}</code>, Modell <code>{{ llm.model }}</code>, Limit {{ llm.max_calls_per_run }} Aufrufe pro Lauf.
+  {% if llm.adapter == 'none' %}<br><span class="muted">Kein Modell konfiguriert; der Lauf wird als „nicht ausgeführt“ protokolliert.</span>{% endif %}</p>
+  <form method="post"><input type="hidden" name="action" value="model_compare"><button>Vergleich ausführen</button></form>
+</div>
+<div class="card">
+  <h3>Eigene Interpretation erfassen</h3>
+  <form method="post" class="small">
+    <input type="hidden" name="action" value="manual">
+    Prüfer <input type="text" name="reviewer" size="14" required>
+    <div class="checks">{% for t in RELATION_TYPES %}<label><input type="checkbox" name="relation_types" value="{{ t }}"> {{ t }}</label><br>{% endfor %}</div>
+    <input type="text" name="shared_question" placeholder="Gemeinsame Frage" style="width:100%">
+    <textarea name="left_claim" rows="2" placeholder="Behauptung links (in eigenen Worten)"></textarea>
+    <textarea name="right_claim" rows="2" placeholder="Behauptung rechts"></textarea>
+    <textarea name="added_thought" rows="2" placeholder="Was wird hinzugefügt, eingeschränkt oder angegriffen?"></textarea>
+    <textarea name="reasoning_summary" rows="2" placeholder="Warum ist der Unterschied relevant?"></textarea>
+    <textarea name="comparability_notes" rows="2" placeholder="Definitionen, Systemgrenze, Zeitpunkt, Voraussetzungen"></textarea>
+    <textarea name="left_quotes" rows="2" placeholder="Belegzitate links, eines pro Zeile, exakt aus dem Text"></textarea>
+    <textarea name="right_quotes" rows="2" placeholder="Belegzitate rechts, eines pro Zeile"></textarea>
+    <textarea name="uncertainties" rows="2" placeholder="Offene Punkte, eines pro Zeile"></textarea>
+    <button>Speichern</button>
+  </form>
+</div>
+</div>
+{% endblock %}

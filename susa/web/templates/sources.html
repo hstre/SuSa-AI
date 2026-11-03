@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Quellen{% endblock %}
+{% block body %}
+<h1>Mehrfach zitierte Quellen</h1>
+<p class="small muted">Normalisierte Link-Ziele, die in mindestens zwei Beiträgen vorkommen. Mehrere Beiträge, die auf dieselbe Quelle verweisen,
+sind <b>eine</b> Quelle, nicht mehrere unabhängige Belege. Normalisierung: Host ohne www, Pfad ohne Query; arXiv-Versionen und DOI-Resolver werden zusammengeführt.
+Weitere Varianten (z. B. Kurzlinks, Weiterleitungen) werden nicht erkannt.</p>
+<form class="small"><select name="only" onchange="this.form.submit()"><option value="real" {{ 'selected' if only=='real' }}>echte Texte</option><option value="synthetic" {{ 'selected' if only=='synthetic' }}>synthetische</option></select></form>
+<table>
+<tr><th>Quelle</th><th>Beiträge</th><th>Dokumente</th></tr>
+{% for r in rows %}<tr><td class="wrap">{{ r.target }}</td><td>{{ r.n_documents }}</td><td class="small">{% for d in r.documents %}<a href="{{ url_for('document', doc_id=d) }}">{{ d.split(':')[-2:]|join(':') }}</a> {% endfor %}</td></tr>
+{% else %}<tr><td colspan="3" class="muted">Keine Quelle wird in mehreren abgerufenen Texten zitiert.</td></tr>{% endfor %}
+</table>
+{% endblock %}

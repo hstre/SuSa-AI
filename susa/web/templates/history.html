@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Verlauf{% endblock %}
+{% block body %}
+<h1>Verlauf</h1>
+<h2>Prüfentscheidungen (append-only)</h2>
+<table class="small"><tr><th>#</th><th>Zeit</th><th>Prüfer</th><th>Ziel</th><th>Entscheidung</th><th>Kommentar</th><th>Korrektur</th></tr>
+{% for r in reviews %}<tr><td>{{ r.id }}</td><td>{{ r.created_at }}</td><td>{{ r.reviewer }}</td><td class="wrap">{{ r.target_type }} {{ r.target_id }}</td><td>{{ DECISION_LABELS[r.decision] }}</td><td>{{ r.comment }}</td><td class="wrap">{{ r.corrected_json or '' }}</td></tr>
+{% else %}<tr><td colspan="7" class="muted">keine</td></tr>{% endfor %}</table>
+<h2>Revisionen (Datenänderungen)</h2>
+<table class="small"><tr><th>Zeit</th><th>Objekt</th><th>Grund</th><th>Vorher</th><th>Änderung</th><th>Urheber</th></tr>
+{% for r in revisions %}<tr><td>{{ r.created_at }}</td><td class="wrap">{{ r.entity_type }} {{ r.entity_id }}</td><td>{{ r.reason }}</td><td class="wrap">{{ r.before_json }}</td><td class="wrap">{{ r.change_json }}</td><td>{{ r.author }}</td></tr>
+{% else %}<tr><td colspan="6" class="muted">keine</td></tr>{% endfor %}</table>
+<h2>Läufe</h2>
+<table class="small"><tr><th>ID</th><th>Art</th><th>Code</th><th>Adapter / Modell</th><th>Prompt</th><th>echt</th><th>Status</th><th>Verbrauch</th></tr>
+{% for r in runs %}<tr><td class="wrap">{{ r.id }}</td><td>{{ r.kind }}</td><td>{{ r.code_version }}</td><td>{{ r.adapter or '' }} {{ r.model or '' }}</td><td>{{ r.prompt_version or '' }}</td>
+<td>{% if r.is_real_model_run %}ja{% else %}nein{% endif %}</td><td>{{ r.status }}{% if r.error %}<br><span class="muted wrap">{{ r.error[:160] }}</span>{% endif %}</td><td class="wrap">{{ r.usage_json or '' }}</td></tr>{% endfor %}</table>
+{% endblock %}

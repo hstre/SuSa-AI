@@ -1,0 +1,411 @@
+{
+ "n": 40,
+ "status": {
+  "ok_full": 40
+ },
+ "availability": {
+  "full": 40
+ },
+ "documents": [
+  {
+   "document_id": "upstream:mc-lit-review:post:2207",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "1841 Wörter extrahiert; Vergleich {'api_wordcount': 1830, 'upstream_words': 1830}; Quote 1.01",
+   "n_chars": 10820,
+   "units": 11,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:312190",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "2826 Wörter extrahiert; Vergleich {'api_wordcount': 2722, 'upstream_words': 2722}; Quote 1.04",
+   "n_chars": 16995,
+   "units": 18,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:9909",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "4526 Wörter extrahiert; Vergleich {'api_wordcount': 4440, 'upstream_words': 4440}; Quote 1.02",
+   "n_chars": 26061,
+   "units": 35,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:968",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "1996 Wörter extrahiert; Vergleich {'api_wordcount': 1992, 'upstream_words': 1992}; Quote 1.00",
+   "n_chars": 14262,
+   "units": 16,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:19422",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "3298 Wörter extrahiert; Vergleich {'api_wordcount': 3232, 'upstream_words': 3232}; Quote 1.02",
+   "n_chars": 24196,
+   "units": 33,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:3456",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "1762 Wörter extrahiert; Vergleich {'api_wordcount': 1721, 'upstream_words': 1721}; Quote 1.02",
+   "n_chars": 11589,
+   "units": 14,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:10649",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "5186 Wörter extrahiert; Vergleich {'api_wordcount': 5035, 'upstream_words': 5035}; Quote 1.03",
+   "n_chars": 28136,
+   "units": 31,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:24491",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "3829 Wörter extrahiert; Vergleich {'api_wordcount': 3363, 'upstream_words': 3363}; Quote 1.14",
+   "n_chars": 21418,
+   "units": 28,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:19272",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "1666 Wörter extrahiert; Vergleich {'api_wordcount': 1630, 'upstream_words': 1630}; Quote 1.02",
+   "n_chars": 11235,
+   "units": 12,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:9915",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "1045 Wörter extrahiert; Vergleich {'api_wordcount': 1027, 'upstream_words': 1027}; Quote 1.02",
+   "n_chars": 6182,
+   "units": 7,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:442",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "2941 Wörter extrahiert; Vergleich {'api_wordcount': 2902, 'upstream_words': 2902}; Quote 1.01",
+   "n_chars": 17925,
+   "units": 23,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:4719",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "1014 Wörter extrahiert; Vergleich {'api_wordcount': 986, 'upstream_words': 986}; Quote 1.03",
+   "n_chars": 6182,
+   "units": 5,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:996",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "1635 Wörter extrahiert; Vergleich {'api_wordcount': 1623, 'upstream_words': 1623}; Quote 1.01",
+   "n_chars": 11208,
+   "units": 24,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:10890",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "5070 Wörter extrahiert; Vergleich {'api_wordcount': 4938, 'upstream_words': 4938}; Quote 1.03",
+   "n_chars": 30796,
+   "units": 33,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:22915",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "5172 Wörter extrahiert; Vergleich {'api_wordcount': 5132, 'upstream_words': 5132}; Quote 1.01",
+   "n_chars": 36241,
+   "units": 35,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:351",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "773 Wörter extrahiert; Vergleich {'api_wordcount': 755, 'upstream_words': 755}; Quote 1.02",
+   "n_chars": 4272,
+   "units": 5,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:6682",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "1795 Wörter extrahiert; Vergleich {'api_wordcount': 1785, 'upstream_words': 1785}; Quote 1.01",
+   "n_chars": 10658,
+   "units": 12,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:14373",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "2508 Wörter extrahiert; Vergleich {'api_wordcount': 2485, 'upstream_words': 2485}; Quote 1.01",
+   "n_chars": 14287,
+   "units": 18,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:230",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "870 Wörter extrahiert; Vergleich {'api_wordcount': 857, 'upstream_words': 857}; Quote 1.02",
+   "n_chars": 5630,
+   "units": 7,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:489",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "3695 Wörter extrahiert; Vergleich {'api_wordcount': 3547, 'upstream_words': 3547}; Quote 1.04",
+   "n_chars": 26453,
+   "units": 23,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:8600",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "2586 Wörter extrahiert; Vergleich {'api_wordcount': 2578, 'upstream_words': 2578}; Quote 1.00",
+   "n_chars": 16449,
+   "units": 16,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:312184",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "1360 Wörter extrahiert; Vergleich {'api_wordcount': 1347, 'upstream_words': 1347}; Quote 1.01",
+   "n_chars": 8321,
+   "units": 9,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:67",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "3995 Wörter extrahiert; Vergleich {'api_wordcount': 3771, 'upstream_words': 3771}; Quote 1.06",
+   "n_chars": 26868,
+   "units": 27,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:259",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "2711 Wörter extrahiert; Vergleich {'api_wordcount': 2651, 'upstream_words': 2651}; Quote 1.02",
+   "n_chars": 16092,
+   "units": 17,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:19054",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "2845 Wörter extrahiert; Vergleich {'api_wordcount': 2748, 'upstream_words': 2748}; Quote 1.04",
+   "n_chars": 15955,
+   "units": 19,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:299174",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "919 Wörter extrahiert; Vergleich {'api_wordcount': 905, 'upstream_words': 905}; Quote 1.02",
+   "n_chars": 6081,
+   "units": 9,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:17545",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "1766 Wörter extrahiert; Vergleich {'api_wordcount': 1740, 'upstream_words': 1656}; Quote 1.01",
+   "n_chars": 10969,
+   "units": 13,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:10831",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "1652 Wörter extrahiert; Vergleich {'api_wordcount': 1623, 'upstream_words': 1623}; Quote 1.02",
+   "n_chars": 10818,
+   "units": 13,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:10628",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "3510 Wörter extrahiert; Vergleich {'api_wordcount': 3476, 'upstream_words': 3476}; Quote 1.01",
+   "n_chars": 21957,
+   "units": 31,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:10686",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "978 Wörter extrahiert; Vergleich {'api_wordcount': 1000, 'upstream_words': 1000}; Quote 0.98",
+   "n_chars": 6067,
+   "units": 7,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:21915",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "2278 Wörter extrahiert; Vergleich {'api_wordcount': 2149, 'upstream_words': 2149}; Quote 1.06",
+   "n_chars": 14337,
+   "units": 18,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:18997",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "5451 Wörter extrahiert; Vergleich {'api_wordcount': 5321, 'upstream_words': 5321}; Quote 1.02",
+   "n_chars": 33375,
+   "units": 36,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:310800",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "1219 Wörter extrahiert; Vergleich {'api_wordcount': 1180, 'upstream_words': 1180}; Quote 1.03",
+   "n_chars": 7269,
+   "units": 12,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:10085",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "2301 Wörter extrahiert; Vergleich {'api_wordcount': 2195, 'upstream_words': 2195}; Quote 1.05",
+   "n_chars": 13052,
+   "units": 15,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:11371",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "1605 Wörter extrahiert; Vergleich {'api_wordcount': 1611, 'upstream_words': 1611}; Quote 1.00",
+   "n_chars": 10186,
+   "units": 11,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:8849",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "4102 Wörter extrahiert; Vergleich {'api_wordcount': 3975, 'upstream_words': 3975}; Quote 1.03",
+   "n_chars": 24893,
+   "units": 25,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:2394",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "1092 Wörter extrahiert; Vergleich {'api_wordcount': 1062, 'upstream_words': 1062}; Quote 1.03",
+   "n_chars": 6507,
+   "units": 9,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:825",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "3407 Wörter extrahiert; Vergleich {'api_wordcount': 3390, 'upstream_words': 3390}; Quote 1.01",
+   "n_chars": 20934,
+   "units": 23,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:9080",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "585 Wörter extrahiert; Vergleich {'api_wordcount': 597, 'upstream_words': 597}; Quote 0.98",
+   "n_chars": 3488,
+   "units": 3,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  },
+  {
+   "document_id": "upstream:mc-lit-review:post:83",
+   "status": "ok_full",
+   "availability": "full",
+   "detail": "793 Wörter extrahiert; Vergleich {'api_wordcount': 788, 'upstream_words': 788}; Quote 1.01",
+   "n_chars": 4936,
+   "units": 6,
+   "coverage": 1.0,
+   "paragraphs_not_fully_covered": []
+  }
+ ]
+}
