@@ -21,5 +21,127 @@
   "v20:seg-1:2": "Der Autor referiert die Kritik an LLMs als „stochastische Papageien“ (Bender u. a.): Sie sagten Sprachmuster statistisch vorher, ohne echtes Verstehen. Dem hält er entgegen, dass aktuelle Modelle einen einfachen Turing-Test leicht bestünden. Daraus folge eine tiefere Einsicht: Vorhersagbarkeit sei für die menschliche Gesellschaft selbst grundlegend.",
   "v27:seg-1:5": "Der Autor will die Gegenposition fair darstellen: Der Emergentismus stütze sich auf reale Korrelationen zwischen neuronaler Komplexität und Bewusstsein (Hirnschäden, Narkose); deshalb nähmen Denker wie Searle und Chalmers physikalistische Erklärungen ernst. Zudem zeigten heutige KI-Systeme bewusst wirkendes Verhalten (Präferenzen, Berichte über innere Zustände); er nennt eine Nutzeranekdote und eine Umfrage, nach der 74 % der US-Erwachsenen KI-Empfindungsfähigkeit für möglich halten. Ohne feste Definition von Bewusstsein greife ein Vorsorgeimpuls.",
   "v12:seg-1:2": "Der Autor antwortet auf ein Dokument, das KI zugleich für nicht bewusst erklärt und die Wissenschaft des KI-Bewusstseins für ungeklärt hält. Er stimmt zu, dass Systeme Bewusstsein nicht imitieren sollten, nennt die Behauptung „KI ist nicht bewusst“ aber unbegründet, weil eine Definition fehle. Mit Verweis auf historische Fälle, in denen Menschen anderen Menschen Bewusstsein absprachen, fordert er strengere Belegmaßstäbe und hält die Aussage des Dokuments für selbstwidersprüchlich."
+ },
+ "anchors": {
+  "v39:seg-1:1": {
+   "document_id": "upstream:mc-lit-review:post:9080",
+   "start_char": 914,
+   "end_char": 2435,
+   "version_text_sha256": "9b2057e03f3cfa30035eda6060e34ebfe587e12a3317b84d2076529574d17c25"
+  },
+  "v40:seg-1:2": {
+   "document_id": "upstream:mc-lit-review:post:83",
+   "start_char": 1893,
+   "end_char": 2767,
+   "version_text_sha256": "c267a83d36f1b2cfb721854b38d4062e86992b7d1297317a89a61fad01bc1330"
+  },
+  "v2:seg-1:7": {
+   "document_id": "upstream:mc-lit-review:post:312190",
+   "start_char": 5686,
+   "end_char": 6598,
+   "version_text_sha256": "ea584a3ad299ce8aeec44c93f6903ca58b6d2b0ad6996162642f6c81981ac25c"
+  },
+  "v22:seg-1:4": {
+   "document_id": "upstream:mc-lit-review:post:312184",
+   "start_char": 3919,
+   "end_char": 4742,
+   "version_text_sha256": "cf47e87bf98d428577aeb68bfd74efc0d6300b4f2a408beb7dd75111719be812"
+  },
+  "v17:seg-1:2": {
+   "document_id": "upstream:mc-lit-review:post:6682",
+   "start_char": 1715,
+   "end_char": 2826,
+   "version_text_sha256": "3c4ede0ee6dc4d96b0202c176b4d14de541a0db7fac80ec48fce6895ebafe4d9"
+  },
+  "v24:seg-1:3": {
+   "document_id": "upstream:mc-lit-review:post:259",
+   "start_char": 2697,
+   "end_char": 3335,
+   "version_text_sha256": "5d6c3bb40965bb7150992b7f5c441c00fa0cb8f75c1ca18c8bf1eb50be04dc17"
+  },
+  "v18:seg-1:9": {
+   "document_id": "upstream:mc-lit-review:post:14373",
+   "start_char": 7042,
+   "end_char": 7781,
+   "version_text_sha256": "205c995b24b560c11f567bd99d6f6907d10b50e2fcc3594e3d8227f537ae8b44"
+  },
+  "v25:seg-1:2": {
+   "document_id": "upstream:mc-lit-review:post:19054",
+   "start_char": 1631,
+   "end_char": 2228,
+   "version_text_sha256": "d1336671f5c8825e5055a0e59223b95a54e1dd1d4f467ba20d9577cf27d1b439"
+  },
+  "v4:seg-1:14": {
+   "document_id": "upstream:mc-lit-review:post:968",
+   "start_char": 12462,
+   "end_char": 13430,
+   "version_text_sha256": "e942b899eae8919708e8f5e8a2dcee9573f267c43717672623b35c72b76a09db"
+  },
+  "v23:seg-1:4": {
+   "document_id": "upstream:mc-lit-review:post:67",
+   "start_char": 3880,
+   "end_char": 4587,
+   "version_text_sha256": "7a8c39a2c5c19018343cbfe6f6453bdc8045be6075527fd6ea0d1c5e7bb26626"
+  },
+  "v32:seg-1:30": {
+   "document_id": "upstream:mc-lit-review:post:18997",
+   "start_char": 26307,
+   "end_char": 27660,
+   "version_text_sha256": "dc7bf4b17ca9268e73ac47ad50b3a142602fea53b5a02fce05133d0157a07d40"
+  },
+  "v7:seg-1:12": {
+   "document_id": "upstream:mc-lit-review:post:10649",
+   "start_char": 11536,
+   "end_char": 12307,
+   "version_text_sha256": "8cb7ec1ec4cd499f4c4bacfbf59c39bdaa9fe09772a6f1a4509384a63d57a3c9"
+  },
+  "v9:seg-1:6": {
+   "document_id": "upstream:mc-lit-review:post:19272",
+   "start_char": 7000,
+   "end_char": 7777,
+   "version_text_sha256": "dc5be220340e7c170a17f16095bf2c18c8b928666e18deafe583526672bb7863"
+  },
+  "v30:seg-1:4": {
+   "document_id": "upstream:mc-lit-review:post:10686",
+   "start_char": 3198,
+   "end_char": 4171,
+   "version_text_sha256": "f59eb06bf3aa7b2da3535325b4c69457692e347d7ec7716b336f1d9a1f608937"
+  },
+  "v36:seg-1:14": {
+   "document_id": "upstream:mc-lit-review:post:8849",
+   "start_char": 12475,
+   "end_char": 13432,
+   "version_text_sha256": "e982fb46c8ec2a9b7879e2897235271c87e163814750f954076ca3650b7a3493"
+  },
+  "v33:seg-1:9": {
+   "document_id": "upstream:mc-lit-review:post:310800",
+   "start_char": 5695,
+   "end_char": 6290,
+   "version_text_sha256": "72c4639446a037fe8961ef1fbe1bdd3bed1ae53379fea09218445f3c9e605af6"
+  },
+  "v14:seg-1:2": {
+   "document_id": "upstream:mc-lit-review:post:10890",
+   "start_char": 1448,
+   "end_char": 2310,
+   "version_text_sha256": "7777fb20471123e9c9227219672bb4ee326b3f4bbda56ac0cfa1c8e29c45de2c"
+  },
+  "v20:seg-1:2": {
+   "document_id": "upstream:mc-lit-review:post:489",
+   "start_char": 1384,
+   "end_char": 2362,
+   "version_text_sha256": "9b1a4b2c7941cef37e97351058bdd792ce726e7b0faf551f1d234637d7a6bdb9"
+  },
+  "v27:seg-1:5": {
+   "document_id": "upstream:mc-lit-review:post:17545",
+   "start_char": 3782,
+   "end_char": 5136,
+   "version_text_sha256": "1f7015ef2d24c7c003f859640cb53c6a19967d73c7eab4bf9a0aa56d8b6ec977"
+  },
+  "v12:seg-1:2": {
+   "document_id": "upstream:mc-lit-review:post:4719",
+   "start_char": 2258,
+   "end_char": 3700,
+   "version_text_sha256": "28352c1077c3a6fd681c299f0cd4dd08e0bf0dba8695c7db880d6c7c29a612c9"
+  }
  }
 }

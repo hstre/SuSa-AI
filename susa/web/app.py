@@ -245,7 +245,8 @@ def create_app(cfg: Config | None = None) -> Flask:
                    for h in hyps}
         shared = shared_sources(c, sides["left"]["u"]["document_id"], sides["right"]["u"]["document_id"])
         return render_template("compare.html", cmp=cmp_, sides=sides, hyps=hyps, reviews=reviews, shared=shared,
-                               msg=request.args.get("msg"), llm=cfg.section("llm"))
+                               msg=request.args.get("msg"), llm=cfg.section("llm"),
+                               budget=budget_status(c, cfg.section("llm")["budget_id"]) if cfg.section("llm").get("budget_id") else None)
 
     @app.route("/sources")
     def sources():

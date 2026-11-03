@@ -106,8 +106,43 @@ def create_set(conn, label: str, per_hypothesis: int = 2, seed: int = 20261103) 
     return sid, items
 
 
-def add_reading_aid(conn, unit_id: str, text: str, author: str, method: str) -> None:
-    u = conn.execute("SELECT text FROM argument_units WHERE id=?", (unit_id,)).fetchone()
+def resolve_unit(conn, unit_id: str, anchor: dict | None):
+    """Einheit per ID oder – nach einem Neuaufbau mit anderen IDs – per Dokument, Zeichenbereich und Text-Hash finden."""
+    u = conn.execute("SELECT id, text FROM argument_units WHERE id=?", (unit_id,)).fetchone()
+    if anchor:
+        if u is not None and conn.execute("""SELECT 1 FROM argument_units x JOIN document_versions v ON v.id=x.version_id WHERE x.id=? AND x.document_id=?
+                                             AND x.start_char=? AND x.end_char=? AND v.text_sha256=?""",
+                                          (unit_id, anchor["document_id"], anchor["start_char"], anchor["end_char"], anchor["version_text_sha256"])).fetchone():
+            return u
+        return conn.execute("""SELECT x.id, x.text FROM argument_units x JOIN document_versions v ON v.id=x.version_id WHERE x.document_id=?
+                               AND x.start_char=? AND x.end_char=? AND v.text_sha256=?""",
+                            (anchor["document_id"], anchor["start_char"], anchor["end_char"], anchor["version_text_sha256"])).fetchone()
+    return u
+
+
+def add_reading_aid(conn, unit_id: str, text: str, author: str, method: str, anchor: dict | None = None) -> None:
+    u = resolve_unit(conn, unit_id, anchor)
+    if u is None:
+        raise KeyError(f"Einheit {unit_id} nicht auffindbar (Text geändert oder nicht abgerufen)")
+    unit_id = u["id"]
     conn.execute("INSERT INTO reading_aids(unit_id, lang, text, author, method, source_text_sha256, created_at) VALUES(?,?,?,?,?,?,?)",
                  (unit_id, "de", text, author, method, db.sha256_text(u["text"]), db.now()))
     conn.commit()
+
+
+def import_set(conn, data: dict) -> str:
+    """Prüfauswahl aus pilot/review_set_*.json wiederherstellen (über stabile Anker, nicht über lokale IDs)."""
+    from .search import ensure_comparison
+    sid = data["set_id"]
+    conn.execute("INSERT OR REPLACE INTO review_sets(id, label, method_json, created_at) VALUES(?,?,?,?)",
+                 (sid, data["label"], db.dumps({"seed": data.get("seed"), "imported": True, "hypotheses": HYPOTHESES}), db.now()))
+    conn.execute("DELETE FROM review_set_items WHERE set_id=?", (sid,))
+    for it in data["items"]:
+        lu, ru = resolve_unit(conn, "", it["left"]), resolve_unit(conn, "", it["right"])
+        if lu is None or ru is None:
+            raise KeyError(f"Paar {it['position']}: Einheit nicht auffindbar (Text nicht abgerufen oder geändert)")
+        cid = ensure_comparison(conn, lu["id"], ru["id"], "review_set_import")
+        conn.execute("INSERT INTO review_set_items(set_id, position, comparison_id, search_hypothesis, selection_reason) VALUES(?,?,?,?,?)",
+                     (sid, it["position"], cid, it["search_hypothesis"], it["selection_reason"]))
+    conn.commit()
+    return sid

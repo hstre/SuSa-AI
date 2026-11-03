@@ -85,7 +85,7 @@ Menschliche Bestätigung gilt nur für diese konkrete Interpretation.</p>
 <div class="cols">
 <div class="card">
   <h3>Modellvergleich (Prompt B)</h3>
-  <p class="small">Adapter: <code>{{ llm.adapter }}</code>, Modell <code>{{ llm.model }}</code>, Limit {{ llm.max_calls_per_run }} Aufrufe pro Lauf.
+  <p class="small">Adapter: <code>{{ llm.adapter }}</code>, Modell <code>{{ llm.model }}</code>. Budget: {% if budget %}<code>{{ budget.id }}</code>, {{ budget.used }}/{{ budget.max_calls }} verbraucht{% else %}keines gesetzt (llm.budget_id); echte Dienste werden abgelehnt{% endif %}.
   {% if llm.adapter == 'none' %}<br><span class="muted">Kein Modell konfiguriert; der Lauf wird als „nicht ausgeführt“ protokolliert.</span>{% endif %}</p>
   <form method="post"><input type="hidden" name="action" value="model_compare"><button>Vergleich ausführen</button></form>
 </div>

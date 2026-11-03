@@ -12,7 +12,7 @@ Grundlage ist der Bauauftrag `Claude_Uebergabe_Argumentanalyse.md` (Arbeitsfassu
 Ausgangsdaten: öffentlicher Metadatenexport von Mike Thickes Projekt
 [mc-lit-review](https://github.com/Epistemic-Technology/mc-lit-review) (siehe [NOTICE.md](NOTICE.md)).
 
-## Stand (3. November 2026)
+## Stand (3. November 2026, Version 0.2.0)
 
 | Bereich | Stand |
 |---|---|
@@ -24,11 +24,13 @@ Ausgangsdaten: öffentlicher Metadatenexport von Mike Thickes Projekt
 | Lexikalische Suche (SQLite FTS5/BM25) | aktiv |
 | Kandidatensuche | 18.777 Kandidatenpaare für alle Pilot-Einheiten gespeichert |
 | Oberfläche (Übersicht, Dokument, Suche, Kandidaten, Vergleich/Prüfung, Verlauf, Quellen, Export) | lauffähig, im Browser getestet |
-| Modellgestützte Rekonstruktion/Vergleich/Gegenprüfung | Adapter und Prompts implementiert, **noch kein echter Modelllauf** |
-| Abnahmefälle | deterministische Teile ausgeführt, Modellteile nicht ausgeführt ([Bericht](docs/ACCEPTANCE_REPORT.md)) |
+| Modellgestützte Rekonstruktion/Vergleich/Gegenprüfung | erster begrenzter Lauf über die Claude-CLI: 17 Aufrufe an synthetischen Fällen ([Bericht](docs/MODEL_ACCEPTANCE_1.md)) |
+| Abnahmefälle (DE + EN) | [Retrieval ohne Modell](docs/acceptance/v2_retrieval_ohne_modell.md), [mit Modell](docs/acceptance/v2_modell_claude_cli.md), [v1](docs/acceptance/v1_2026-11-03_ohne_modell.md) |
+| Reale Prüfauswahl | 10 Pilotpaare mit Blindansicht und deutschen Lesehilfen, **noch nicht beurteilt** ([Anleitung](docs/REVIEW_SET_1.md)) |
+| Echte Paare mit Modell bewertet | **keine** |
 | Goldstandard, Precision/Recall, Baselines A/B/C | **ausstehend** |
 
-Details und Befunde: [docs/PILOT_REPORT.md](docs/PILOT_REPORT.md).
+Details und Befunde: [docs/PILOT_REPORT.md](docs/PILOT_REPORT.md), Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
 ## Installation
 
@@ -62,6 +64,8 @@ python -m susa compare <comparison_id> --adapter anthropic_api
 python -m susa acceptance                 # zwölf Abnahmefälle -> docs/ACCEPTANCE_REPORT.md
 python -m susa report                     # Textabdeckung der Pilotdokumente
 python -m susa export ergebnisse.jsonl    # eigene Ergebnisse, ohne fremde Volltexte
+python -m susa review-set import pilot/review_set_1.json   # Prüfauswahl 1 wiederherstellen
+python -m susa review-set load-aids pilot/reading_aids_rs1.json --author "…" --method "…"
 python -m susa serve                      # Oberfläche auf http://127.0.0.1:5005
 python -m pytest                          # Tests
 ```

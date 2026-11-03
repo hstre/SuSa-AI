@@ -107,6 +107,8 @@ def main(argv=None):
     r.add_argument("--seed", type=int, default=20261103)
     r = rsub.add_parser("show")
     r.add_argument("set_id")
+    r = rsub.add_parser("import", help="Prüfauswahl aus JSON (z. B. pilot/review_set_1.json) wiederherstellen")
+    r.add_argument("path")
     r = rsub.add_parser("load-aids", help="Lesehilfen aus JSON laden ({unit_id: text})")
     r.add_argument("path")
     r.add_argument("--author", required=True)
@@ -245,10 +247,12 @@ def main(argv=None):
         if a.rcmd == "create":
             sid, items = review_set.create_set(conn, a.label, a.per_hypothesis, a.seed)
             print(sid, len(items))
+        elif a.rcmd == "import":
+            print(review_set.import_set(conn, json.loads(Path(a.path).read_text("utf-8"))))
         elif a.rcmd == "load-aids":
             data = json.loads(Path(a.path).read_text("utf-8"))
             for uid, text in data["aids"].items():
-                review_set.add_reading_aid(conn, uid, text, a.author, a.method)
+                review_set.add_reading_aid(conn, uid, text, a.author, a.method, (data.get("anchors") or {}).get(uid))
             print(f"{len(data['aids'])} Lesehilfen geladen")
         else:
             for r in conn.execute("""SELECT i.*, cc.left_unit_id, cc.right_unit_id FROM review_set_items i JOIN candidate_comparisons cc

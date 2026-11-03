@@ -82,7 +82,7 @@ Prüfentscheidung, Verlauf, Quellen, JSONL-Export. Testeinträge wurden danach a
 
 ## 2 Abnahmefälle
 
-Siehe [ACCEPTANCE_REPORT.md](ACCEPTANCE_REPORT.md). Kurzfassung:
+Stand v1 (ohne Modell), archiviert unter [acceptance/v1_2026-11-03_ohne_modell.md](acceptance/v1_2026-11-03_ohne_modell.md). Neuere Ergebnisse mit englischen Fassungen und erstem Modelllauf: [MODEL_ACCEPTANCE_1.md](MODEL_ACCEPTANCE_1.md). Kurzfassung v1:
 
 | Fall | Deterministisch geprüft | Modellteil |
 |---|---|---|
@@ -98,7 +98,7 @@ Formale Mindestabnahme: alle sechs Prüfungen ohne Fehler. Die synthetischen Fä
 
 ## 3 Nicht ausgeführt / offen
 
-1. **Modellläufe** (Prompt A/B/C) für synthetische und echte Paare. Adapter `anthropic_api` und `claude_cli` sind
+1. **Modellläufe für echte Paare.** Synthetische Fälle: erster Lauf am 3.11.2026, siehe [MODEL_ACCEPTANCE_1.md](MODEL_ACCEPTANCE_1.md). Früherer Stand: Prompt A/B/C für synthetische und echte Paare offen. Adapter `anthropic_api` und `claude_cli` sind
    implementiert, aber ungetestet gegen einen echten Dienst. Ohne Läufe gibt es keine Aussage zur Interpretationsqualität.
 2. **Goldstandard**: Auswahl von Pilotpaaren durch Steffen (und ggf. eine zweite Person), getrennt in Entwicklungs-
    und zurückgehaltenen Prüfbestand.
