@@ -1,6 +1,6 @@
 [project]
 name = "susa-ai"
-version = "0.4.1"
+version = "0.4.2"
 description = "Lokales Forschungswerkzeug: begründete Erweiterungen, Einschränkungen und Widersprüche in Substack-Argumenten auffinden und prüfen"
 requires-python = ">=3.11"
 license = { text = "MIT" }

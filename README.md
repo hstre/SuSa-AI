@@ -12,7 +12,7 @@ Grundlage ist der Bauauftrag `Claude_Uebergabe_Argumentanalyse.md` (Arbeitsfassu
 Ausgangsdaten: öffentlicher Metadatenexport von Mike Thickes Projekt
 [mc-lit-review](https://github.com/Epistemic-Technology/mc-lit-review) (siehe [NOTICE.md](NOTICE.md)).
 
-## Stand (4. November 2026, Version 0.4.1)
+## Stand (4. November 2026, Version 0.4.2)
 
 | Bereich | Stand |
 |---|---|
@@ -93,6 +93,7 @@ python -m susa budget status <ID>
 # Paar zerlegen (Budget-Review-Komponenten), dann Argumentstufe (Prompt D) auf die gespeicherten Läufe
 python -m susa br-pair <set_id> <position> --adapter claude_cli --budget <ID> --repeats 1 --no-relations
 python -m susa argument <set_id> <position> --adapter claude_cli --budget <ID> --public-out docs/pairN/ARGUMENT_STAGE_RAW.md
+python -m susa argument-batch <set_id> 4-10 --adapter claude_cli --budget <ID>   # fortsetzbar, ohne Wiederholungen
 python -m susa argument <set_id> <position> --render <run_id> [--revalidate] [--public-short …]   # Berichte neu, kein Aufruf
 ```
 

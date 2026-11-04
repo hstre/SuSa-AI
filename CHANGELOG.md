@@ -1,5 +1,19 @@
 # Änderungsprotokoll
 
+## 0.4.2 – 4. November 2026 (Paare 4–10)
+
+- `argument-batch`: fortsetzbarer Stapellauf über Paare. Gültige Stufen werden nicht erneut aufgerufen, keine
+  automatischen Wiederholungen, Stand in `data/semantic/<set>-batch.json`.
+- Technische Korrekturen, die die Verarbeitung blockierten:
+  - Ohne Relationsstufe wird jede Seite einer Extraktion sofort gespeichert und bei einer Fortsetzung
+    wiederverwendet.
+  - `run_files` zählt die Zwischenspeicher je Seite nicht als Lauf.
+  - Die Vorprüfung pausiert bei erschöpftem Abo-Kontingent vor der Reservierung.
+- Kurzbericht r3: Die Engführung „ändert er eine Schlussfolgerung?“ ist entfernt. Prompt D_argument.v1 bleibt
+  unverändert, weil er Zusätze nicht so einschränkt.
+- Paare 4, 5, 7–10: unveränderte Ausgabe, Kurzbericht und getrennte Durchsicht (`docs/pairN/`). Paar 6 nicht
+  abgeschlossen (`docs/pair6/STATUS.md`). Gemeinsame Auswertung: `docs/AUSWERTUNG_PAARE_1-10.md`.
+
 ## 0.4.1 – 4. November 2026 (Sprecherzuordnung, Paar 3)
 
 - **Sprecherzuordnung beim Zusammenfassen:** `argument_stage.holder()` leitet für Ketten, Fragen, Vergleiche und
