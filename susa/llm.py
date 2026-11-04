@@ -272,7 +272,7 @@ class ClaudeCLIAdapter(Adapter):
             return
         problems = check_subscription_only(self.bin, self.conn, self.budget.id if self.budget else None)
         if problems:
-            raise NotConfigured("Abrechnung nicht als reine Abo-Nutzung bestätigt, kein Aufruf: " + "; ".join(problems))
+            raise NotConfigured("Vorprüfung nicht bestanden (Abo-Nutzung oder Kontingent), kein Aufruf: " + "; ".join(problems))
 
     def command(self, system: str) -> list[str]:
         return [self.bin, "-p", "--output-format", "stream-json", "--verbose", "--model", self.cfg.get("model", "claude-opus-5-5"),
