@@ -53,10 +53,15 @@ def render_passage(label: str, c: dict) -> str:
 
 
 def check_quotes(conn, c: dict, quotes, create_spans: bool = True) -> list[dict]:
-    """Exakte Suche im kanonischen Text innerhalb des übergebenen Bereichs (Kern + Kontext). Toleriert nur
-    abweichenden Leerraum und umschließende Anführungszeichen, keine Wortänderungen."""
+    """Verankerung über `budget_review.anchoring.anchor_spans` (Budget-Review, Forschungsbericht §4.3):
+    exakt zuerst, sonst auf einer leerraum-normalisierten Kopie; zurückgegeben werden die Zeichen des Dokuments.
+    Toleriert Satz/Umbruch, nie Umformulierung; Groß-/Kleinschreibung und Satzzeichen werden nicht angeglichen.
+    SuSa-Zusatz (vor 0.4 schon vorhanden): Gelingt das nicht, wird einmal ohne umschließende Anführungszeichen
+    gesucht, die Modelle um Zitate setzen. Mehrere Fundstellen werden als `anchor_ambiguous` markiert."""
+    from budget_review.anchoring import anchor_spans
     u, text = c["unit"], c["text"]
     lo, hi = u["ctx_start"], u["ctx_end"]
+    region = text[lo:hi]
     out = []
     if not isinstance(quotes, list):
         return out
@@ -64,25 +69,24 @@ def check_quotes(conn, c: dict, quotes, create_spans: bool = True) -> list[dict]
         if not isinstance(q, str) or not q.strip():
             out.append({"quote": q, "found": False, "method": "empty_or_not_string"})
             continue
-        q2 = q.strip().strip("„“”\"'‚‘’«»").strip()
-        idx = text.find(q2, lo, hi) if q2 else -1
-        method = "exact"
-        if idx < 0 and q2:
-            pattern = r"\s+".join(re.escape(w) for w in q2.split())
-            m = re.search(pattern, text[lo:hi])
-            if m:
-                idx, q2, method = lo + m.start(), m.group(0), "whitespace_normalized"
-        if idx < 0:
+        spans, normalised = anchor_spans(region, q.strip())
+        method = "whitespace_normalized" if normalised else "exact"
+        if not spans:
+            unquoted = q.strip().strip("„“”\"'‚‘’«»").strip()
+            if unquoted and unquoted != q.strip():
+                spans, normalised = anchor_spans(region, unquoted)
+                method = "outer_quotes_removed" + ("+whitespace_normalized" if normalised else "")
+        if not spans:
             out.append({"quote": q, "found": False, "method": "not_found"})
             continue
-        s, e = idx, idx + len(q2)
+        s, e = lo + spans[0][0], lo + spans[0][1]
         sid = f"v{u['version_id']}:m:{s}-{e}"
         if create_spans:
             conn.execute(
                 "INSERT OR IGNORE INTO spans(id, version_id, start_char, end_char, text, speaker, origin, text_sha256, created_at) VALUES(?,?,?,?,?,?,?,?,?)",
                 (sid, u["version_id"], s, e, text[s:e], None, "model_quote", db.sha256_text(text[s:e]), db.now()))
         out.append({"quote": q, "found": True, "method": method, "span_id": sid, "start_char": s, "end_char": e,
-                    "in_core": u["start_char"] <= s and e <= u["end_char"]})
+                    "anchor_ambiguous": len(spans) > 1, "in_core": u["start_char"] <= s and e <= u["end_char"]})
     return out
 
 

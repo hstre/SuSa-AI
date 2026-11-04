@@ -128,6 +128,13 @@ def main(argv=None):
     r.add_argument("path")
     r.add_argument("--author", required=True)
     r.add_argument("--method", required=True)
+    p = sub.add_parser("br-pair", help="Paar einer Prüfauswahl mit den Budget-Review-Komponenten zerlegen")
+    p.add_argument("set_id")
+    p.add_argument("position", type=int)
+    p.add_argument("--adapter")
+    p.add_argument("--budget")
+    p.add_argument("--repeats", type=int, default=3)
+    p.add_argument("--evaluate-only", action="store_true")
     p = sub.add_parser("serve", help="lokale Oberfläche starten")
     p.add_argument("--port", type=int, default=5005)
     p.add_argument("--host", default="127.0.0.1")
@@ -293,6 +300,21 @@ def main(argv=None):
             for r in conn.execute("""SELECT i.*, cc.left_unit_id, cc.right_unit_id FROM review_set_items i JOIN candidate_comparisons cc
                                      ON cc.id=i.comparison_id WHERE set_id=? ORDER BY position""", (a.set_id,)):
                 print(r["position"], r["search_hypothesis"], r["comparison_id"], r["selection_reason"])
+    elif a.cmd == "br-pair":
+        from . import br_bridge, review_set
+        from .llm import CallLimitReached, NotConfigured, get_adapter
+        conn = _conn(cfg)
+        out_dir = cfg.subdir(f"semantic/{a.set_id}-p{a.position}")
+        if not a.evaluate_only:
+            it = next(i for i in review_set.set_items(conn, a.set_id) if i["position"] == a.position)
+            try:
+                ad = get_adapter(cfg.section("llm"), a.adapter, conn=conn, budget_id=a.budget)
+                br_bridge.run_pair(cfg, conn, ad, it["left_unit_id"], it["right_unit_id"], a.repeats, out_dir)
+            except (NotConfigured, CallLimitReached) as e:
+                print("GESTOPPT:", e)
+        rep = br_bridge.evaluate(out_dir)
+        (out_dir / "evaluation.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1, default=str), "utf-8")
+        print(json.dumps({k: rep[k] for k in ("runs", "relations")}, ensure_ascii=False, default=str)[:2000])
     elif a.cmd == "serve":
         from .web.app import create_app
         create_app(cfg).run(host=a.host, port=a.port, debug=False)

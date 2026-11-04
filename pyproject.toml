@@ -13,6 +13,8 @@ dependencies = [
   "flask>=3.0",
   "tokenizers>=0.15",
   "onnxruntime>=1.17",
+  # Budget-Review: Gate, Verankerung, Abdeckung, Extraktionsvertrag (gepinnt, siehe docs/COMPONENT_MAPPING.md)
+  "content-review @ git+https://github.com/hstre/Budget-Review@6fc50e783d1978c943e081ffcb2cb04d3a6fe547",
 ]
 
 [project.optional-dependencies]
