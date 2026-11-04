@@ -27,7 +27,7 @@ from budget_review.anchoring import anchor_spans
 from . import db
 from .analysis import _finish_run, _start_run
 from .llm import CallLimitReached, NotConfigured, extract_json, load_prompt
-from .pair_analysis import build_structure
+from .pair_analysis import build_structure, run_files
 from .search import markers_for
 
 ACTS = ["vertritt", "berichtet", "mögliche Überzeugung anderer", "Frage", "Überschrift", "offen"]
@@ -81,7 +81,7 @@ def build_inputs(conn, pair_dir: Path) -> dict:
     kinds = paragraph_kinds(conn, passages)
     structure = build_structure(pair_dir, kinds)
     add_sentence_anchors(structure, passages, kinds)
-    runs = sorted(p.name for p in pair_dir.glob("run-*.json"))
+    runs = [p.name for p in run_files(pair_dir)]
     return {"passages": passages, "structure": structure, "runs": runs,
             "inputs_sha256": db.sha256_text(json.dumps({"p": passages, "s": structure}, sort_keys=True, ensure_ascii=False))}
 

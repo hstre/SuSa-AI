@@ -59,3 +59,9 @@ def test_structure_groups_by_anchor_and_counts_runs(tmp_path):
     assert pa.check_interpretation(good, st) == []
     bad = {"c": [{"a": ["A99"], "b": [seth_a["id"]]}], "y": {"model_edge": [seth_a["id"], "CONTRADICTS", "B01"]}}
     assert len(pa.check_interpretation(bad, st)) == 2
+
+
+def test_side_caches_are_not_counted_as_runs(tmp_path):
+    for n in ("run-1.json", "run-1.A.json", "run-1.B.json", "run-10.json", "run-2.json"):
+        (tmp_path / n).write_text("{}")
+    assert [p.name for p in pa.run_files(tmp_path)] == ["run-1.json", "run-2.json", "run-10.json"]

@@ -63,10 +63,16 @@ def speech_cues(document: str, start: int, end: int, paragraph_kind: str | None)
     return cues
 
 
+def run_files(out_dir: Path) -> list[Path]:
+    """Vollständige Läufe run-<n>.json, ohne die Zwischenspeicher je Seite (run-<n>.A.json)."""
+    return sorted((p for p in out_dir.glob("run-*.json") if re.fullmatch(r"run-\d+\.json", p.name)),
+                  key=lambda p: int(p.stem.split("-")[1]))
+
+
 def build_structure(out_dir: Path, paragraph_kinds: dict[str, list[tuple[int, int, str]]]) -> dict:
     """Anker-Gruppen und Kanten über alle gespeicherten Läufe. paragraph_kinds: je Seite (start, end, kind) relativ."""
     passages = json.loads((out_dir / "passages.json").read_text("utf-8"))
-    runs = [json.loads(p.read_text("utf-8")) for p in sorted(out_dir.glob("run-*.json"))]
+    runs = [json.loads(p.read_text("utf-8")) for p in run_files(out_dir)]
     n = len(runs)
     out = {"runs": n, "sides": {}, "cross_edges": []}
     keyid: dict[tuple[str, str], str] = {}

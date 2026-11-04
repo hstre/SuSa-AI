@@ -179,7 +179,8 @@ def evaluate(out_dir: Path) -> dict:
     """Auswertung der gespeicherten Läufe, ohne Modellaufruf. Achsen getrennt (Budget-Review §4.12):
     Textabdeckung, Bedeutung (Token-Bedingungen), Sprache, Relationen, Stabilität über Wiederholungen."""
     from budget_review.anchoring import folded
-    runs = [json.loads(p.read_text("utf-8")) for p in sorted(out_dir.glob("run-*.json"))]
+    from .pair_analysis import run_files
+    runs = [json.loads(p.read_text("utf-8")) for p in run_files(out_dir)]
     cases_path = out_dir / "meaning_cases.json"
     cases = json.loads(cases_path.read_text("utf-8"))["cases"] if cases_path.exists() else []
     report = {"runs": len(runs), "sides": {}, "meaning": {}, "relations": {}}
