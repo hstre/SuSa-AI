@@ -335,6 +335,8 @@ def check_subscription_only(cli_bin: str, conn=None, budget_id: str | None = Non
             problems.append("Zusatznutzung laut CLI-Zustand nicht als abgeschaltet vermerkt")
     except (OSError, ValueError):
         problems.append("CLI-Zustand (~/.claude.json) nicht lesbar")
+    if conn is not None:
+        problems += quota_problems(conn)
     if conn is not None and budget_id:
         for row in conn.execute("SELECT id, usage_json FROM model_calls WHERE budget_id=? AND outcome='success' AND adapter='claude_cli'",
                                 (budget_id,)):
@@ -345,6 +347,28 @@ def check_subscription_only(cli_bin: str, conn=None, budget_id: str | None = Non
                 problems.append(f"Aufruf {row[0]} meldet Zusatznutzung (overageStatus={rl.get('overageStatus')}, "
                                 f"isUsingOverage={rl.get('isUsingOverage')})")
     return problems
+
+
+def quota_problems(conn, threshold: float = 0.95, now: float | None = None) -> list[str]:
+    """Abo-Kontingent laut den Rate-Limit-Angaben der letzten Antwort. Ist ein noch nicht zurückgesetztes Fenster
+    nicht mehr „allowed“ oder fast ausgeschöpft, wird vor dem nächsten Aufruf pausiert (kein verlorener Versuch)."""
+    import time
+    now = time.time() if now is None else now
+    row = conn.execute("SELECT id, usage_json FROM model_calls WHERE adapter='claude_cli' AND usage_json LIKE '%rate_limit_info%' "
+                       "ORDER BY id DESC LIMIT 1").fetchone()
+    if not row:
+        return []
+    rl = (json.loads(row[1] or "{}") or {}).get("rate_limit_info") or {}
+    windows = dict(rl.get("unifiedWindows") or {})
+    windows.setdefault("gesamt", {"status": rl.get("status"), "resetsAt": rl.get("resetsAt"), "utilization": None})
+    out = []
+    for name, w in windows.items():
+        if (w.get("resetsAt") or 0) <= now:
+            continue
+        if w.get("status") not in (None, "allowed") or (w.get("utilization") or 0) >= threshold:
+            out.append(f"Kontingent {name} laut Aufruf {row[0]}: status={w.get('status')}, Auslastung={w.get('utilization')}, "
+                       f"zurückgesetzt ab {time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(w['resetsAt']))}")
+    return out
 
 
 ADAPTERS = {"none": NoneAdapter, "replay": ReplayAdapter, "anthropic_api": AnthropicAPIAdapter, "claude_cli": ClaudeCLIAdapter}

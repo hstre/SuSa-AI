@@ -148,8 +148,20 @@ def run_pair(cfg, conn, adapter, left_unit: str, right_unit: str, repeats: int, 
     runs = []
     for k in range(1, repeats + 1):
         run_id = db.new_run_id("br_pair")
-        sa = extract_side(adapter, "A", pa, run_id)
-        sb = extract_side(adapter, "B", pb, run_id)
+        sides = {}
+        for key, p in (("A", pa), ("B", pb)):
+            # Ohne Relationsstufe wird jede Seite sofort gespeichert und bei einer Fortsetzung wiederverwendet,
+            # sofern sie zur selben Textfassung gehört: ein Abbruch nach Seite A verwirft keinen bezahlten Aufruf.
+            cache = out_dir / f"run-{k}.{key}.json"
+            cached = json.loads(cache.read_text("utf-8")) if (not relations and cache.exists()) else None
+            if cached and cached.get("dossier") and cached.get("document_sha256") == p["document_sha256"]:
+                sides[key] = cached
+                continue
+            sides[key] = extract_side(adapter, key, p, run_id)
+            if not relations:
+                cache.write_text(json.dumps({**{x: y for x, y in sides[key].items() if x != "_claims"},
+                                             "document_sha256": p["document_sha256"]}, ensure_ascii=False, indent=1, default=str), "utf-8")
+        sa, sb = sides["A"], sides["B"]
         if not relations:
             rel = {"skipped": "Relationsstufe nicht ausgeführt (Budget)", "relations": []}
         elif sa.get("_claims") and sb.get("_claims"):

@@ -469,7 +469,7 @@ def mask_source_quotes(text: str, documents: list[str], max_words: int = 4) -> s
     return QUOTED.sub(repl, text)
 
 
-RENDER_VERSION = "r2"  # r1: ohne Sprecherzuordnung in Ketten/Vergleichen; r1-Dateien bleiben unverändert liegen
+RENDER_VERSION = "r3"  # r1: ohne Sprecherzuordnung; r2: Kurzbericht fragte, ob ein Zusatz einen Schluss ändert; ältere Dateien bleiben liegen
 
 
 def render_short(result: dict, validation: dict, inputs: dict, meta: dict, with_text: bool) -> str:
@@ -504,13 +504,15 @@ def render_short(result: dict, validation: dict, inputs: dict, meta: dict, with_
     for c in result.get("conclusion_comparison", []):
         L.append(f"- {', '.join(c.get('a', []))} ↔ {', '.join(c.get('b', []))}: {c.get('match')}. A vertreten von: {who(c.get('a'))}; "
                  f"B vertreten von: {who(c.get('b'))}.")
-    L += ["", "## 2. Welcher Gedanke kommt hinzu, welche Textstelle begründet ihn, ändert er eine Schlussfolgerung?", ""]
+    L += ["", "## 2. Was fügt eine Passage hinzu, worauf stützt es sich, und wie hängt es mit der anderen zusammen?", "",
+          "Ein Zusatz ist zunächst ein Kandidat: Dass er nur in einer Passage steht, belegt weder Relevanz noch Qualität.", ""]
     for a in result.get("additions", []) or []:
         L += [f"- **{a.get('id')} ({a.get('kind')})**: {a.get('thought')}",
               f"  - vertreten von: {who(a.get('anchors'))}",
               f"  - Textstelle: {ref(a.get('anchors'))}" + (f"; Beleg „{a.get('evidence_quote')}“" if with_text and a.get("evidence_quote") else ""),
               f"  - in der anderen Passage: {a.get('contained_in_other')}",
-              f"  - ändert den Gedankengang/Schluss: {a.get('changes_line')}"]
+              f"  - Bezug zum Gedankengang (Angabe des Modells): {a.get('changes_line')}",
+              f"  - Textgrundlage (Angabe des Modells): {a.get('textual_basis')}"]
     if not result.get("additions"):
         L.append("- Kein zusätzlicher Gedanke ausgewiesen.")
     L += ["", "## 3. Wo erlauben Wortlaut oder Kontext mehrere Lesarten?", ""]

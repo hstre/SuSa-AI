@@ -145,6 +145,12 @@ def main(argv=None):
     p.add_argument("--public-out", help="Pfad für die Fassung ohne Originalzitate (versionierbar)")
     p.add_argument("--public-short", help="Pfad für den Kurzbericht ohne Originalzitate (versionierbar)")
     p.add_argument("--revalidate", action="store_true", help="mit --render: aktuelle Prüfregeln getrennt anwenden")
+    p = sub.add_parser("argument-batch", help="Extraktion und Argumentstufe für mehrere Paare, fortsetzbar")
+    p.add_argument("set_id")
+    p.add_argument("positions", help="z. B. 4-10 oder 4,6,7")
+    p.add_argument("--adapter")
+    p.add_argument("--budget", required=True)
+    p.add_argument("--retry-failed", action="store_true")
     p = sub.add_parser("serve", help="lokale Oberfläche starten")
     p.add_argument("--port", type=int, default=5005)
     p.add_argument("--host", default="127.0.0.1")
@@ -347,6 +353,20 @@ def main(argv=None):
         paths = argument_stage.write_reports(run_dir, Path(a.public_out) if a.public_out else None,
                                              Path(a.public_short) if a.public_short else None, revalidate=a.revalidate)
         print("Berichte:", ", ".join(str(p) for p in paths))
+    elif a.cmd == "argument-batch":
+        from . import batch
+        from .llm import NotConfigured, get_adapter
+        conn = _conn(cfg)
+        pos = [int(x) for part in a.positions.split(",") for x in
+               (range(int(part.split("-")[0]), int(part.split("-")[1]) + 1) if "-" in part else [part])]
+        cfg_llm = {**cfg.section("llm"), "max_retries": 0}  # keine automatischen Wiederholungen im Stapellauf
+        try:
+            ad = get_adapter(cfg_llm, a.adapter, conn=conn, budget_id=a.budget)
+        except NotConfigured as e:
+            print("GESTOPPT:", e)
+            return
+        st = batch.run(cfg, conn, ad, a.set_id, pos, Path("docs"), retry_failed=a.retry_failed)
+        print(json.dumps(st, ensure_ascii=False, indent=1))
     elif a.cmd == "serve":
         from .web.app import create_app
         create_app(cfg).run(host=a.host, port=a.port, debug=False)

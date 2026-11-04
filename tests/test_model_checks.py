@@ -342,3 +342,35 @@ def test_subscription_guard_blocks_after_overage_or_missing_rate_limit(tmp_path,
     conn.commit()
     p = [x for x in check_subscription_only("claude-gibt-es-nicht", conn, bid) if x.startswith("Aufruf")]
     assert len(p) == 2 and "Zusatznutzung" in p[0] and "ohne Rate-Limit" in p[1]
+
+
+def test_quota_guard_pauses_before_exhausted_window(tmp_path):
+    from susa.llm import quota_problems
+    conn = db.connect(tmp_path / "q.sqlite")
+    bid = create_budget(conn, "q", 2, adapter="claude_cli")
+    rl = {"status": "allowed", "resetsAt": 2000, "unifiedWindows": {"five_hour": {"status": "allowed", "resetsAt": 2000, "utilization": 0.97},
+                                                                     "seven_day": {"status": "allowed", "resetsAt": 9000, "utilization": 0.3}}}
+    conn.execute("INSERT INTO model_calls(budget_id, attempt, adapter, is_real_service, started_at, outcome, usage_json) VALUES(?,?,?,?,?,?,?)",
+                 (bid, 1, "claude_cli", 1, db.now(), "success", json.dumps({"rate_limit_info": rl})))
+    conn.commit()
+    assert len(quota_problems(conn, now=1000)) == 1 and "five_hour" in quota_problems(conn, now=1000)[0]
+    assert quota_problems(conn, now=3000) == []  # Fenster zurückgesetzt
+
+
+def test_run_pair_resumes_after_side_a(tmp_path, monkeypatch):
+    """Abbruch nach Seite A: bei der Fortsetzung wird nur Seite B aufgerufen."""
+    from susa import br_bridge
+    p = {"A": {"document": "a", "document_sha256": "ha"}, "B": {"document": "b", "document_sha256": "hb"}}
+    monkeypatch.setattr(br_bridge, "passage", lambda cfg, conn, uid: p[uid])
+    calls = []
+
+    def fake(adapter, key, pp, run_id):
+        calls.append(key)
+        if key == "B" and calls.count("B") == 1:
+            raise CallLimitReached("Budget")
+        return {"dossier": {"claims": []}, "call_id": len(calls)}
+    monkeypatch.setattr(br_bridge, "extract_side", fake)
+    with pytest.raises(CallLimitReached):
+        br_bridge.run_pair(None, None, None, "A", "B", 1, tmp_path, relations=False)
+    br_bridge.run_pair(None, None, None, "A", "B", 1, tmp_path, relations=False)
+    assert calls == ["A", "B", "B"] and (tmp_path / "run-1.json").exists()
