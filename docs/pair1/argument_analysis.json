@@ -5,132 +5,880 @@
   "author": "Claude, analytische Interpretation in der Claude-Code-Sitzung vom 4.11.2026; kein neuer Modellaufruf über das Werkzeug",
   "status": "Interpretation, nicht von einem Menschen geprüft",
   "anchor_note": "Anker-IDs (A01…, B01…) sind Originalstellen aus structure.json (Zeichenbereiche relativ zur angezeigten Auswahl); Originaltexte lokal",
-  "frequency_note": "Häufigkeit über die drei Läufe zeigt Stabilität der Modellausgabe, nicht Richtigkeit"
+  "frequency_note": "Häufigkeit über die drei Läufe zeigt Stabilität der Modellausgabe, nicht Richtigkeit",
+  "version": 2,
+  "revisions": [
+   {
+    "version": 2,
+    "date": "2026-11-04",
+    "change": "B+1 contained_in_other: „Nicht-Berechenbarkeit“ ersetzt durch „nicht allein auf Berechnung reduzierbar“. Die frühere Wiedergabe verstärkte die Quelle (A12): Die Quelle bestreitet nur die Reduzierbarkeit allein auf Berechnung, nicht jede Berechenbarkeit.",
+    "previous": "docs/pair1/argument_analysis.v1.json",
+    "also_in_chat": "Die Chat-Antwort vom 4.11.2026 enthielt dieselbe Verstärkung zusätzlich in Tabellenzeile A+1; dort nicht versioniert, hier vermerkt."
+   }
+  ],
+  "reference_status": "nachbearbeitete Referenz; weder unabhängig geprüft noch Goldstandard"
  },
  "speech_acts": [
-  {"anchor": "A01", "act": "vertritt", "note": "Rahmen: Untergangsprophezeiungen sind nicht neu"},
-  {"anchor": ["A02", "A03", "A04"], "act": "berichtet", "speaker": "Hinton", "note": "Redeverben; A04 ist Hintons Minderheitsposition, dass KI bewusst sei"},
-  {"anchor": "A05", "act": "offen", "note": "Folgerung des Textes oder Fortsetzung der Hinton-Wiedergabe; alle drei Läufe ordnen sie Hinton zu (Modellentscheidung, nicht Textbefund)"},
-  {"anchor": "A06", "act": "berichtet", "speaker": "Seth", "note": "eingeleitet mit „However“ als Gegenposition zu A04; der Text übernimmt sie erkennbar (vgl. A14)"},
-  {"anchor": ["A07", "A08", "A09", "A10", "A11", "A12", "A13"], "act": "offen: vertritt oder setzt Seth-Wiedergabe fort", "note": "kein Redeverb mehr; „as … argues here“ kann bis hierher reichen. Weil A14 eine eigene skeptische Haltung bekennt, lese ich A07–A12 als vom Text vertreten (Interpretation)"},
-  {"anchor": "A14", "act": "vertritt", "speaker": "verfassende Person", "modality": "Bedingung an die Lesenden („wenn man skeptisch ist“) mit Selbstbekenntnis „(and I am)“"},
-  {"anchor": "A15", "act": "vertritt", "modality": "„feel further away“: subjektive Wirkung, nicht Behauptung, das Armageddon sei ferner", "model_divergence": "alle Läufe: „Scepticism … makes … feel“ – die Bedingung wird zur Ursache; „feel“ bleibt erhalten"},
-  {"anchor": ["A16", "A17"], "act": "vertritt", "modality": "„may not be conscious“ / „does not mean … not threatening“", "model_divergence": "Lauf 3 setzt „even if they are not conscious“ (Modalität „may“ entfällt in der Bedingung)"},
-  {"anchor": "A18", "act": "berichtet", "speaker": "Chowdury (Channel 4)"},
-  {"anchor": ["A19", "A20", "A21"], "act": "offen: berichtet (Chowdury) oder vertritt", "note": "kein Sprechermarker; die Läufe schreiben A20/A21 als Tatsachen ohne Zuordnung"},
-  {"anchor": "A22", "act": "vertritt", "modality": "Prognose („will only grow“)"},
-  {"anchor": ["A23", "A24", "A26"], "act": "berichtet", "speaker": "ehemaliger Mitarbeiter von OpenAI (Kontext danach)"},
-  {"anchor": ["B01", "B02", "B03"], "act": "vertritt", "modality": "Erwartung („should expect“), Kontext davor"},
-  {"anchor": ["B04", "B05", "B06"], "act": "mögliche Überzeugung anderer", "modality": "may / might", "note": "Kontext davor"},
-  {"anchor": "B07", "act": "mögliche Überzeugung anderer", "modality": "would", "note": "„this“ = Ansicht aus B05/B06 (Rechte, Sklaverei)"},
-  {"anchor": ["B08", "B09", "B10"], "act": "mögliche Überzeugung anderer", "modality": "may be convinced", "note": "der Text bewertet diese Überzeugungen nicht"},
-  {"anchor": "B11", "act": "vertritt", "modality": "could (Möglichkeit)", "note": "eigene Möglichkeitsaussage des Textes, keine berichtete Haltung"},
-  {"anchor": ["B12", "B13", "B14"], "act": "vertritt", "modality": "could / would"},
-  {"anchor": "B15", "act": "mögliche Überzeugung anderer", "modality": "may worry"},
-  {"anchor": "B16", "act": "Frage", "note": "rhetorisch oder offen; keine Behauptung", "model_divergence": "Lauf 1: als Möglichkeitsbehauptung („they might act against human interests“); Läufe 2 und 3: als Frage erhalten"},
-  {"anchor": ["B17", "B18", "B19", "B20", "B21"], "act": "vertritt", "modality": "B18/B20 „can“, B21 „weak“ (nicht „keine“)"},
-  {"anchor": "B22", "act": "Überschrift", "note": "argumentative Funktion als Interpretation: kündigt einen Abschnitt über Uneinigkeit unter Fachleuten an; dessen Inhalt liegt außerhalb der Auswahl"}
+  {
+   "anchor": "A01",
+   "act": "vertritt",
+   "note": "Rahmen: Untergangsprophezeiungen sind nicht neu"
+  },
+  {
+   "anchor": [
+    "A02",
+    "A03",
+    "A04"
+   ],
+   "act": "berichtet",
+   "speaker": "Hinton",
+   "note": "Redeverben; A04 ist Hintons Minderheitsposition, dass KI bewusst sei"
+  },
+  {
+   "anchor": "A05",
+   "act": "offen",
+   "note": "Folgerung des Textes oder Fortsetzung der Hinton-Wiedergabe; alle drei Läufe ordnen sie Hinton zu (Modellentscheidung, nicht Textbefund)"
+  },
+  {
+   "anchor": "A06",
+   "act": "berichtet",
+   "speaker": "Seth",
+   "note": "eingeleitet mit „However“ als Gegenposition zu A04; der Text übernimmt sie erkennbar (vgl. A14)"
+  },
+  {
+   "anchor": [
+    "A07",
+    "A08",
+    "A09",
+    "A10",
+    "A11",
+    "A12",
+    "A13"
+   ],
+   "act": "offen: vertritt oder setzt Seth-Wiedergabe fort",
+   "note": "kein Redeverb mehr; „as … argues here“ kann bis hierher reichen. Weil A14 eine eigene skeptische Haltung bekennt, lese ich A07–A12 als vom Text vertreten (Interpretation)"
+  },
+  {
+   "anchor": "A14",
+   "act": "vertritt",
+   "speaker": "verfassende Person",
+   "modality": "Bedingung an die Lesenden („wenn man skeptisch ist“) mit Selbstbekenntnis „(and I am)“"
+  },
+  {
+   "anchor": "A15",
+   "act": "vertritt",
+   "modality": "„feel further away“: subjektive Wirkung, nicht Behauptung, das Armageddon sei ferner",
+   "model_divergence": "alle Läufe: „Scepticism … makes … feel“ – die Bedingung wird zur Ursache; „feel“ bleibt erhalten"
+  },
+  {
+   "anchor": [
+    "A16",
+    "A17"
+   ],
+   "act": "vertritt",
+   "modality": "„may not be conscious“ / „does not mean … not threatening“",
+   "model_divergence": "Lauf 3 setzt „even if they are not conscious“ (Modalität „may“ entfällt in der Bedingung)"
+  },
+  {
+   "anchor": "A18",
+   "act": "berichtet",
+   "speaker": "Chowdury (Channel 4)"
+  },
+  {
+   "anchor": [
+    "A19",
+    "A20",
+    "A21"
+   ],
+   "act": "offen: berichtet (Chowdury) oder vertritt",
+   "note": "kein Sprechermarker; die Läufe schreiben A20/A21 als Tatsachen ohne Zuordnung"
+  },
+  {
+   "anchor": "A22",
+   "act": "vertritt",
+   "modality": "Prognose („will only grow“)"
+  },
+  {
+   "anchor": [
+    "A23",
+    "A24",
+    "A26"
+   ],
+   "act": "berichtet",
+   "speaker": "ehemaliger Mitarbeiter von OpenAI (Kontext danach)"
+  },
+  {
+   "anchor": [
+    "B01",
+    "B02",
+    "B03"
+   ],
+   "act": "vertritt",
+   "modality": "Erwartung („should expect“), Kontext davor"
+  },
+  {
+   "anchor": [
+    "B04",
+    "B05",
+    "B06"
+   ],
+   "act": "mögliche Überzeugung anderer",
+   "modality": "may / might",
+   "note": "Kontext davor"
+  },
+  {
+   "anchor": "B07",
+   "act": "mögliche Überzeugung anderer",
+   "modality": "would",
+   "note": "„this“ = Ansicht aus B05/B06 (Rechte, Sklaverei)"
+  },
+  {
+   "anchor": [
+    "B08",
+    "B09",
+    "B10"
+   ],
+   "act": "mögliche Überzeugung anderer",
+   "modality": "may be convinced",
+   "note": "der Text bewertet diese Überzeugungen nicht"
+  },
+  {
+   "anchor": "B11",
+   "act": "vertritt",
+   "modality": "could (Möglichkeit)",
+   "note": "eigene Möglichkeitsaussage des Textes, keine berichtete Haltung"
+  },
+  {
+   "anchor": [
+    "B12",
+    "B13",
+    "B14"
+   ],
+   "act": "vertritt",
+   "modality": "could / would"
+  },
+  {
+   "anchor": "B15",
+   "act": "mögliche Überzeugung anderer",
+   "modality": "may worry"
+  },
+  {
+   "anchor": "B16",
+   "act": "Frage",
+   "note": "rhetorisch oder offen; keine Behauptung",
+   "model_divergence": "Lauf 1: als Möglichkeitsbehauptung („they might act against human interests“); Läufe 2 und 3: als Frage erhalten"
+  },
+  {
+   "anchor": [
+    "B17",
+    "B18",
+    "B19",
+    "B20",
+    "B21"
+   ],
+   "act": "vertritt",
+   "modality": "B18/B20 „can“, B21 „weak“ (nicht „keine“)"
+  },
+  {
+   "anchor": "B22",
+   "act": "Überschrift",
+   "note": "argumentative Funktion als Interpretation: kündigt einen Abschnitt über Uneinigkeit unter Fachleuten an; dessen Inhalt liegt außerhalb der Auswahl"
+  }
  ],
  "chains": [
-  {"id": "A-K1", "side": "A", "question": "F1",
-   "conclusion": {"anchors": ["A07", "A11"], "rendering": "Menschenähnliche Informationsverarbeitung, gedächtnisähnliches Speichern und rechnerische Leistungsfähigkeit belegen nicht, dass KI bewusst bzw. notwendigerweise empfindungsfähig ist.", "modality": "Nicht-Implikation; Skopus „nicht notwendigerweise“ (A11)"},
+  {
+   "id": "A-K1",
+   "side": "A",
+   "question": "F1",
+   "conclusion": {
+    "anchors": [
+     "A07",
+     "A11"
+    ],
+    "rendering": "Menschenähnliche Informationsverarbeitung, gedächtnisähnliches Speichern und rechnerische Leistungsfähigkeit belegen nicht, dass KI bewusst bzw. notwendigerweise empfindungsfähig ist.",
+    "modality": "Nicht-Implikation; Skopus „nicht notwendigerweise“ (A11)"
+   },
    "parts": [
-    {"role": "Autorität", "anchors": ["A06"], "rendering": "Seth argumentiert, Bewusstsein und Intelligenz seien nicht gleichzusetzen."},
-    {"role": "Voraussetzung", "anchors": ["A08", "A10"], "rendering": "Verkörperung als Individuum ist für Bewusstsein und Selbstwahrnehmung wichtig.", "explicit": true},
-    {"role": "Voraussetzung", "anchors": ["A12"], "rendering": "Gehirn und Bewusstsein lassen sich nicht allein auf Berechnung zurückführen.", "explicit": true},
-    {"role": "Gegenposition", "anchors": ["A04"], "rendering": "Hinton: Informationsverarbeitung zeige eine Art Selbstwahrnehmung, also Bewusstsein."}
+    {
+     "role": "Autorität",
+     "anchors": [
+      "A06"
+     ],
+     "rendering": "Seth argumentiert, Bewusstsein und Intelligenz seien nicht gleichzusetzen."
+    },
+    {
+     "role": "Voraussetzung",
+     "anchors": [
+      "A08",
+      "A10"
+     ],
+     "rendering": "Verkörperung als Individuum ist für Bewusstsein und Selbstwahrnehmung wichtig.",
+     "explicit": true
+    },
+    {
+     "role": "Voraussetzung",
+     "anchors": [
+      "A12"
+     ],
+     "rendering": "Gehirn und Bewusstsein lassen sich nicht allein auf Berechnung zurückführen.",
+     "explicit": true
+    },
+    {
+     "role": "Gegenposition",
+     "anchors": [
+      "A04"
+     ],
+     "rendering": "Hinton: Informationsverarbeitung zeige eine Art Selbstwahrnehmung, also Bewusstsein."
+    }
    ],
-   "missing_premises": ["dass KI die relevante Verkörperung fehlt (nicht ausgesprochen)", "was mit „Verkörperung“ gemeint ist (nicht bestimmt)"],
+   "missing_premises": [
+    "dass KI die relevante Verkörperung fehlt (nicht ausgesprochen)",
+    "was mit „Verkörperung“ gemeint ist (nicht bestimmt)"
+   ],
    "internal_assessment": "Die Folgerung ist schwach formuliert (keine Implikation) und wird von den beiden Voraussetzungen gestützt, sofern man sie annimmt. Beide Voraussetzungen werden nur behauptet, nicht begründet; der Text stützt sich dafür sichtbar auf Seth. Die Autorität ersetzt hier einen Teil des Sacharguments. A11 hält den Skopus genau: „nicht notwendigerweise empfindungsfähig“, nicht „nicht empfindungsfähig“.",
-   "external_checks": ["ob Seth so argumentiert (verlinkte Quelle außerhalb der Auswahl)", "Hintons Position (A02–A04) laut Bericht"],
-   "model_support": [{"model_edge": ["A06", "CONTRADICTS", "A04"], "runs": 3}, {"model_edge": ["A08", "SUPPORTS", "A07"], "runs": 2}, {"model_edge": ["A09", "SUPPORTS", "A07"], "runs": 1}, {"model_edge": ["A12", "SUPPORTS", "A11"], "runs": 3}, {"model_edge": ["A07", "SUPPORTS", "A06"], "runs": 2}, {"model_edge": ["A06", "SUPPORTS", "A07"], "runs": 1}],
-   "run_differences": "Lauf 1 hält Verkörperung und Selbstwahrnehmung in einer Aussage (A09), Läufe 2–3 trennen (A08, A10). Die Richtung zwischen A06 und A07 wechselt."},
-  {"id": "A-K2", "side": "A", "question": "F1/F3",
-   "conclusion": {"anchors": ["A13"], "rendering": "Von einer Machtübernahme durch Roboter sind wir noch weit entfernt.", "modality": "Prognose"},
-   "parts": [{"role": "Grund (laut Modellkante)", "anchors": ["A11"], "rendering": "KI ist nicht notwendigerweise empfindungsfähig."}],
-   "missing_premises": ["dass eine Machtübernahme Empfindungsfähigkeit oder Bewusstsein voraussetzt"],
+   "external_checks": [
+    "ob Seth so argumentiert (verlinkte Quelle außerhalb der Auswahl)",
+    "Hintons Position (A02–A04) laut Bericht"
+   ],
+   "model_support": [
+    {
+     "model_edge": [
+      "A06",
+      "CONTRADICTS",
+      "A04"
+     ],
+     "runs": 3
+    },
+    {
+     "model_edge": [
+      "A08",
+      "SUPPORTS",
+      "A07"
+     ],
+     "runs": 2
+    },
+    {
+     "model_edge": [
+      "A09",
+      "SUPPORTS",
+      "A07"
+     ],
+     "runs": 1
+    },
+    {
+     "model_edge": [
+      "A12",
+      "SUPPORTS",
+      "A11"
+     ],
+     "runs": 3
+    },
+    {
+     "model_edge": [
+      "A07",
+      "SUPPORTS",
+      "A06"
+     ],
+     "runs": 2
+    },
+    {
+     "model_edge": [
+      "A06",
+      "SUPPORTS",
+      "A07"
+     ],
+     "runs": 1
+    }
+   ],
+   "run_differences": "Lauf 1 hält Verkörperung und Selbstwahrnehmung in einer Aussage (A09), Läufe 2–3 trennen (A08, A10). Die Richtung zwischen A06 und A07 wechselt."
+  },
+  {
+   "id": "A-K2",
+   "side": "A",
+   "question": "F1/F3",
+   "conclusion": {
+    "anchors": [
+     "A13"
+    ],
+    "rendering": "Von einer Machtübernahme durch Roboter sind wir noch weit entfernt.",
+    "modality": "Prognose"
+   },
+   "parts": [
+    {
+     "role": "Grund (laut Modellkante)",
+     "anchors": [
+      "A11"
+     ],
+     "rendering": "KI ist nicht notwendigerweise empfindungsfähig."
+    }
+   ],
+   "missing_premises": [
+    "dass eine Machtübernahme Empfindungsfähigkeit oder Bewusstsein voraussetzt"
+   ],
    "internal_assessment": "Nicht ausreichend gestützt. Ohne die fehlende Voraussetzung folgt aus A11 nichts über die Machtübernahme; A16 sagt selbst, dass KI ohne Bewusstsein bedrohlich sein kann. Der Kontext danach berichtet eine Gegenansicht (A23).",
-   "model_support": [{"model_edge": ["A11", "SUPPORTS", "A13"], "runs": 3}, {"model_edge": ["A23", "CONTRADICTS", "A13"], "runs": 2}]},
-  {"id": "A-K3", "side": "A", "question": "F3",
-   "conclusion": {"anchors": ["A16", "A17"], "rendering": "Auch wenn KI möglicherweise nicht bewusst ist, heißt das nicht, dass sie ungefährlich ist.", "modality": "doppelte Negation, Bedingung mit „may“"},
+   "model_support": [
+    {
+     "model_edge": [
+      "A11",
+      "SUPPORTS",
+      "A13"
+     ],
+     "runs": 3
+    },
+    {
+     "model_edge": [
+      "A23",
+      "CONTRADICTS",
+      "A13"
+     ],
+     "runs": 2
+    }
+   ]
+  },
+  {
+   "id": "A-K3",
+   "side": "A",
+   "question": "F3",
+   "conclusion": {
+    "anchors": [
+     "A16",
+     "A17"
+    ],
+    "rendering": "Auch wenn KI möglicherweise nicht bewusst ist, heißt das nicht, dass sie ungefährlich ist.",
+    "modality": "doppelte Negation, Bedingung mit „may“"
+   },
    "parts": [
-    {"role": "Einschränkung des eigenen Vorlaufs", "anchors": ["A14", "A15"], "rendering": "Wer skeptisch ist (die verfassende Person ist es), dem erscheint das Armageddon ferner – das ist eine Wirkung auf das Empfinden, keine Entwarnung."},
-    {"role": "Autorität", "anchors": ["A18"], "rendering": "Chowdury: Untergangserzählungen lenken von aktuellen Herausforderungen ab."},
-    {"role": "Grund", "anchors": ["A19"], "rendering": "Diese Herausforderungen sind menschlicher Kontrolle zugänglich."},
-    {"role": "Grund", "anchors": ["A20", "A21"], "rendering": "Es fehlen konkrete Schutzvorkehrungen und internationale Regulierung (Datenschutz, Urheberrecht, algorithmische Diskriminierung)."},
-    {"role": "Folgerung", "anchors": ["A22"], "rendering": "Mit wachsender Nutzung wachsen diese Probleme an Umfang und Undurchsichtigkeit."}
+    {
+     "role": "Einschränkung des eigenen Vorlaufs",
+     "anchors": [
+      "A14",
+      "A15"
+     ],
+     "rendering": "Wer skeptisch ist (die verfassende Person ist es), dem erscheint das Armageddon ferner – das ist eine Wirkung auf das Empfinden, keine Entwarnung."
+    },
+    {
+     "role": "Autorität",
+     "anchors": [
+      "A18"
+     ],
+     "rendering": "Chowdury: Untergangserzählungen lenken von aktuellen Herausforderungen ab."
+    },
+    {
+     "role": "Grund",
+     "anchors": [
+      "A19"
+     ],
+     "rendering": "Diese Herausforderungen sind menschlicher Kontrolle zugänglich."
+    },
+    {
+     "role": "Grund",
+     "anchors": [
+      "A20",
+      "A21"
+     ],
+     "rendering": "Es fehlen konkrete Schutzvorkehrungen und internationale Regulierung (Datenschutz, Urheberrecht, algorithmische Diskriminierung)."
+    },
+    {
+     "role": "Folgerung",
+     "anchors": [
+      "A22"
+     ],
+     "rendering": "Mit wachsender Nutzung wachsen diese Probleme an Umfang und Undurchsichtigkeit."
+    }
    ],
-   "missing_premises": ["dass „bedrohlich“ hier aktuelle Schäden meint und nicht existenzielle Gefahr – der Text verschiebt den Gefahrenbegriff, ohne es auszusprechen"],
+   "missing_premises": [
+    "dass „bedrohlich“ hier aktuelle Schäden meint und nicht existenzielle Gefahr – der Text verschiebt den Gefahrenbegriff, ohne es auszusprechen"
+   ],
    "internal_assessment": "Die Folgerung ist schwach (möglich bedrohlich) und wird von konkreten Schadensfeldern gestützt. Die Gründe A20/A21 sind empirische Behauptungen über den Stand von Schutz und Regulierung, im Text unbelegt. Ob A19–A21 Chowdurys Punkt fortsetzen oder eigene Aussagen sind, bleibt offen.",
-   "external_checks": ["Stand konkreter Schutzmaßnahmen und internationaler Regulierung zum Zeitpunkt des Textes", "Chowdurys Aussage im genannten Interview"],
-   "model_support": [{"model_edge": ["A16", "QUALIFIES", "A15"], "runs": 2}, {"model_edge": ["A18", "SUPPORTS", "A16"], "runs": 2}, {"model_edge": ["A20", "SUPPORTS", "A18"], "runs": 3}, {"model_edge": ["A21", "SUPPORTS", "A18"], "runs": 2}, {"model_edge": ["A22", "SUPPORTS", "A16"], "runs": 1}],
-   "run_differences": "Die Läufe hängen A20/A21 an Chowdurys Aussage (A18), nicht direkt an A16; nur ein Lauf verbindet A22 mit A16."},
-  {"id": "B-K1", "side": "B", "question": "F1/F2",
-   "conclusion": {"anchors": ["B17"], "rendering": "Festzustellen, ob eine KI bewusst ist, ist besonders schwierig.", "modality": "epistemisch; keine Stellungnahme, ob KI bewusst ist"},
-   "parts": [
-    {"role": "Grund", "anchors": ["B18"], "rendering": "Bewusst zu wirken und bewusst zu sein können auseinanderfallen.", "explicit": true},
-    {"role": "Grund für B18", "anchors": ["B19", "B20"], "rendering": "KI lernt aus menschlichen Texten und kann deshalb überzeugend über Gefühle sprechen, ob sie welche hat oder nicht."},
-    {"role": "Folgerung", "anchors": ["B21"], "rendering": "Wie eine KI wirkt, ist ein schwacher Beleg für ihr Inneres.", "modality": "schwach, nicht null"}
+   "external_checks": [
+    "Stand konkreter Schutzmaßnahmen und internationaler Regulierung zum Zeitpunkt des Textes",
+    "Chowdurys Aussage im genannten Interview"
    ],
-   "missing_premises": ["dass die Gefühlssprache der KI hauptsächlich aus dem Training stammt und nicht (auch) aus inneren Zuständen – im „whether or not“ enthalten, aber nicht begründet"],
-   "internal_assessment": "Geschlossene Kette: Der Grund (Lernen aus menschlichen Texten) erklärt, warum sprachliche Selbstdarstellung nicht diagnostisch ist, und die Folgerung ist entsprechend vorsichtig. Die Kette betrifft nur Verhalten und Sprache, nicht interne Verarbeitung.",
-   "external_checks": ["dass die Systeme aus menschlichen Texten lernen (allgemein so beschrieben, hier nicht belegt)"],
-   "model_support": [{"model_edge": ["B19", "ENTAILS", "B20"], "runs": 3}, {"model_edge": ["B20", "SUPPORTS", "B18"], "runs": 3}, {"model_edge": ["B18", "SUPPORTS", "B17"], "runs": 3}, {"model_edge": ["B20", "SUPPORTS", "B21"], "runs": 3}, {"model_edge": ["B21", "SUPPORTS", "B17"], "runs": 3}],
-   "run_differences": "Die Kette ist in allen drei Läufen gleich."},
-  {"id": "B-K2", "side": "B", "question": "F2",
-   "conclusion": {"anchors": ["B01", "B02"], "rendering": "Man sollte erwarten, dass die Frage Menschen stark bewegt und spaltet (Kontext davor; „spaltet“ ist meine Zusammenfassung der Gegenüberstellung).", "modality": "Erwartung"},
+   "model_support": [
+    {
+     "model_edge": [
+      "A16",
+      "QUALIFIES",
+      "A15"
+     ],
+     "runs": 2
+    },
+    {
+     "model_edge": [
+      "A18",
+      "SUPPORTS",
+      "A16"
+     ],
+     "runs": 2
+    },
+    {
+     "model_edge": [
+      "A20",
+      "SUPPORTS",
+      "A18"
+     ],
+     "runs": 3
+    },
+    {
+     "model_edge": [
+      "A21",
+      "SUPPORTS",
+      "A18"
+     ],
+     "runs": 2
+    },
+    {
+     "model_edge": [
+      "A22",
+      "SUPPORTS",
+      "A16"
+     ],
+     "runs": 1
+    }
+   ],
+   "run_differences": "Die Läufe hängen A20/A21 an Chowdurys Aussage (A18), nicht direkt an A16; nur ein Lauf verbindet A22 mit A16."
+  },
+  {
+   "id": "B-K1",
+   "side": "B",
+   "question": "F1/F2",
+   "conclusion": {
+    "anchors": [
+     "B17"
+    ],
+    "rendering": "Festzustellen, ob eine KI bewusst ist, ist besonders schwierig.",
+    "modality": "epistemisch; keine Stellungnahme, ob KI bewusst ist"
+   },
    "parts": [
-    {"role": "mögliche Haltung anderer (dafür)", "anchors": ["B04", "B05", "B06"], "rendering": "Emotionale Bindungen; Überzeugung, KI-Begleiter seien digitale Personen mit Rechten; Arbeit ohne Lohn als Sklaverei (Kontext davor)."},
-    {"role": "mögliche Haltung anderer (dagegen)", "anchors": ["B07", "B08", "B10"], "rendering": "Andere fänden das absurd: Bewusstsein setze Biologie voraus, Menschen läsen Gefühle in Maschinen hinein."},
-    {"role": "eigene Möglichkeitsaussage", "anchors": ["B11", "B12", "B14"], "rendering": "Unternehmen und Regierungen könnten aus finanziellen Gründen eine Anerkennung ablehnen: Schutz des KI-Wohlergehens würde Training und Einsatz einschränken, die Kosten verteilten sich."},
-    {"role": "mögliche Haltung anderer + Frage", "anchors": ["B15", "B16"], "rendering": "Andere sorgen sich um Sicherheit; Frage, was geschieht, wenn mächtige KI mit Rechten gegen menschliche Interessen handelt."}
+    {
+     "role": "Grund",
+     "anchors": [
+      "B18"
+     ],
+     "rendering": "Bewusst zu wirken und bewusst zu sein können auseinanderfallen.",
+     "explicit": true
+    },
+    {
+     "role": "Grund für B18",
+     "anchors": [
+      "B19",
+      "B20"
+     ],
+     "rendering": "KI lernt aus menschlichen Texten und kann deshalb überzeugend über Gefühle sprechen, ob sie welche hat oder nicht."
+    },
+    {
+     "role": "Folgerung",
+     "anchors": [
+      "B21"
+     ],
+     "rendering": "Wie eine KI wirkt, ist ein schwacher Beleg für ihr Inneres.",
+     "modality": "schwach, nicht null"
+    }
+   ],
+   "missing_premises": [
+    "dass die Gefühlssprache der KI hauptsächlich aus dem Training stammt und nicht (auch) aus inneren Zuständen – im „whether or not“ enthalten, aber nicht begründet"
+   ],
+   "internal_assessment": "Geschlossene Kette: Der Grund (Lernen aus menschlichen Texten) erklärt, warum sprachliche Selbstdarstellung nicht diagnostisch ist, und die Folgerung ist entsprechend vorsichtig. Die Kette betrifft nur Verhalten und Sprache, nicht interne Verarbeitung.",
+   "external_checks": [
+    "dass die Systeme aus menschlichen Texten lernen (allgemein so beschrieben, hier nicht belegt)"
+   ],
+   "model_support": [
+    {
+     "model_edge": [
+      "B19",
+      "ENTAILS",
+      "B20"
+     ],
+     "runs": 3
+    },
+    {
+     "model_edge": [
+      "B20",
+      "SUPPORTS",
+      "B18"
+     ],
+     "runs": 3
+    },
+    {
+     "model_edge": [
+      "B18",
+      "SUPPORTS",
+      "B17"
+     ],
+     "runs": 3
+    },
+    {
+     "model_edge": [
+      "B20",
+      "SUPPORTS",
+      "B21"
+     ],
+     "runs": 3
+    },
+    {
+     "model_edge": [
+      "B21",
+      "SUPPORTS",
+      "B17"
+     ],
+     "runs": 3
+    }
+   ],
+   "run_differences": "Die Kette ist in allen drei Läufen gleich."
+  },
+  {
+   "id": "B-K2",
+   "side": "B",
+   "question": "F2",
+   "conclusion": {
+    "anchors": [
+     "B01",
+     "B02"
+    ],
+    "rendering": "Man sollte erwarten, dass die Frage Menschen stark bewegt und spaltet (Kontext davor; „spaltet“ ist meine Zusammenfassung der Gegenüberstellung).",
+    "modality": "Erwartung"
+   },
+   "parts": [
+    {
+     "role": "mögliche Haltung anderer (dafür)",
+     "anchors": [
+      "B04",
+      "B05",
+      "B06"
+     ],
+     "rendering": "Emotionale Bindungen; Überzeugung, KI-Begleiter seien digitale Personen mit Rechten; Arbeit ohne Lohn als Sklaverei (Kontext davor)."
+    },
+    {
+     "role": "mögliche Haltung anderer (dagegen)",
+     "anchors": [
+      "B07",
+      "B08",
+      "B10"
+     ],
+     "rendering": "Andere fänden das absurd: Bewusstsein setze Biologie voraus, Menschen läsen Gefühle in Maschinen hinein."
+    },
+    {
+     "role": "eigene Möglichkeitsaussage",
+     "anchors": [
+      "B11",
+      "B12",
+      "B14"
+     ],
+     "rendering": "Unternehmen und Regierungen könnten aus finanziellen Gründen eine Anerkennung ablehnen: Schutz des KI-Wohlergehens würde Training und Einsatz einschränken, die Kosten verteilten sich."
+    },
+    {
+     "role": "mögliche Haltung anderer + Frage",
+     "anchors": [
+      "B15",
+      "B16"
+     ],
+     "rendering": "Andere sorgen sich um Sicherheit; Frage, was geschieht, wenn mächtige KI mit Rechten gegen menschliche Interessen handelt."
+    }
    ],
    "internal_assessment": "Das ist eine Gegenüberstellung von Motiven und Haltungen, kein Argument darüber, ob KI bewusst ist. B11–B14 sind eine plausible Anreizüberlegung im Möglichkeitsmodus. Als Argument gegen KI-Bewusstsein verwendet, wäre sie ein Fehlschluss; der Text verwendet sie nicht so.",
-   "model_support": [{"model_edge": ["B07", "CONTRADICTS", "B05"], "runs": 3}, {"model_edge": ["B08", "SUPPORTS", "B07"], "runs": 3}, {"model_edge": ["B12", "SUPPORTS", "B11"], "runs": 3}, {"model_edge": ["B14", "SUPPORTS", "B11"], "runs": 2}, {"model_edge": ["B16", "SUPPORTS", "B15"], "runs": 2}],
-   "run_differences": "B16 als Frage in Läufen 2–3, als Behauptung in Lauf 1; Aufteilung von B01/B02 und B09/B10 wechselt."}
+   "model_support": [
+    {
+     "model_edge": [
+      "B07",
+      "CONTRADICTS",
+      "B05"
+     ],
+     "runs": 3
+    },
+    {
+     "model_edge": [
+      "B08",
+      "SUPPORTS",
+      "B07"
+     ],
+     "runs": 3
+    },
+    {
+     "model_edge": [
+      "B12",
+      "SUPPORTS",
+      "B11"
+     ],
+     "runs": 3
+    },
+    {
+     "model_edge": [
+      "B14",
+      "SUPPORTS",
+      "B11"
+     ],
+     "runs": 2
+    },
+    {
+     "model_edge": [
+      "B16",
+      "SUPPORTS",
+      "B15"
+     ],
+     "runs": 2
+    }
+   ],
+   "run_differences": "B16 als Frage in Läufen 2–3, als Behauptung in Lauf 1; Aufteilung von B01/B02 und B09/B10 wechselt."
+  }
  ],
  "questions": [
-  {"id": "F1", "text": "Lässt sich aus äußerer Ähnlichkeit (Verarbeitung, Leistung, Verhalten) auf Bewusstsein schließen?", "A": ["A-K1"], "B": ["B-K1"], "relation": "teilweise gemeinsame Frage"},
-  {"id": "F2", "text": "Wie wird die Gesellschaft auf die Frage nach KI-Bewusstsein reagieren, und warum?", "A": [], "B": ["B-K2"], "relation": "nur B"},
-  {"id": "F3", "text": "Ist KI unabhängig von Bewusstsein gefährlich, und welche Gefahren sind gemeint?", "A": ["A-K2", "A-K3"], "B": [], "relation": "nur A (B16 berührt Sicherheit nur als Frage unter der Bedingung zuerkannter Rechte)"}
+  {
+   "id": "F1",
+   "text": "Lässt sich aus äußerer Ähnlichkeit (Verarbeitung, Leistung, Verhalten) auf Bewusstsein schließen?",
+   "A": [
+    "A-K1"
+   ],
+   "B": [
+    "B-K1"
+   ],
+   "relation": "teilweise gemeinsame Frage"
+  },
+  {
+   "id": "F2",
+   "text": "Wie wird die Gesellschaft auf die Frage nach KI-Bewusstsein reagieren, und warum?",
+   "A": [],
+   "B": [
+    "B-K2"
+   ],
+   "relation": "nur B"
+  },
+  {
+   "id": "F3",
+   "text": "Ist KI unabhängig von Bewusstsein gefährlich, und welche Gefahren sind gemeint?",
+   "A": [
+    "A-K2",
+    "A-K3"
+   ],
+   "B": [],
+   "relation": "nur A (B16 berührt Sicherheit nur als Frage unter der Bedingung zuerkannter Rechte)"
+  }
  ],
  "conclusion_comparison": [
-  {"a": ["A07", "A11"], "b": ["B18", "B21"], "match": "teilweise",
+  {
+   "a": [
+    "A07",
+    "A11"
+   ],
+   "b": [
+    "B18",
+    "B21"
+   ],
+   "match": "teilweise",
    "common": "Äußere Ähnlichkeit begründet keinen Schluss auf Bewusstsein.",
    "difference": "A spricht über Verarbeitung und Leistung und neigt zu „nein“ (A12, A14). B spricht über Wirkung und Sprache und bleibt bei „schwer feststellbar“ (B17).",
-   "susa_relation_types": ["repeats (nur für die gemeinsame Nicht-Implikation)"],
-   "representation": "„Gleicher Schluss, anderer Grund“ ist als zwei Begründungsketten (A-K1, B-K1) zu teilweise übereinstimmenden Schlussfolgerungen darstellbar. Ein neuer Beziehungstyp ist dafür nicht nötig: Die Grund-Ebene lässt sich mit dem vorhandenen SuSa-Typ new_evidence_same_claim beschreiben (B19/B20 gegenüber A07; A08/A10/A12 gegenüber B18). Einschränkung: Der Typ ist für Belege benannt, hier sind es Argumente. Für „teilweise gleich“ hat SuSa keinen eigenen Typ."}
+   "susa_relation_types": [
+    "repeats (nur für die gemeinsame Nicht-Implikation)"
+   ],
+   "representation": "„Gleicher Schluss, anderer Grund“ ist als zwei Begründungsketten (A-K1, B-K1) zu teilweise übereinstimmenden Schlussfolgerungen darstellbar. Ein neuer Beziehungstyp ist dafür nicht nötig: Die Grund-Ebene lässt sich mit dem vorhandenen SuSa-Typ new_evidence_same_claim beschreiben (B19/B20 gegenüber A07; A08/A10/A12 gegenüber B18). Einschränkung: Der Typ ist für Belege benannt, hier sind es Argumente. Für „teilweise gleich“ hat SuSa keinen eigenen Typ."
+  }
  ],
  "additions": [
-  {"side": "A", "id": "A+1", "thought": "Inhaltliche Gründe gegen den Schluss auf Bewusstsein: Verkörperung ist für Bewusstsein wichtig, und Bewusstsein lässt sich nicht allein auf Berechnung zurückführen.", "anchors": ["A08", "A10", "A12"], "kind": "Voraussetzung", "contained_in_other": "nein; B nennt „Bewusstsein setzt Biologie voraus“ nur als mögliche Überzeugung anderer (B08), ohne sie zu vertreten, und Biologie ist nicht dasselbe wie Verkörperung", "changes_line": "ja: von „schwer feststellbar“ (B) zu einer Neigung gegen heutiges KI-Bewusstsein", "textual_basis": "behauptet, mit Seth als Autorität; nicht weiter begründet"},
-  {"side": "A", "id": "A+2", "thought": "Gefahr wird von Bewusstsein entkoppelt: KI kann ohne Bewusstsein bedrohlich sein, und zwar durch aktuelle, regulierbare Schäden.", "anchors": ["A16", "A18", "A19", "A20", "A21", "A22"], "kind": "andere Frage (F3)", "contained_in_other": "nein", "changes_line": "betrifft eine andere Frage", "textual_basis": "Chowdury als Autorität, dazu unbelegte Tatsachenbehauptungen über fehlende Regulierung"},
-  {"side": "A", "id": "A+3", "thought": "Ausdrücklich eigene skeptische Haltung der verfassenden Person.", "anchors": ["A14"], "kind": "Position", "contained_in_other": "nein; B bezieht keine Position zur Bewusstseinsfrage", "changes_line": "markiert A als Stellungnahme, B als Darstellung", "textual_basis": "Selbstbekenntnis, keine Begründung"},
-  {"side": "B", "id": "B+1", "thought": "Mechanismus, warum äußere Anzeichen täuschen: KI lernt aus menschlichen Texten und spricht deshalb überzeugend über Gefühle, unabhängig davon, ob sie welche hat.", "anchors": ["B19", "B20", "B21"], "kind": "Begründung für die gemeinsame Teilfolgerung", "contained_in_other": "nein; A begründet mit Verkörperung und Nicht-Berechenbarkeit, nicht mit Trainingsdaten und Sprache", "changes_line": "ja, auf der Begründungsebene: liefert einen eigenen, inneren Grund für die Nicht-Implikation, unabhängig von einer Bewusstseinstheorie", "textual_basis": "geschlossene Kette im Text, vorsichtig formuliert („weak evidence“)"},
-  {"side": "B", "id": "B+2", "thought": "Epistemische Zurückhaltung: Die Frage ist besonders schwer zu entscheiden; B stellt Haltungen dar, statt eine Seite zu wählen.", "anchors": ["B17"], "kind": "Einschränkung (gegenüber der Neigung von A, als Interpretation)", "contained_in_other": "teilweise; A sagt nicht, die Frage sei entschieden, behauptet aber A12 ohne Einschränkung", "changes_line": "schwächt die Sicherheit, mit der A12 gelesen werden kann; keine ausdrückliche Bezugnahme", "textual_basis": "B18–B21"},
-  {"side": "B", "id": "B+3", "thought": "Gesellschaftliche Dynamik: emotionale Bindungen und Rechte (Kontext davor), mögliche finanzielle Anreize gegen eine Anerkennung, Sicherheitssorgen und die offene Frage nach Rechten mächtiger Systeme.", "anchors": ["B04", "B05", "B06", "B11", "B12", "B14", "B15", "B16"], "kind": "andere Frage (F2)", "contained_in_other": "nein", "changes_line": "betrifft eine andere Frage", "textual_basis": "B11–B14 als eigene Möglichkeitsüberlegung mit Grund; übrige Teile als mögliche Haltungen anderer bzw. Frage"}
+  {
+   "side": "A",
+   "id": "A+1",
+   "thought": "Inhaltliche Gründe gegen den Schluss auf Bewusstsein: Verkörperung ist für Bewusstsein wichtig, und Bewusstsein lässt sich nicht allein auf Berechnung zurückführen.",
+   "anchors": [
+    "A08",
+    "A10",
+    "A12"
+   ],
+   "kind": "Voraussetzung",
+   "contained_in_other": "nein; B nennt „Bewusstsein setzt Biologie voraus“ nur als mögliche Überzeugung anderer (B08), ohne sie zu vertreten, und Biologie ist nicht dasselbe wie Verkörperung",
+   "changes_line": "ja: von „schwer feststellbar“ (B) zu einer Neigung gegen heutiges KI-Bewusstsein",
+   "textual_basis": "behauptet, mit Seth als Autorität; nicht weiter begründet"
+  },
+  {
+   "side": "A",
+   "id": "A+2",
+   "thought": "Gefahr wird von Bewusstsein entkoppelt: KI kann ohne Bewusstsein bedrohlich sein, und zwar durch aktuelle, regulierbare Schäden.",
+   "anchors": [
+    "A16",
+    "A18",
+    "A19",
+    "A20",
+    "A21",
+    "A22"
+   ],
+   "kind": "andere Frage (F3)",
+   "contained_in_other": "nein",
+   "changes_line": "betrifft eine andere Frage",
+   "textual_basis": "Chowdury als Autorität, dazu unbelegte Tatsachenbehauptungen über fehlende Regulierung"
+  },
+  {
+   "side": "A",
+   "id": "A+3",
+   "thought": "Ausdrücklich eigene skeptische Haltung der verfassenden Person.",
+   "anchors": [
+    "A14"
+   ],
+   "kind": "Position",
+   "contained_in_other": "nein; B bezieht keine Position zur Bewusstseinsfrage",
+   "changes_line": "markiert A als Stellungnahme, B als Darstellung",
+   "textual_basis": "Selbstbekenntnis, keine Begründung"
+  },
+  {
+   "side": "B",
+   "id": "B+1",
+   "thought": "Mechanismus, warum äußere Anzeichen täuschen: KI lernt aus menschlichen Texten und spricht deshalb überzeugend über Gefühle, unabhängig davon, ob sie welche hat.",
+   "anchors": [
+    "B19",
+    "B20",
+    "B21"
+   ],
+   "kind": "Begründung für die gemeinsame Teilfolgerung",
+   "contained_in_other": "nein; A begründet mit Verkörperung und damit, dass Bewusstsein nicht allein auf Berechnung reduzierbar sei, nicht mit Trainingsdaten und Sprache",
+   "changes_line": "ja, auf der Begründungsebene: liefert einen eigenen, inneren Grund für die Nicht-Implikation, unabhängig von einer Bewusstseinstheorie",
+   "textual_basis": "geschlossene Kette im Text, vorsichtig formuliert („weak evidence“)"
+  },
+  {
+   "side": "B",
+   "id": "B+2",
+   "thought": "Epistemische Zurückhaltung: Die Frage ist besonders schwer zu entscheiden; B stellt Haltungen dar, statt eine Seite zu wählen.",
+   "anchors": [
+    "B17"
+   ],
+   "kind": "Einschränkung (gegenüber der Neigung von A, als Interpretation)",
+   "contained_in_other": "teilweise; A sagt nicht, die Frage sei entschieden, behauptet aber A12 ohne Einschränkung",
+   "changes_line": "schwächt die Sicherheit, mit der A12 gelesen werden kann; keine ausdrückliche Bezugnahme",
+   "textual_basis": "B18–B21"
+  },
+  {
+   "side": "B",
+   "id": "B+3",
+   "thought": "Gesellschaftliche Dynamik: emotionale Bindungen und Rechte (Kontext davor), mögliche finanzielle Anreize gegen eine Anerkennung, Sicherheitssorgen und die offene Frage nach Rechten mächtiger Systeme.",
+   "anchors": [
+    "B04",
+    "B05",
+    "B06",
+    "B11",
+    "B12",
+    "B14",
+    "B15",
+    "B16"
+   ],
+   "kind": "andere Frage (F2)",
+   "contained_in_other": "nein",
+   "changes_line": "betrifft eine andere Frage",
+   "textual_basis": "B11–B14 als eigene Möglichkeitsüberlegung mit Grund; übrige Teile als mögliche Haltungen anderer bzw. Frage"
+  }
  ],
  "weak_relations": [
-  {"model_edge": ["A04", "EXAMPLE_OF", "B22"], "runs": 3, "why_weak": "Ziel ist eine Überschrift. Die Zuordnung „Hinton als Beispiel für Uneinigkeit unter Fachleuten“ ist plausibel, beruht aber auf meiner Deutung der Überschrift; ihr Abschnitt liegt außerhalb der Auswahl."},
-  {"model_edge": ["A06", "EXAMPLE_OF", "B22"], "runs": 3, "why_weak": "wie oben"},
-  {"model_edge": ["A07", "SUPPORTS", "B18"], "runs": 2, "why_weak": "SUPPORTS behauptet, dass A einen Grund für B liefert. Die Texte beziehen sich nicht aufeinander; treffender ist eine teilweise Übereinstimmung der Schlussfolgerungen. Die Richtung kehrt sich in Lauf 3 um."},
-  {"model_edge": ["B21", "SUPPORTS", "A07"], "runs": 1, "why_weak": "Gegenrichtung der vorigen Kante, nur in einem Lauf"},
-  {"model_edge": ["A08", "SUPPORTS", "B08"], "runs": 2, "why_weak": "verbindet eine vom Text (vermutlich) vertretene Voraussetzung mit einer Überzeugung, die B nur anderen zuschreibt; Verkörperung ist nicht dasselbe wie Biologie"}
+  {
+   "model_edge": [
+    "A04",
+    "EXAMPLE_OF",
+    "B22"
+   ],
+   "runs": 3,
+   "why_weak": "Ziel ist eine Überschrift. Die Zuordnung „Hinton als Beispiel für Uneinigkeit unter Fachleuten“ ist plausibel, beruht aber auf meiner Deutung der Überschrift; ihr Abschnitt liegt außerhalb der Auswahl."
+  },
+  {
+   "model_edge": [
+    "A06",
+    "EXAMPLE_OF",
+    "B22"
+   ],
+   "runs": 3,
+   "why_weak": "wie oben"
+  },
+  {
+   "model_edge": [
+    "A07",
+    "SUPPORTS",
+    "B18"
+   ],
+   "runs": 2,
+   "why_weak": "SUPPORTS behauptet, dass A einen Grund für B liefert. Die Texte beziehen sich nicht aufeinander; treffender ist eine teilweise Übereinstimmung der Schlussfolgerungen. Die Richtung kehrt sich in Lauf 3 um."
+  },
+  {
+   "model_edge": [
+    "B21",
+    "SUPPORTS",
+    "A07"
+   ],
+   "runs": 1,
+   "why_weak": "Gegenrichtung der vorigen Kante, nur in einem Lauf"
+  },
+  {
+   "model_edge": [
+    "A08",
+    "SUPPORTS",
+    "B08"
+   ],
+   "runs": 2,
+   "why_weak": "verbindet eine vom Text (vermutlich) vertretene Voraussetzung mit einer Überzeugung, die B nur anderen zuschreibt; Verkörperung ist nicht dasselbe wie Biologie"
+  }
  ],
  "absent_but_checked": [
-  {"anchors": ["A13", "B16"], "note": "Kein Widerspruch: B16 ist eine Frage unter einer Bedingung (zuerkannte Rechte). Wird B16 wie in Lauf 1 zur Behauptung, entsteht eine scheinbare Spannung zu A13."},
-  {"anchors": ["A12", "B17"], "note": "Mögliche Spannung zwischen A12 (uneingeschränkt behauptet) und B17 (schwer feststellbar); keine Seite bezieht sich auf die andere, kein Modelllauf schlägt eine Kante vor."}
+  {
+   "anchors": [
+    "A13",
+    "B16"
+   ],
+   "note": "Kein Widerspruch: B16 ist eine Frage unter einer Bedingung (zuerkannte Rechte). Wird B16 wie in Lauf 1 zur Behauptung, entsteht eine scheinbare Spannung zu A13."
+  },
+  {
+   "anchors": [
+    "A12",
+    "B17"
+   ],
+   "note": "Mögliche Spannung zwischen A12 (uneingeschränkt behauptet) und B17 (schwer feststellbar); keine Seite bezieht sich auf die andere, kein Modelllauf schlägt eine Kante vor."
+  }
  ],
  "open_readings": [
-  {"anchors": ["A05"], "text": "eigene Folgerung oder Teil der Hinton-Wiedergabe"},
-  {"anchors": ["A07", "A08", "A09", "A10", "A11", "A12", "A13"], "text": "Reichweite von „as Seth argues here“"},
-  {"anchors": ["A19", "A20", "A21"], "text": "Chowdury fortgesetzt oder eigene Aussage"},
-  {"anchors": ["B16"], "text": "rhetorische oder offene Frage"},
-  {"anchors": ["B22"], "text": "Funktion der Überschrift"}
+  {
+   "anchors": [
+    "A05"
+   ],
+   "text": "eigene Folgerung oder Teil der Hinton-Wiedergabe"
+  },
+  {
+   "anchors": [
+    "A07",
+    "A08",
+    "A09",
+    "A10",
+    "A11",
+    "A12",
+    "A13"
+   ],
+   "text": "Reichweite von „as Seth argues here“"
+  },
+  {
+   "anchors": [
+    "A19",
+    "A20",
+    "A21"
+   ],
+   "text": "Chowdury fortgesetzt oder eigene Aussage"
+  },
+  {
+   "anchors": [
+    "B16"
+   ],
+   "text": "rhetorische oder offene Frage"
+  },
+  {
+   "anchors": [
+    "B22"
+   ],
+   "text": "Funktion der Überschrift"
+  }
  ],
  "human_comparison": {
   "source": "Steffen, Zusammenfassung seiner Einschätzung aus dem begleitenden Chat, übermittelt am 4.11.2026 durch den Auftrag; nicht wortgetreu, nicht blind, nicht unabhängig von der Diskussion",
   "summary": "Beide Passagen enthalten zusätzliche Gedanken, behandeln unterschiedliche Aspekte und überlappen nur begrenzt. A betont Verkörperung und aktuelle gesellschaftliche Risiken; B ergänzt emotionale Bindungen, wirtschaftliche Anreize gegen die Anerkennung von Bewusstsein, Rechte und Sicherheit sowie die begrenzte Beweiskraft gelernter Gefühlsäußerungen.",
-  "agreement": ["A+1 Verkörperung", "A+2 aktuelle Risiken", "B+1 begrenzte Beweiskraft gelernter Gefühlsäußerungen", "B+3 emotionale Bindungen, wirtschaftliche Anreize, Rechte und Sicherheit", "begrenzte Überlappung"],
-  "differences": ["Die Analyse benennt die Überlappung genauer: Beide verneinen den Schluss von äußerer Ähnlichkeit auf Bewusstsein (F1), mit unterschiedlichen Gründen.", "Die emotionalen Bindungen stehen im Kontext davor, nicht im Kernabschnitt von B.", "Die Analyse nennt zusätzlich A+3 (eigene Position von A) und B+2 (epistemische Zurückhaltung) sowie die nicht ausreichend gestützte Kette A-K2."]
+  "agreement": [
+   "A+1 Verkörperung",
+   "A+2 aktuelle Risiken",
+   "B+1 begrenzte Beweiskraft gelernter Gefühlsäußerungen",
+   "B+3 emotionale Bindungen, wirtschaftliche Anreize, Rechte und Sicherheit",
+   "begrenzte Überlappung"
+  ],
+  "differences": [
+   "Die Analyse benennt die Überlappung genauer: Beide verneinen den Schluss von äußerer Ähnlichkeit auf Bewusstsein (F1), mit unterschiedlichen Gründen.",
+   "Die emotionalen Bindungen stehen im Kontext davor, nicht im Kernabschnitt von B.",
+   "Die Analyse nennt zusätzlich A+3 (eigene Position von A) und B+2 (epistemische Zurückhaltung) sowie die nicht ausreichend gestützte Kette A-K2."
+  ]
  }
 }

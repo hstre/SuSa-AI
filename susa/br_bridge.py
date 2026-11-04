@@ -140,7 +140,7 @@ def claims_for_scoring(side: dict) -> list[dict]:
              "anchor_end": c.anchor_end, "anchor_normalised": c.anchor_normalised} for c in side.get("_claims", ())]
 
 
-def run_pair(cfg, conn, adapter, left_unit: str, right_unit: str, repeats: int, out_dir: Path) -> list[dict]:
+def run_pair(cfg, conn, adapter, left_unit: str, right_unit: str, repeats: int, out_dir: Path, relations: bool = True) -> list[dict]:
     """Wiederholte Läufe (Budget-Review §4.2/§4.15: ein einzelner Lauf ist eine Ziehung, keine Stichprobe)."""
     pa, pb = passage(cfg, conn, left_unit), passage(cfg, conn, right_unit)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -150,7 +150,12 @@ def run_pair(cfg, conn, adapter, left_unit: str, right_unit: str, repeats: int, 
         run_id = db.new_run_id("br_pair")
         sa = extract_side(adapter, "A", pa, run_id)
         sb = extract_side(adapter, "B", pb, run_id)
-        rel = cross_relations(adapter, pa, pb, sa, sb, run_id) if sa.get("_claims") and sb.get("_claims") else {"error": "keine Claims"}
+        if not relations:
+            rel = {"skipped": "Relationsstufe nicht ausgeführt (Budget)", "relations": []}
+        elif sa.get("_claims") and sb.get("_claims"):
+            rel = cross_relations(adapter, pa, pb, sa, sb, run_id)
+        else:
+            rel = {"error": "keine Claims"}
         record = {"repeat": k, "run_id": run_id, "br_commit": BR_COMMIT, "A": {x: y for x, y in sa.items() if x != "_claims"},
                   "B": {x: y for x, y in sb.items() if x != "_claims"}, "relations": rel}
         (out_dir / f"run-{k}.json").write_text(json.dumps(record, ensure_ascii=False, indent=1, default=str), "utf-8")

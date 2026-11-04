@@ -286,7 +286,10 @@ class ClaudeCLIAdapter(Adapter):
         main = max(mu, key=lambda k: (mu[k] or {}).get("outputTokens", 0)) if mu else None
         usage = {"usage": d.get("usage"), "modelUsage": mu, "total_cost_usd_list_price": d.get("total_cost_usd"),
                  "duration_ms": d.get("duration_ms"), "num_turns": d.get("num_turns")}
-        return LLMResult(text=d.get("result") or "", model=main or "unbekannt", usage=usage, stop_reason=d.get("subtype"))
+        # Erreicht die Ausgabe die Grenze, setzt die CLI in einem weiteren Zug fort und liefert in "result" nur dessen
+        # Text. Die Antwort ist dann unvollständig und wird so markiert (nicht stillschweigend weiterverarbeitet).
+        stop = "output_split" if (d.get("num_turns") or 1) > 1 else d.get("subtype")
+        return LLMResult(text=d.get("result") or "", model=main or "unbekannt", usage=usage, stop_reason=stop)
 
 
 ADAPTERS = {"none": NoneAdapter, "replay": ReplayAdapter, "anthropic_api": AnthropicAPIAdapter, "claude_cli": ClaudeCLIAdapter}

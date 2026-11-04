@@ -12,7 +12,7 @@ Grundlage ist der Bauauftrag `Claude_Uebergabe_Argumentanalyse.md` (Arbeitsfassu
 Ausgangsdaten: öffentlicher Metadatenexport von Mike Thickes Projekt
 [mc-lit-review](https://github.com/Epistemic-Technology/mc-lit-review) (siehe [NOTICE.md](NOTICE.md)).
 
-## Stand (4. November 2026, Version 0.3.0)
+## Stand (4. November 2026, Version 0.4.0)
 
 | Bereich | Stand |
 |---|---|
@@ -90,7 +90,19 @@ python -m susa budget create --label "Lauf X" --max-calls 20 --adapter claude_cl
 python -m susa reconstruct <unit_id> --adapter claude_cli --budget <ID>
 python -m susa acceptance --adapter claude_cli --budget <ID> --plan B:case10:en A:case06:de --countercheck C:case02:de
 python -m susa budget status <ID>
+# Paar zerlegen (Budget-Review-Komponenten), dann Argumentstufe (Prompt D) auf die gespeicherten Läufe
+python -m susa br-pair <set_id> <position> --adapter claude_cli --budget <ID> --repeats 1 --no-relations
+python -m susa argument <set_id> <position> --adapter claude_cli --budget <ID> --public-out docs/pairN/ARGUMENT_STAGE_RAW.md
+python -m susa argument <set_id> <position> --render <run_id>   # Bericht neu erzeugen, kein Aufruf
 ```
+
+Die **Argumentstufe** (`susa/argument_stage.py`, Prompt `D_argument`) rekonstruiert Sprechhandlungen,
+Begründungsketten, Bezugsfragen, den Vergleich der Schlüsse und zusätzliche Gedanken. Eingaben sind nur die
+gespeicherten Passagen, Extraktionsläufe und die deterministische Ankerstruktur; es gibt keine paarspezifische
+Logik. Je Lauf liegen unter `data/semantic/<set>-p<pos>/argument-<run_id>/` Eingaben, Prompt, Rohantwort,
+Validierung und Ergebnis. Die Validierung prüft Schema, Anker, Seiten, Kanten, ob jedes Belegzitat im genannten
+Anker steht, und gibt markerbasierte Hinweise auf Bedeutungsverstärkung (nur Hinweise). Die versionierbare Fassung
+ersetzt wörtliche Quellzitate über vier Wörter durch einen Platzhalter.
 
 Der Zähler liegt in der Datenbank (`model_calls`). Jeder Versuch, auch Fehlversuche und Wiederholungen, wird vor dem
 Aufruf eingetragen und zählt. Neue Adapterinstanzen, die Oberfläche oder ein Neustart setzen ihn nicht zurück. Bei
@@ -99,7 +111,7 @@ Die Oberfläche nutzt `llm.budget_id` aus `config.toml`.
 
 Jede Modellantwort wird auf fünf Ebenen getrennt gespeichert und angezeigt: Antwort empfangen, Schema gültig,
 Belege beidseitig gefunden, Modellurteil, menschliche Prüfung. Siehe `susa/validate.py`.
-Prompts liegen versioniert in `prompts/` (A Rekonstruktion, B Vergleich, C Gegenprüfung; aktuell v2).
+Prompts liegen versioniert in `prompts/` (A Rekonstruktion, B Vergleich, C Gegenprüfung; aktuell v2; D Argumentstufe v1).
 
 ## Grenzen
 

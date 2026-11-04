@@ -29,6 +29,7 @@ Versionen: Budget-Review `6fc50e7`, SPL `dddcbc9`, Alexandria `45865bd`.
 | Claim-Typen als Grundlage von Befunden | BR: 21 Typen ohne Definition, 8 von 24 Dokumenten wechseln den Typ (§4.13) | **nicht als Grundlage verwendet**, nur angezeigt | – |
 | Sprechakt (vertritt / berichtet / mögliche Überzeugung anderer / Frage / Überschrift) | nirgends: BR, SPL und Alexandria haben dafür nichts; SuSa hat Absatzart und Blockzitat-Hinweise aus dem Import | **schmale Ergänzung**: deterministische Marker (`susa/pair_analysis.speech_cues`), nutzt SuSas Satzteilung und `search.MARKERS`; entscheidet nichts, die Einordnung bleibt ausgewiesene Interpretation | Paar 1, [PAIR1_ARGUMENT_ANALYSIS.md](PAIR1_ARGUMENT_ANALYSIS.md) |
 | Begründungsketten über Läufe hinweg | BR-Gate-Kanten je Lauf | **übernommen**, über den Originalanker gruppiert und gezählt (`pair_analysis.build_structure`) | Paar 1 |
+| Argumentrekonstruktion und Paarvergleich als Stufe | nirgends als Komponente; BR liefert Anker, Gate-Kanten und `anchor_spans` | **schmale Ergänzung** `susa/argument_stage.py` (Prompt D) über den gespeicherten BR-Läufen; Belegzitate werden mit `anchor_spans` gegen den genannten Anker geprüft | Paar 2, [pair2/ARGUMENT_STAGE_RAW.md](pair2/ARGUMENT_STAGE_RAW.md) |
 | Identität eines Claims | BR §4.5: Anker stabil, Modellwortlaut instabil; Anker-only-Identität **zurückgezogen** (§7.8) | Anker als Schlüssel für Laufvergleiche; mehrere Claims je Anker erlaubt, keine Verschmelzung | `evaluate` |
 
 ## Was SuSa-AI tatsächlich neu beiträgt

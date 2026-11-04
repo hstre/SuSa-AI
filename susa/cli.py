@@ -135,6 +135,14 @@ def main(argv=None):
     p.add_argument("--budget")
     p.add_argument("--repeats", type=int, default=3)
     p.add_argument("--evaluate-only", action="store_true")
+    p.add_argument("--no-relations", action="store_true", help="Relationsstufe zwischen den Passagen auslassen (spart einen Aufruf)")
+    p = sub.add_parser("argument", help="Argumentstufe (Prompt D) auf ein bereits zerlegtes Paar anwenden")
+    p.add_argument("set_id")
+    p.add_argument("position", type=int)
+    p.add_argument("--adapter")
+    p.add_argument("--budget")
+    p.add_argument("--render", metavar="RUN_ID", help="nur Bericht eines gespeicherten Laufs neu erzeugen, kein Aufruf")
+    p.add_argument("--public-out", help="Pfad für die Fassung ohne Originalzitate (versionierbar)")
     p = sub.add_parser("serve", help="lokale Oberfläche starten")
     p.add_argument("--port", type=int, default=5005)
     p.add_argument("--host", default="127.0.0.1")
@@ -309,12 +317,33 @@ def main(argv=None):
             it = next(i for i in review_set.set_items(conn, a.set_id) if i["position"] == a.position)
             try:
                 ad = get_adapter(cfg.section("llm"), a.adapter, conn=conn, budget_id=a.budget)
-                br_bridge.run_pair(cfg, conn, ad, it["left_unit_id"], it["right_unit_id"], a.repeats, out_dir)
+                br_bridge.run_pair(cfg, conn, ad, it["left_unit_id"], it["right_unit_id"], a.repeats, out_dir,
+                                  relations=not a.no_relations)
             except (NotConfigured, CallLimitReached) as e:
                 print("GESTOPPT:", e)
         rep = br_bridge.evaluate(out_dir)
         (out_dir / "evaluation.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1, default=str), "utf-8")
         print(json.dumps({k: rep[k] for k in ("runs", "relations")}, ensure_ascii=False, default=str)[:2000])
+    elif a.cmd == "argument":
+        from . import argument_stage
+        from .llm import NotConfigured, get_adapter
+        conn = _conn(cfg)
+        pair_dir = cfg.subdir(f"semantic/{a.set_id}-p{a.position}")
+        if a.render:
+            run_dir = pair_dir / f"argument-{a.render}"
+        else:
+            try:
+                ad = get_adapter(cfg.section("llm"), a.adapter, conn=conn, budget_id=a.budget)
+            except NotConfigured as e:
+                print("GESTOPPT:", e)
+                return
+            meta = argument_stage.run(cfg, conn, ad, pair_dir)
+            print(json.dumps({k: meta.get(k) for k in ("run_id", "status", "error", "model", "usage")}, ensure_ascii=False))
+            if meta.get("status") in ("not_run", "error"):
+                return
+            run_dir = pair_dir / f"argument-{meta['run_id']}"
+        paths = argument_stage.write_reports(run_dir, Path(a.public_out) if a.public_out else None)
+        print("Berichte:", ", ".join(str(p) for p in paths))
     elif a.cmd == "serve":
         from .web.app import create_app
         create_app(cfg).run(host=a.host, port=a.port, debug=False)

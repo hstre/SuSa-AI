@@ -1,5 +1,22 @@
 # Änderungsprotokoll
 
+## 0.4.0 – 4. November 2026 (Argumentstufe)
+
+- **Argumentstufe** als wiederverwendbare, werkzeugseitig ausgeführte Stufe (`susa/argument_stage.py`, Prompt
+  `D_argument.v1`, Befehl `susa argument`). Eingaben: gespeicherte Passagen, Extraktionsläufe und Ankerstruktur.
+  Gespeichert werden Promptversion, Eingaben mit Hash, Rohantwort, Validierung und Ergebnis. Übernommene
+  Modellausgaben, deterministische Ableitungen und die neue Interpretation bleiben getrennt.
+- **Validierung:** Schema und Wertelisten, bekannte Anker und Kanten, Anker der richtigen Passage, Belegzitat
+  wörtlich im genannten Anker (Budget-Review `anchor_spans`), Hinweise auf Bedeutungsverstärkung (Marker),
+  Schlüsse nur aus Kontext, Frage oder Überschrift als Grund, Konsistenz der Bezugsfragen.
+- **Claude-CLI-Adapter:** Erreicht die Ausgabe die Grenze, setzt die CLI in einem zweiten Zug fort und liefert nur
+  dessen Text. Solche Antworten werden jetzt als `output_split` markiert und nicht weiterverarbeitet.
+- `br-pair --no-relations` lässt die Relationsstufe aus.
+- Paar 1: Referenzanalyse v2 korrigiert („nicht allein auf Berechnung reduzierbar“ statt „Nicht-Berechenbarkeit“),
+  v1 bleibt erhalten. Paar 1 ist nachbearbeitete Referenz, kein Gold.
+- Paar 2: erste Anwendung, unbearbeitetes Ergebnis (`docs/pair2/ARGUMENT_STAGE_RAW.md`) und getrennte
+  Prüfnotizen (`docs/pair2/REVIEW_NOTES.md`).
+
 ## 0.3.0 – 3./4. November 2026 (Blindbeurteilung vorbereitet)
 
 - **Vollständige Übersetzungen** statt Zusammenfassungen: Kontext davor, Kern und Kontext danach, getreu übersetzt,
