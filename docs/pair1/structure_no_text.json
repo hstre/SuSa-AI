@@ -1,0 +1,1949 @@
+{
+ "runs": 3,
+ "sides": {
+  "A": {
+   "document_id": "upstream:mc-lit-review:post:9080",
+   "version_text_sha256": "9b2057e03f3cfa30035eda6060e34ebfe587e12a3317b84d2076529574d17c25",
+   "core": [
+    543,
+    2064
+   ],
+   "anchors": [
+    {
+     "id": "A01",
+     "start": 0,
+     "end": 39,
+     "abs_start": 371,
+     "abs_end": 410,
+     "region": "Kontext davor",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "thesis"
+     ],
+     "speech_cues": [
+      "Negation: not"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C01",
+       "claim_type": "thesis"
+      },
+      "2": {
+       "proposal_id": "C01",
+       "claim_type": "thesis"
+      },
+      "3": {
+       "proposal_id": "C01",
+       "claim_type": "thesis"
+      }
+     }
+    },
+    {
+     "id": "A02",
+     "start": 40,
+     "end": 206,
+     "abs_start": 411,
+     "abs_end": 577,
+     "region": "Kontext davor",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "fact"
+     ],
+     "speech_cues": [
+      "Redeverb im Satz: expressed"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C02",
+       "claim_type": "fact"
+      },
+      "2": {
+       "proposal_id": "C02",
+       "claim_type": "fact"
+      },
+      "3": {
+       "proposal_id": "C02",
+       "claim_type": "fact"
+      }
+     }
+    },
+    {
+     "id": "A03",
+     "start": 207,
+     "end": 279,
+     "abs_start": 578,
+     "abs_end": 650,
+     "region": "Kontext davor",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "fact"
+     ],
+     "speech_cues": [
+      "Redeverb im Satz: says",
+      "Negation: not"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C03",
+       "claim_type": "fact"
+      },
+      "2": {
+       "proposal_id": "C03",
+       "claim_type": "fact"
+      },
+      "3": {
+       "proposal_id": "C03",
+       "claim_type": "fact"
+      }
+     }
+    },
+    {
+     "id": "A04",
+     "start": 280,
+     "end": 467,
+     "abs_start": 651,
+     "abs_end": 838,
+     "region": "Kontext davor",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "fact"
+     ],
+     "speech_cues": [
+      "Redeverb im Satz: adopted a minority position"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C04",
+       "claim_type": "fact"
+      },
+      "2": {
+       "proposal_id": "C04",
+       "claim_type": "fact"
+      },
+      "3": {
+       "proposal_id": "C04",
+       "claim_type": "fact"
+      }
+     }
+    },
+    {
+     "id": "A05",
+     "start": 468,
+     "end": 541,
+     "abs_start": 839,
+     "abs_end": 912,
+     "region": "Kontext davor",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "inference"
+     ],
+     "speech_cues": [
+      "erste Person Plural (wir/uns)"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C05",
+       "claim_type": "inference"
+      },
+      "2": {
+       "proposal_id": "C05",
+       "claim_type": "inference"
+      },
+      "3": {
+       "proposal_id": "C05",
+       "claim_type": "inference"
+      }
+     }
+    },
+    {
+     "id": "A06",
+     "start": 552,
+     "end": 680,
+     "abs_start": 923,
+     "abs_end": 1051,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "thesis"
+     ],
+     "speech_cues": [
+      "Redeverb im Satz: argues",
+      "Negation: cannot"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C06",
+       "claim_type": "thesis"
+      },
+      "2": {
+       "proposal_id": "C06",
+       "claim_type": "thesis"
+      },
+      "3": {
+       "proposal_id": "C06",
+       "claim_type": "thesis"
+      }
+     }
+    },
+    {
+     "id": "A07",
+     "start": 682,
+     "end": 872,
+     "abs_start": 1053,
+     "abs_end": 1243,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "inference"
+     ],
+     "speech_cues": [
+      "Negation: not",
+      "Modalität: can"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C07",
+       "claim_type": "inference"
+      },
+      "2": {
+       "proposal_id": "C07",
+       "claim_type": "inference"
+      },
+      "3": {
+       "proposal_id": "C07",
+       "claim_type": "inference"
+      }
+     }
+    },
+    {
+     "id": "A08",
+     "start": 873,
+     "end": 938,
+     "abs_start": 1244,
+     "abs_end": 1309,
+     "region": "Kern",
+     "in_runs": [
+      2,
+      3
+     ],
+     "claim_types": [
+      "assumption"
+     ],
+     "speech_cues": [
+      "erste Person Plural (wir/uns)"
+     ],
+     "model_outputs": {
+      "2": {
+       "proposal_id": "C08",
+       "claim_type": "assumption"
+      },
+      "3": {
+       "proposal_id": "C08",
+       "claim_type": "assumption"
+      }
+     }
+    },
+    {
+     "id": "A09",
+     "start": 873,
+     "end": 1007,
+     "abs_start": 1244,
+     "abs_end": 1378,
+     "region": "Kern",
+     "in_runs": [
+      1
+     ],
+     "claim_types": [
+      "assumption"
+     ],
+     "speech_cues": [
+      "erste Person Plural (wir/uns)"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C08",
+       "claim_type": "assumption"
+      }
+     }
+    },
+    {
+     "id": "A10",
+     "start": 944,
+     "end": 1006,
+     "abs_start": 1315,
+     "abs_end": 1377,
+     "region": "Kern",
+     "in_runs": [
+      2,
+      3
+     ],
+     "claim_types": [
+      "assumption"
+     ],
+     "speech_cues": [
+      "erste Person Plural (wir/uns)"
+     ],
+     "model_outputs": {
+      "2": {
+       "proposal_id": "C09",
+       "claim_type": "assumption"
+      },
+      "3": {
+       "proposal_id": "C09",
+       "claim_type": "assumption"
+      }
+     }
+    },
+    {
+     "id": "A11",
+     "start": 1008,
+     "end": 1104,
+     "abs_start": 1379,
+     "abs_end": 1475,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "inference"
+     ],
+     "speech_cues": [
+      "erste Person Plural (wir/uns)",
+      "Negation: not",
+      "Modalität: may"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C09",
+       "claim_type": "inference"
+      },
+      "2": {
+       "proposal_id": "C10",
+       "claim_type": "inference"
+      },
+      "3": {
+       "proposal_id": "C10",
+       "claim_type": "inference"
+      }
+     }
+    },
+    {
+     "id": "A12",
+     "start": 1105,
+     "end": 1175,
+     "abs_start": 1476,
+     "abs_end": 1546,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "assumption"
+     ],
+     "speech_cues": [
+      "Negation: not",
+      "Geltungseinschränkung: alone"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C10",
+       "claim_type": "assumption"
+      },
+      "2": {
+       "proposal_id": "C11",
+       "claim_type": "assumption"
+      },
+      "3": {
+       "proposal_id": "C11",
+       "claim_type": "assumption"
+      }
+     }
+    },
+    {
+     "id": "A13",
+     "start": 1176,
+     "end": 1234,
+     "abs_start": 1547,
+     "abs_end": 1605,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "forecast"
+     ],
+     "speech_cues": [
+      "erste Person Plural (wir/uns)"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C11",
+       "claim_type": "forecast"
+      },
+      "2": {
+       "proposal_id": "C12",
+       "claim_type": "forecast"
+      },
+      "3": {
+       "proposal_id": "C12",
+       "claim_type": "forecast"
+      }
+     }
+    },
+    {
+     "id": "A14",
+     "start": 1236,
+     "end": 1298,
+     "abs_start": 1607,
+     "abs_end": 1669,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "value_judgment"
+     ],
+     "speech_cues": [
+      "erste Person Singular",
+      "Bedingung: if"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C12",
+       "claim_type": "value_judgment"
+      },
+      "2": {
+       "proposal_id": "C13",
+       "claim_type": "value_judgment"
+      },
+      "3": {
+       "proposal_id": "C13",
+       "claim_type": "value_judgment"
+      }
+     }
+    },
+    {
+     "id": "A15",
+     "start": 1299,
+     "end": 1361,
+     "abs_start": 1670,
+     "abs_end": 1732,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "inference"
+     ],
+     "speech_cues": [
+      "erste Person Singular"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C13",
+       "claim_type": "inference"
+      },
+      "2": {
+       "proposal_id": "C14",
+       "claim_type": "inference"
+      },
+      "3": {
+       "proposal_id": "C14",
+       "claim_type": "inference"
+      }
+     }
+    },
+    {
+     "id": "A16",
+     "start": 1363,
+     "end": 1456,
+     "abs_start": 1734,
+     "abs_end": 1827,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2
+     ],
+     "claim_types": [
+      "thesis"
+     ],
+     "speech_cues": [
+      "Negation: not",
+      "Modalität: may"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C14",
+       "claim_type": "thesis"
+      },
+      "2": {
+       "proposal_id": "C15",
+       "claim_type": "thesis"
+      }
+     }
+    },
+    {
+     "id": "A17",
+     "start": 1367,
+     "end": 1455,
+     "abs_start": 1738,
+     "abs_end": 1826,
+     "region": "Kern",
+     "in_runs": [
+      3
+     ],
+     "claim_types": [
+      "thesis"
+     ],
+     "speech_cues": [
+      "Negation: not",
+      "Modalität: may"
+     ],
+     "model_outputs": {
+      "3": {
+       "proposal_id": "C15",
+       "claim_type": "thesis"
+      }
+     }
+    },
+    {
+     "id": "A18",
+     "start": 1457,
+     "end": 1664,
+     "abs_start": 1828,
+     "abs_end": 2035,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "causal",
+      "evidence"
+     ],
+     "speech_cues": [
+      "Redeverb im Satz: pointed out",
+      "erste Person Plural (wir/uns)"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C15",
+       "claim_type": "causal"
+      },
+      "2": {
+       "proposal_id": "C16",
+       "claim_type": "evidence"
+      },
+      "3": {
+       "proposal_id": "C16",
+       "claim_type": "causal"
+      }
+     }
+    },
+    {
+     "id": "A19",
+     "start": 1665,
+     "end": 1704,
+     "abs_start": 2036,
+     "abs_end": 2075,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "assumption",
+      "fact"
+     ],
+     "speech_cues": [],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C16",
+       "claim_type": "fact"
+      },
+      "2": {
+       "proposal_id": "C17",
+       "claim_type": "fact"
+      },
+      "3": {
+       "proposal_id": "C17",
+       "claim_type": "assumption"
+      }
+     }
+    },
+    {
+     "id": "A20",
+     "start": 1705,
+     "end": 1833,
+     "abs_start": 2076,
+     "abs_end": 2204,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "causal",
+      "fact"
+     ],
+     "speech_cues": [
+      "erste Person Plural (wir/uns)",
+      "Negation: not"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C17",
+       "claim_type": "fact"
+      },
+      "2": {
+       "proposal_id": "C18",
+       "claim_type": "causal"
+      },
+      "3": {
+       "proposal_id": "C18",
+       "claim_type": "fact"
+      }
+     }
+    },
+    {
+     "id": "A21",
+     "start": 1835,
+     "end": 1954,
+     "abs_start": 2206,
+     "abs_end": 2325,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "fact"
+     ],
+     "speech_cues": [],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C18",
+       "claim_type": "fact"
+      },
+      "2": {
+       "proposal_id": "C19",
+       "claim_type": "fact"
+      },
+      "3": {
+       "proposal_id": "C19",
+       "claim_type": "fact"
+      }
+     }
+    },
+    {
+     "id": "A22",
+     "start": 1956,
+     "end": 2064,
+     "abs_start": 2327,
+     "abs_end": 2435,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "forecast"
+     ],
+     "speech_cues": [
+      "Geltungseinschränkung: only"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C19",
+       "claim_type": "forecast"
+      },
+      "2": {
+       "proposal_id": "C20",
+       "claim_type": "forecast"
+      },
+      "3": {
+       "proposal_id": "C20",
+       "claim_type": "forecast"
+      }
+     }
+    },
+    {
+     "id": "A23",
+     "start": 2066,
+     "end": 2183,
+     "abs_start": 2437,
+     "abs_end": 2554,
+     "region": "Kontext danach",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "evidence",
+      "fact",
+      "thesis"
+     ],
+     "speech_cues": [
+      "Redeverb im Satz: argued"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C20",
+       "claim_type": "fact"
+      },
+      "2": {
+       "proposal_id": "C21",
+       "claim_type": "evidence"
+      },
+      "3": {
+       "proposal_id": "C21",
+       "claim_type": "thesis"
+      }
+     }
+    },
+    {
+     "id": "A24",
+     "start": 2184,
+     "end": 2254,
+     "abs_start": 2555,
+     "abs_end": 2625,
+     "region": "Kontext danach",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "fact"
+     ],
+     "speech_cues": [],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C21",
+       "claim_type": "fact"
+      },
+      "2": {
+       "proposal_id": "C22",
+       "claim_type": "fact"
+      },
+      "3": {
+       "proposal_id": "C22",
+       "claim_type": "fact"
+      }
+     }
+    },
+    {
+     "id": "A25",
+     "start": 2255,
+     "end": 2344,
+     "abs_start": 2626,
+     "abs_end": 2715,
+     "region": "Kontext danach",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "causal",
+      "fact"
+     ],
+     "speech_cues": [],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C22",
+       "claim_type": "fact"
+      },
+      "2": {
+       "proposal_id": "C23",
+       "claim_type": "causal"
+      },
+      "3": {
+       "proposal_id": "C23",
+       "claim_type": "fact"
+      }
+     }
+    },
+    {
+     "id": "A26",
+     "start": 2345,
+     "end": 2467,
+     "abs_start": 2716,
+     "abs_end": 2838,
+     "region": "Kontext danach",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "forecast"
+     ],
+     "speech_cues": [
+      "Redeverb im Satz: argued",
+      "Negation: without"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C23",
+       "claim_type": "forecast"
+      },
+      "2": {
+       "proposal_id": "C24",
+       "claim_type": "forecast"
+      },
+      "3": {
+       "proposal_id": "C24",
+       "claim_type": "forecast"
+      }
+     }
+    }
+   ],
+   "edges": [
+    {
+     "source": "A02",
+     "type": "EXAMPLE_OF",
+     "target": "A01",
+     "runs": 3
+    },
+    {
+     "source": "A03",
+     "type": "EXAMPLE_OF",
+     "target": "A01",
+     "runs": 2
+    },
+    {
+     "source": "A04",
+     "type": "ENTAILS",
+     "target": "A05",
+     "runs": 1
+    },
+    {
+     "source": "A04",
+     "type": "SUPPORTS",
+     "target": "A05",
+     "runs": 2
+    },
+    {
+     "source": "A06",
+     "type": "CONTRADICTS",
+     "target": "A04",
+     "runs": 3
+    },
+    {
+     "source": "A06",
+     "type": "SUPPORTS",
+     "target": "A07",
+     "runs": 1
+    },
+    {
+     "source": "A07",
+     "type": "CONTRADICTS",
+     "target": "A04",
+     "runs": 1
+    },
+    {
+     "source": "A07",
+     "type": "CONTRADICTS",
+     "target": "A05",
+     "runs": 1
+    },
+    {
+     "source": "A07",
+     "type": "SUPPORTS",
+     "target": "A06",
+     "runs": 2
+    },
+    {
+     "source": "A08",
+     "type": "SUPPORTS",
+     "target": "A07",
+     "runs": 2
+    },
+    {
+     "source": "A09",
+     "type": "SUPPORTS",
+     "target": "A07",
+     "runs": 1
+    },
+    {
+     "source": "A10",
+     "type": "PART_OF",
+     "target": "A08",
+     "runs": 1
+    },
+    {
+     "source": "A10",
+     "type": "SUPPORTS",
+     "target": "A08",
+     "runs": 1
+    },
+    {
+     "source": "A11",
+     "type": "SUPPORTS",
+     "target": "A13",
+     "runs": 3
+    },
+    {
+     "source": "A12",
+     "type": "SUPPORTS",
+     "target": "A11",
+     "runs": 3
+    },
+    {
+     "source": "A14",
+     "type": "ENTAILS",
+     "target": "A15",
+     "runs": 1
+    },
+    {
+     "source": "A14",
+     "type": "SUPPORTS",
+     "target": "A15",
+     "runs": 2
+    },
+    {
+     "source": "A16",
+     "type": "EVIDENCED_BY",
+     "target": "A18",
+     "runs": 1
+    },
+    {
+     "source": "A16",
+     "type": "QUALIFIES",
+     "target": "A15",
+     "runs": 2
+    },
+    {
+     "source": "A17",
+     "type": "QUALIFIES",
+     "target": "A15",
+     "runs": 1
+    },
+    {
+     "source": "A18",
+     "type": "SUPPORTS",
+     "target": "A16",
+     "runs": 2
+    },
+    {
+     "source": "A18",
+     "type": "SUPPORTS",
+     "target": "A17",
+     "runs": 1
+    },
+    {
+     "source": "A19",
+     "type": "QUALIFIES",
+     "target": "A18",
+     "runs": 2
+    },
+    {
+     "source": "A20",
+     "type": "SUPPORTS",
+     "target": "A18",
+     "runs": 3
+    },
+    {
+     "source": "A21",
+     "type": "PART_OF",
+     "target": "A20",
+     "runs": 1
+    },
+    {
+     "source": "A21",
+     "type": "SUPPORTS",
+     "target": "A18",
+     "runs": 2
+    },
+    {
+     "source": "A22",
+     "type": "DEPENDS_ON",
+     "target": "A21",
+     "runs": 1
+    },
+    {
+     "source": "A22",
+     "type": "SUPPORTS",
+     "target": "A16",
+     "runs": 1
+    },
+    {
+     "source": "A22",
+     "type": "SUPPORTS",
+     "target": "A17",
+     "runs": 1
+    },
+    {
+     "source": "A23",
+     "type": "CONTRADICTS",
+     "target": "A13",
+     "runs": 2
+    },
+    {
+     "source": "A23",
+     "type": "CONTRADICTS",
+     "target": "A18",
+     "runs": 1
+    },
+    {
+     "source": "A24",
+     "type": "SUPPORTS",
+     "target": "A23",
+     "runs": 3
+    },
+    {
+     "source": "A25",
+     "type": "SUPPORTS",
+     "target": "A24",
+     "runs": 1
+    },
+    {
+     "source": "A25",
+     "type": "SUPPORTS",
+     "target": "A26",
+     "runs": 3
+    }
+   ]
+  },
+  "B": {
+   "document_id": "upstream:mc-lit-review:post:83",
+   "version_text_sha256": "c267a83d36f1b2cfb721854b38d4062e86992b7d1297317a89a61fad01bc1330",
+   "core": [
+    309,
+    1183
+   ],
+   "anchors": [
+    {
+     "id": "B01",
+     "start": 0,
+     "end": 48,
+     "abs_start": 1584,
+     "abs_end": 1632,
+     "region": "Kontext davor",
+     "in_runs": [
+      1,
+      3
+     ],
+     "claim_types": [
+      "forecast"
+     ],
+     "speech_cues": [
+      "erste Person Plural (wir/uns)",
+      "Modalität: should"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C01",
+       "claim_type": "forecast"
+      },
+      "3": {
+       "proposal_id": "C01",
+       "claim_type": "forecast"
+      }
+     }
+    },
+    {
+     "id": "B02",
+     "start": 0,
+     "end": 111,
+     "abs_start": 1584,
+     "abs_end": 1695,
+     "region": "Kontext davor",
+     "in_runs": [
+      2
+     ],
+     "claim_types": [
+      "forecast"
+     ],
+     "speech_cues": [
+      "erste Person Plural (wir/uns)",
+      "Modalität: should"
+     ],
+     "model_outputs": {
+      "2": {
+       "proposal_id": "C01",
+       "claim_type": "forecast"
+      }
+     }
+    },
+    {
+     "id": "B03",
+     "start": 50,
+     "end": 110,
+     "abs_start": 1634,
+     "abs_end": 1694,
+     "region": "Kontext davor",
+     "in_runs": [
+      1,
+      3
+     ],
+     "claim_types": [
+      "causal"
+     ],
+     "speech_cues": [],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C02",
+       "claim_type": "causal"
+      },
+      "3": {
+       "proposal_id": "C02",
+       "claim_type": "causal"
+      }
+     }
+    },
+    {
+     "id": "B04",
+     "start": 112,
+     "end": 179,
+     "abs_start": 1696,
+     "abs_end": 1763,
+     "region": "Kontext davor",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "forecast"
+     ],
+     "speech_cues": [
+      "mögliche Überzeugung/Haltung anderer (Subjekt + Modalverb + Einstellungsverb)",
+      "Modalität: may"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C03",
+       "claim_type": "forecast"
+      },
+      "2": {
+       "proposal_id": "C02",
+       "claim_type": "forecast"
+      },
+      "3": {
+       "proposal_id": "C03",
+       "claim_type": "forecast"
+      }
+     }
+    },
+    {
+     "id": "B05",
+     "start": 184,
+     "end": 244,
+     "abs_start": 1768,
+     "abs_end": 1828,
+     "region": "Kontext davor",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "forecast"
+     ],
+     "speech_cues": [
+      "mögliche Überzeugung/Haltung anderer (Subjekt + Modalverb + Einstellungsverb)"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C04",
+       "claim_type": "forecast"
+      },
+      "2": {
+       "proposal_id": "C03",
+       "claim_type": "forecast"
+      },
+      "3": {
+       "proposal_id": "C04",
+       "claim_type": "forecast"
+      }
+     }
+    },
+    {
+     "id": "B06",
+     "start": 246,
+     "end": 307,
+     "abs_start": 1830,
+     "abs_end": 1891,
+     "region": "Kontext davor",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "forecast"
+     ],
+     "speech_cues": [
+      "mögliche Überzeugung/Haltung anderer (Subjekt + Modalverb + Einstellungsverb)",
+      "Negation: without",
+      "Modalität: might"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C05",
+       "claim_type": "forecast"
+      },
+      "2": {
+       "proposal_id": "C04",
+       "claim_type": "forecast"
+      },
+      "3": {
+       "proposal_id": "C05",
+       "claim_type": "forecast"
+      }
+     }
+    },
+    {
+     "id": "B07",
+     "start": 309,
+     "end": 339,
+     "abs_start": 1893,
+     "abs_end": 1923,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "forecast"
+     ],
+     "speech_cues": [
+      "mögliche Überzeugung/Haltung anderer (Subjekt + Modalverb + Einstellungsverb)",
+      "Modalität: would"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C06",
+       "claim_type": "forecast"
+      },
+      "2": {
+       "proposal_id": "C05",
+       "claim_type": "forecast"
+      },
+      "3": {
+       "proposal_id": "C06",
+       "claim_type": "forecast"
+      }
+     }
+    },
+    {
+     "id": "B08",
+     "start": 340,
+     "end": 397,
+     "abs_start": 1924,
+     "abs_end": 1981,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "assumption",
+      "forecast"
+     ],
+     "speech_cues": [
+      "mögliche Überzeugung/Haltung anderer (Subjekt + Modalverb + Einstellungsverb)",
+      "Modalität: may"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C07",
+       "claim_type": "assumption"
+      },
+      "2": {
+       "proposal_id": "C06",
+       "claim_type": "forecast"
+      },
+      "3": {
+       "proposal_id": "C07",
+       "claim_type": "forecast"
+      }
+     }
+    },
+    {
+     "id": "B09",
+     "start": 399,
+     "end": 455,
+     "abs_start": 1983,
+     "abs_end": 2039,
+     "region": "Kern",
+     "in_runs": [
+      2
+     ],
+     "claim_types": [
+      "forecast"
+     ],
+     "speech_cues": [
+      "mögliche Überzeugung/Haltung anderer (Subjekt + Modalverb + Einstellungsverb)"
+     ],
+     "model_outputs": {
+      "2": {
+       "proposal_id": "C07",
+       "claim_type": "forecast"
+      }
+     }
+    },
+    {
+     "id": "B10",
+     "start": 403,
+     "end": 455,
+     "abs_start": 1987,
+     "abs_end": 2039,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      3
+     ],
+     "claim_types": [
+      "assumption",
+      "forecast"
+     ],
+     "speech_cues": [
+      "mögliche Überzeugung/Haltung anderer (Subjekt + Modalverb + Einstellungsverb)"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C08",
+       "claim_type": "assumption"
+      },
+      "3": {
+       "proposal_id": "C08",
+       "claim_type": "forecast"
+      }
+     }
+    },
+    {
+     "id": "B11",
+     "start": 458,
+     "end": 566,
+     "abs_start": 2042,
+     "abs_end": 2150,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "forecast"
+     ],
+     "speech_cues": [
+      "Modalität: could"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C09",
+       "claim_type": "forecast"
+      },
+      "2": {
+       "proposal_id": "C08",
+       "claim_type": "forecast"
+      },
+      "3": {
+       "proposal_id": "C09",
+       "claim_type": "forecast"
+      }
+     }
+    },
+    {
+     "id": "B12",
+     "start": 567,
+     "end": 652,
+     "abs_start": 2151,
+     "abs_end": 2236,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "causal"
+     ],
+     "speech_cues": [
+      "Modalität: could"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C10",
+       "claim_type": "causal"
+      },
+      "2": {
+       "proposal_id": "C09",
+       "claim_type": "causal"
+      },
+      "3": {
+       "proposal_id": "C10",
+       "claim_type": "causal"
+      }
+     }
+    },
+    {
+     "id": "B13",
+     "start": 655,
+     "end": 727,
+     "abs_start": 2239,
+     "abs_end": 2311,
+     "region": "Kern",
+     "in_runs": [
+      2
+     ],
+     "claim_types": [
+      "causal"
+     ],
+     "speech_cues": [
+      "Modalität: would"
+     ],
+     "model_outputs": {
+      "2": {
+       "proposal_id": "C10",
+       "claim_type": "causal"
+      }
+     }
+    },
+    {
+     "id": "B14",
+     "start": 659,
+     "end": 727,
+     "abs_start": 2243,
+     "abs_end": 2311,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      3
+     ],
+     "claim_types": [
+      "causal"
+     ],
+     "speech_cues": [
+      "Modalität: would"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C11",
+       "claim_type": "causal"
+      },
+      "3": {
+       "proposal_id": "C11",
+       "claim_type": "causal"
+      }
+     }
+    },
+    {
+     "id": "B15",
+     "start": 730,
+     "end": 766,
+     "abs_start": 2314,
+     "abs_end": 2350,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "forecast"
+     ],
+     "speech_cues": [
+      "mögliche Überzeugung/Haltung anderer (Subjekt + Modalverb + Einstellungsverb)",
+      "Modalität: may"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C12",
+       "claim_type": "forecast"
+      },
+      "2": {
+       "proposal_id": "C11",
+       "claim_type": "forecast"
+      },
+      "3": {
+       "proposal_id": "C12",
+       "claim_type": "forecast"
+      }
+     }
+    },
+    {
+     "id": "B16",
+     "start": 767,
+     "end": 865,
+     "abs_start": 2351,
+     "abs_end": 2449,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "other"
+     ],
+     "speech_cues": [
+      "Frage (Satz endet mit Fragezeichen)",
+      "erste Person Plural (wir/uns)",
+      "Bedingung: if"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C13",
+       "claim_type": "other"
+      },
+      "2": {
+       "proposal_id": "C12",
+       "claim_type": "other"
+      },
+      "3": {
+       "proposal_id": "C13",
+       "claim_type": "other"
+      }
+     }
+    },
+    {
+     "id": "B17",
+     "start": 867,
+     "end": 932,
+     "abs_start": 2451,
+     "abs_end": 2516,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "thesis"
+     ],
+     "speech_cues": [],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C14",
+       "claim_type": "thesis"
+      },
+      "2": {
+       "proposal_id": "C13",
+       "claim_type": "thesis"
+      },
+      "3": {
+       "proposal_id": "C14",
+       "claim_type": "thesis"
+      }
+     }
+    },
+    {
+     "id": "B18",
+     "start": 941,
+     "end": 993,
+     "abs_start": 2525,
+     "abs_end": 2577,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "fact",
+      "inference"
+     ],
+     "speech_cues": [
+      "Modalität: can"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C15",
+       "claim_type": "inference"
+      },
+      "2": {
+       "proposal_id": "C14",
+       "claim_type": "inference"
+      },
+      "3": {
+       "proposal_id": "C15",
+       "claim_type": "fact"
+      }
+     }
+    },
+    {
+     "id": "B19",
+     "start": 995,
+     "end": 1030,
+     "abs_start": 2579,
+     "abs_end": 2614,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "fact"
+     ],
+     "speech_cues": [],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C16",
+       "claim_type": "fact"
+      },
+      "2": {
+       "proposal_id": "C15",
+       "claim_type": "fact"
+      },
+      "3": {
+       "proposal_id": "C16",
+       "claim_type": "fact"
+      }
+     }
+    },
+    {
+     "id": "B20",
+     "start": 1044,
+     "end": 1114,
+     "abs_start": 2628,
+     "abs_end": 2698,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "inference"
+     ],
+     "speech_cues": [
+      "Negation: not",
+      "Modalität: can"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C17",
+       "claim_type": "inference"
+      },
+      "2": {
+       "proposal_id": "C16",
+       "claim_type": "inference"
+      },
+      "3": {
+       "proposal_id": "C17",
+       "claim_type": "inference"
+      }
+     }
+    },
+    {
+     "id": "B21",
+     "start": 1116,
+     "end": 1183,
+     "abs_start": 2700,
+     "abs_end": 2767,
+     "region": "Kern",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "inference"
+     ],
+     "speech_cues": [],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C18",
+       "claim_type": "inference"
+      },
+      "2": {
+       "proposal_id": "C17",
+       "claim_type": "inference"
+      },
+      "3": {
+       "proposal_id": "C18",
+       "claim_type": "inference"
+      }
+     }
+    },
+    {
+     "id": "B22",
+     "start": 1185,
+     "end": 1209,
+     "abs_start": 2769,
+     "abs_end": 2793,
+     "region": "Kontext danach",
+     "in_runs": [
+      1,
+      2,
+      3
+     ],
+     "claim_types": [
+      "fact",
+      "thesis"
+     ],
+     "speech_cues": [
+      "Überschrift (Absatzart beim Import)"
+     ],
+     "model_outputs": {
+      "1": {
+       "proposal_id": "C19",
+       "claim_type": "fact"
+      },
+      "2": {
+       "proposal_id": "C18",
+       "claim_type": "thesis"
+      },
+      "3": {
+       "proposal_id": "C19",
+       "claim_type": "thesis"
+      }
+     }
+    }
+   ],
+   "edges": [
+    {
+     "source": "B03",
+     "type": "SUPPORTS",
+     "target": "B01",
+     "runs": 2
+    },
+    {
+     "source": "B04",
+     "type": "SUPPORTS",
+     "target": "B02",
+     "runs": 1
+    },
+    {
+     "source": "B04",
+     "type": "SUPPORTS",
+     "target": "B05",
+     "runs": 2
+    },
+    {
+     "source": "B05",
+     "type": "DEPENDS_ON",
+     "target": "B04",
+     "runs": 1
+    },
+    {
+     "source": "B05",
+     "type": "EXAMPLE_OF",
+     "target": "B01",
+     "runs": 1
+    },
+    {
+     "source": "B05",
+     "type": "SUPPORTS",
+     "target": "B06",
+     "runs": 2
+    },
+    {
+     "source": "B06",
+     "type": "DEPENDS_ON",
+     "target": "B05",
+     "runs": 1
+    },
+    {
+     "source": "B07",
+     "type": "CONTRADICTS",
+     "target": "B05",
+     "runs": 3
+    },
+    {
+     "source": "B08",
+     "type": "SUPPORTS",
+     "target": "B07",
+     "runs": 3
+    },
+    {
+     "source": "B09",
+     "type": "SUPPORTS",
+     "target": "B07",
+     "runs": 1
+    },
+    {
+     "source": "B10",
+     "type": "SUPPORTS",
+     "target": "B07",
+     "runs": 2
+    },
+    {
+     "source": "B11",
+     "type": "EXAMPLE_OF",
+     "target": "B01",
+     "runs": 1
+    },
+    {
+     "source": "B11",
+     "type": "SUPPORTS",
+     "target": "B02",
+     "runs": 1
+    },
+    {
+     "source": "B12",
+     "type": "ENTAILS",
+     "target": "B13",
+     "runs": 1
+    },
+    {
+     "source": "B12",
+     "type": "ENTAILS",
+     "target": "B14",
+     "runs": 1
+    },
+    {
+     "source": "B12",
+     "type": "SUPPORTS",
+     "target": "B11",
+     "runs": 3
+    },
+    {
+     "source": "B13",
+     "type": "SUPPORTS",
+     "target": "B11",
+     "runs": 1
+    },
+    {
+     "source": "B14",
+     "type": "SUPPORTS",
+     "target": "B11",
+     "runs": 2
+    },
+    {
+     "source": "B15",
+     "type": "EXAMPLE_OF",
+     "target": "B01",
+     "runs": 1
+    },
+    {
+     "source": "B15",
+     "type": "SUPPORTS",
+     "target": "B02",
+     "runs": 1
+    },
+    {
+     "source": "B16",
+     "type": "QUALIFIES",
+     "target": "B15",
+     "runs": 1
+    },
+    {
+     "source": "B16",
+     "type": "SUPPORTS",
+     "target": "B15",
+     "runs": 2
+    },
+    {
+     "source": "B18",
+     "type": "SUPPORTS",
+     "target": "B17",
+     "runs": 3
+    },
+    {
+     "source": "B19",
+     "type": "ENTAILS",
+     "target": "B20",
+     "runs": 3
+    },
+    {
+     "source": "B20",
+     "type": "SUPPORTS",
+     "target": "B18",
+     "runs": 3
+    },
+    {
+     "source": "B20",
+     "type": "SUPPORTS",
+     "target": "B21",
+     "runs": 3
+    },
+    {
+     "source": "B21",
+     "type": "SUPPORTS",
+     "target": "B17",
+     "runs": 3
+    },
+    {
+     "source": "B22",
+     "type": "SUPPORTS",
+     "target": "B17",
+     "runs": 1
+    }
+   ]
+  }
+ },
+ "cross_edges": [
+  {
+   "source": "A04",
+   "type": "EXAMPLE_OF",
+   "target": "B22",
+   "runs": 3
+  },
+  {
+   "source": "A06",
+   "type": "EXAMPLE_OF",
+   "target": "B22",
+   "runs": 3
+  },
+  {
+   "source": "A07",
+   "type": "SUPPORTS",
+   "target": "B18",
+   "runs": 2
+  },
+  {
+   "source": "A08",
+   "type": "SUPPORTS",
+   "target": "B08",
+   "runs": 2
+  },
+  {
+   "source": "B21",
+   "type": "SUPPORTS",
+   "target": "A07",
+   "runs": 1
+  }
+ ]
+}

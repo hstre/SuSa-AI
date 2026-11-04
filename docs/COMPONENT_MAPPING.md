@@ -27,6 +27,8 @@ Versionen: Budget-Review `6fc50e7`, SPL `dddcbc9`, Alexandria `45865bd`.
 | Entropie/JSD über Relationsverteilungen | SPL `spl.py`, WP2 | **nicht übertragbar** (BR §8: eine JSON-Antwort liefert keine kalibrierte Verteilung); die übertragbare Anpassung, Wiederholungen als empirische Verteilung, ist übernommen | Häufigkeit je Kante über drei Läufe |
 | Kanonischer Claim mit Lineage, Patch, Siegel | Alexandria `ClaimNode`, Gateway | **noch nicht** (WP2-Weg Text → SemanticUnit → Projection → ClaimCandidate → ClaimNode). SuSa liefert höchstens Kandidaten | – |
 | Claim-Typen als Grundlage von Befunden | BR: 21 Typen ohne Definition, 8 von 24 Dokumenten wechseln den Typ (§4.13) | **nicht als Grundlage verwendet**, nur angezeigt | – |
+| Sprechakt (vertritt / berichtet / mögliche Überzeugung anderer / Frage / Überschrift) | nirgends: BR, SPL und Alexandria haben dafür nichts; SuSa hat Absatzart und Blockzitat-Hinweise aus dem Import | **schmale Ergänzung**: deterministische Marker (`susa/pair_analysis.speech_cues`), nutzt SuSas Satzteilung und `search.MARKERS`; entscheidet nichts, die Einordnung bleibt ausgewiesene Interpretation | Paar 1, [PAIR1_ARGUMENT_ANALYSIS.md](PAIR1_ARGUMENT_ANALYSIS.md) |
+| Begründungsketten über Läufe hinweg | BR-Gate-Kanten je Lauf | **übernommen**, über den Originalanker gruppiert und gezählt (`pair_analysis.build_structure`) | Paar 1 |
 | Identität eines Claims | BR §4.5: Anker stabil, Modellwortlaut instabil; Anker-only-Identität **zurückgezogen** (§7.8) | Anker als Schlüssel für Laufvergleiche; mehrere Claims je Anker erlaubt, keine Verschmelzung | `evaluate` |
 
 ## Was SuSa-AI tatsächlich neu beiträgt
