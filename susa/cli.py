@@ -143,6 +143,8 @@ def main(argv=None):
     p.add_argument("--budget")
     p.add_argument("--render", metavar="RUN_ID", help="nur Bericht eines gespeicherten Laufs neu erzeugen, kein Aufruf")
     p.add_argument("--public-out", help="Pfad für die Fassung ohne Originalzitate (versionierbar)")
+    p.add_argument("--public-short", help="Pfad für den Kurzbericht ohne Originalzitate (versionierbar)")
+    p.add_argument("--revalidate", action="store_true", help="mit --render: aktuelle Prüfregeln getrennt anwenden")
     p = sub.add_parser("serve", help="lokale Oberfläche starten")
     p.add_argument("--port", type=int, default=5005)
     p.add_argument("--host", default="127.0.0.1")
@@ -342,7 +344,8 @@ def main(argv=None):
             if meta.get("status") in ("not_run", "error"):
                 return
             run_dir = pair_dir / f"argument-{meta['run_id']}"
-        paths = argument_stage.write_reports(run_dir, Path(a.public_out) if a.public_out else None)
+        paths = argument_stage.write_reports(run_dir, Path(a.public_out) if a.public_out else None,
+                                             Path(a.public_short) if a.public_short else None, revalidate=a.revalidate)
         print("Berichte:", ", ".join(str(p) for p in paths))
     elif a.cmd == "serve":
         from .web.app import create_app

@@ -14,7 +14,7 @@ SPANS_A = ["Can machines think?", "Minds are not reducible to computation alone.
 SPANS_B = ["Machines will think.", "Computation is all there is to minds."]
 
 
-def _pair(tmp_path):
+def _pair(tmp_path, DOC_A=DOC_A, with_sentences=False):
     (tmp_path / "passages.json").write_text(json.dumps({
         "A": {"document": DOC_A, "core": [0, len(DOC_A)], "offset": 0, "document_id": "syn-a", "version_text_sha256": "x"},
         "B": {"document": DOC_B, "core": [0, len(DOC_B)], "offset": 0, "document_id": "syn-b", "version_text_sha256": "y"}}))
@@ -27,7 +27,11 @@ def _pair(tmp_path):
                              "relations": [{"source_claim_node_id": "A3", "relation_type": "SUPPORTS", "target_claim_node_id": "A4"}]}},
            "B": {"dossier": {"claims": claims("B", DOC_B, SPANS_B), "relations": []}}, "relations": {"relations": []}}
     (tmp_path / "run-1.json").write_text(json.dumps(run))
-    return build_structure(tmp_path, {"A": [(0, len("Can machines think?"), "h")]})
+    kinds = {"A": [(0, len("Can machines think?"), "h")]} if DOC_A.startswith("Can machines") else {}
+    structure = build_structure(tmp_path, kinds)
+    if with_sentences:
+        st.add_sentence_anchors(structure, json.loads((tmp_path / "passages.json").read_text()), kinds)
+    return structure
 
 
 GOOD = {
@@ -120,7 +124,7 @@ def test_run_stores_everything_and_respects_budget(tmp_path):
     # Bericht ohne Originalzitate enthält keine Originalsätze
     pub = tmp_path / "pub.md"
     st.write_reports(d, pub)
-    assert "Brains are embodied" not in pub.read_text() and "Brains are embodied" in (d / "report_full.md").read_text()
+    assert "Brains are embodied" not in pub.read_text() and "Brains are embodied" in (d / f"report_full.{st.RENDER_VERSION}.md").read_text()
 
 
 def test_split_cli_answer_is_rejected(tmp_path):
@@ -135,3 +139,41 @@ def test_question_relation_consistency(tmp_path):
     bad["questions"][0]["relation"] = "teilweise gemeinsam"  # B hat keine Kette zu F1
     v = st.validate(bad, _pair(tmp_path))
     assert v["consistency_flags"] and st.validate(GOOD, _pair(tmp_path))["consistency_flags"] == []
+
+
+def test_reported_thesis_stays_reported_in_comparison_and_short_report(tmp_path):
+    """Paar-2-Fehler: B gibt eine fremde These wieder (Sprecher laut Text nicht eindeutig); der Vergleichstext macht B
+    selbst zum Subjekt („B … behauptet“). Der Hinweis muss anschlagen, der Kurzbericht muss die Wiedergabe und die
+    Offenheit des Sprechers zeigen, nicht eine Position von B."""
+    s = _pair(tmp_path)
+    r = copy.deepcopy(GOOD)
+    r["speech_acts"].append({"anchors": ["B02"], "act": "berichtet", "speaker": "wahrscheinlich die Paperautoren (Zitat)",
+                             "note": "", "interpretation": False})
+    r["conclusion_comparison"][0]["difference"] = "B (bzw. die zitierte Stimme) behauptet sie und begründet sie."
+    v = st.validate(r, s)
+    assert len(v["attribution_flags"]) == 1 and "B02" in v["attribution_flags"][0]
+    meta = {"run_id": "t", "prompt_version": "D_argument.v1"}
+    short = st.render_short(r, v, {"structure": s}, meta, with_text=False)
+    line = next(x for x in short.splitlines() if x.startswith("- A02 ↔ B02"))
+    assert "B vertreten von: berichtet: wahrscheinlich die Paperautoren (Zitat) — Sprecher nicht eindeutig" in line
+    # neutrale Wiedergabe schlägt nicht an; eine eigene Position der Passage auch nicht
+    r["conclusion_comparison"][0]["difference"] = "B gibt sie als Position der Paperautoren wieder."
+    assert st.validate(r, s)["attribution_flags"] == []
+    r["speech_acts"][-1]["act"] = "vertritt"
+    r["speech_acts"][-1]["speaker"] = "Autor von B"
+    r["conclusion_comparison"][0]["difference"] = "B behauptet sie."
+    assert st.validate(r, s)["attribution_flags"] == []
+
+
+def test_frame_sentence_without_claim_is_citable(tmp_path):
+    doc = "To put their view briefly, it is roughly this:\n\n" + DOC_A
+    s = _pair(tmp_path, DOC_A=doc, with_sentences=True)
+    frame = [a for a in s["sides"]["A"]["sentences"] if a["span"].startswith("To put their view")]
+    assert len(frame) == 1 and frame[0]["span"] == doc[frame[0]["start"]:frame[0]["end"]]
+    assert not any(a["span"].startswith("Minds are not") for a in s["sides"]["A"]["sentences"])  # vom Claim abgedeckt
+    r = copy.deepcopy(GOOD)
+    r["speech_acts"].append({"anchors": [frame[0]["id"]], "act": "vertritt", "speaker": "Autor von A", "note": "Rahmensatz",
+                             "interpretation": False})
+    r["chains"][0]["parts"].append({"role": "Voraussetzung", "anchors": [frame[0]["id"]], "rendering": "A kündigt eine Wiedergabe an.",
+                                    "evidence_quote": "To put their view briefly"})
+    assert st.validate(r, s)["status"] == "valid"

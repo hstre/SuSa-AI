@@ -51,9 +51,36 @@ def paragraph_kinds(conn, passages: dict) -> dict:
     return out
 
 
+def add_sentence_anchors(structure: dict, passages: dict, kinds: dict) -> None:
+    """Sätze ohne eigenen Claim (z. B. ein einleitender Rahmensatz) werden als zitierbare Stellen ergänzt: IDs
+    <Seite>S<nn>, wörtliche Spanne und Offsets aus dem gespeicherten Text, keine Modellaussage. Damit kann eine
+    Interpretation sich auf sie berufen, statt sie nur im Freitext zu erwähnen."""
+    from .pair_analysis import speech_cues
+    from .segment import split_sentences
+    for side, p in passages.items():
+        doc, (cs, ce) = p["document"], p["core"]
+        sd = structure["sides"][side]
+        claims = [(a["start"], a["end"]) for a in sd["anchors"]]
+        paras = [(max(a, 0), min(b, len(doc)), k) for a, b, k in kinds.get(side, []) if b > 0 and a < len(doc)] or [(0, len(doc), None)]
+        out = []
+        for ps, pe, kind in paras:
+            for s0, e0 in split_sentences(doc, ps, pe):
+                covered = sum(max(0, min(e0, e) - max(s0, s)) for s, e in claims)
+                if covered >= 0.5 * (e0 - s0):
+                    continue
+                out.append({"id": f"{side}S{len(out) + 1:02d}", "start": s0, "end": e0, "abs_start": p["offset"] + s0,
+                            "abs_end": p["offset"] + e0, "kind": "Satz ohne Claim",
+                            "region": "Kern" if s0 < ce and e0 > cs else ("Kontext davor" if e0 <= cs else "Kontext danach"),
+                            "in_runs": [], "claim_types": [], "speech_cues": speech_cues(doc, s0, e0, kind),
+                            "model_outputs": {}, "span": doc[s0:e0]})
+        sd["sentences"] = out
+
+
 def build_inputs(conn, pair_dir: Path) -> dict:
     passages = json.loads((pair_dir / "passages.json").read_text("utf-8"))
-    structure = build_structure(pair_dir, paragraph_kinds(conn, passages))
+    kinds = paragraph_kinds(conn, passages)
+    structure = build_structure(pair_dir, kinds)
+    add_sentence_anchors(structure, passages, kinds)
     runs = sorted(p.name for p in pair_dir.glob("run-*.json"))
     return {"passages": passages, "structure": structure, "runs": runs,
             "inputs_sha256": db.sha256_text(json.dumps({"p": passages, "s": structure}, sort_keys=True, ensure_ascii=False))}
@@ -76,6 +103,10 @@ def render_user(inputs: dict) -> str:
             contents = sorted({v["content"] for v in a["model_outputs"].values()})
             out.append(f"- {a['id']} | {a['region']} | {len(a['in_runs'])}/{n} | {'; '.join(a['speech_cues']) or '–'} | "
                        f"„{a['span']}“ | " + " || ".join(contents))
+        if s.get("sentences"):
+            out.append(f"Sätze ohne Claim {side} (zitierbar wie Anker; keine Aussage der Läufe) (ID | Bereich | Hinweise | Originalstelle):")
+            for a in s["sentences"]:
+                out.append(f"- {a['id']} | {a['region']} | {'; '.join(a['speech_cues']) or '–'} | „{a['span']}“")
         out.append(f"Kanten innerhalb {side} (Quelle Typ Ziel, Läufe): " +
                    (", ".join(f"{e['source']} {e['type']} {e['target']} ({e['runs']}/{n})" for e in s["edges"]) or "keine"))
         out.append("")
@@ -84,10 +115,66 @@ def render_user(inputs: dict) -> str:
     return "\n".join(out)
 
 
+# ------------------------------------------------------------------ Sprecherzuordnung (deterministisch)
+
+UNSURE = re.compile(r"wahrscheinlich|vermutlich|unklar|unsicher|offen|möglicherweise|\boder\b|\?", re.I)
+# Freitext, der eine Passage selbst zum Subjekt einer Festlegung macht („B behauptet …“)
+OWN_CLAIM = r"(?<![\w-]){side}(?![\w+-])(?:\s*\([^)]*\))?[^.;:]{{0,25}}?\b(behauptet|vertritt|begründet|argumentiert|hält|meint|fordert|bestreitet|schließt)\b"
+
+
+def holder(anchor_ids: list[str], result: dict) -> dict:
+    """Wer vertritt die Aussage an diesen Ankern? Nur aus den Sprechakten des Ergebnisses abgeleitet, nicht aus dem
+    Seitenetikett. Offenheit (act „offen“, unsichere Sprecherangabe, gemischte oder fehlende Einordnung) bleibt
+    erhalten und wird nie zur eigenen Position der Passage aufgelöst."""
+    acts, unsure, missing = [], False, []
+    for a in anchor_ids or []:
+        hits = [sa for sa in result.get("speech_acts", []) if a in (sa.get("anchors") or [])]
+        if not hits:
+            missing.append(a)
+        for h in hits:
+            acts.append((h.get("act"), h.get("speaker") or "–"))
+            unsure |= h.get("act") == "offen" or bool(UNSURE.search(h.get("speaker") or "")) or bool(h.get("interpretation"))
+    distinct = sorted(set(acts))
+    unsure |= bool(missing)
+    mixed = len({x[0] for x in distinct}) > 1
+    readings = [o.get("text") for o in result.get("open_readings", []) if set(o.get("anchors") or []) & set(anchor_ids or [])]
+    label = "; ".join(f"{act}: {spk}" for act, spk in distinct) or "nicht eingeordnet"
+    if missing:
+        label += f" (ohne Sprechakt: {', '.join(missing)})"
+    return {"label": label, "acts": [x[0] for x in distinct], "own": bool(distinct) and all(x[0] == "vertritt" for x in distinct) and not missing,
+            "unsure": unsure, "mixed": mixed, "open_readings": readings}
+
+
+def holder_text(ids, result) -> str:
+    h = holder(ids, result)
+    return h["label"] + (" — Sprecher nicht eindeutig" if h["unsure"] else "") + \
+        (" — Anker mit verschiedener Einordnung" if h["mixed"] else "") + (" — offene Lesart (siehe offene Lesarten)" if h["open_readings"] else "")
+
+
+def attribution_flags(result: dict) -> list[str]:
+    """Freitext im Vergleich oder bei Zusätzen schreibt einer Passage eine Festlegung zu, deren Anker dort nicht als
+    eigene Position eingeordnet sind. Hinweis für die Durchsicht, kein Beweis."""
+    flags = []
+    for i, c in enumerate(result.get("conclusion_comparison", [])):
+        for side, key in (("A", "a"), ("B", "b")):
+            h = holder(c.get(key), result)
+            if h["own"]:
+                continue
+            for field in ("common", "difference"):
+                m = re.search(OWN_CLAIM.format(side=side), c.get(field) or "")
+                if m:
+                    flags.append(f"$.conclusion_comparison[{i}].{field}: „{m.group(0)}“, aber {', '.join(c.get(key) or [])} sind {h['label']}")
+    for i, a in enumerate(result.get("additions", [])):
+        h = holder(a.get("anchors"), result)
+        if not h["own"] and re.search(OWN_CLAIM.format(side=a.get("side", "?")), a.get("thought") or ""):
+            flags.append(f"$.additions[{i}].thought: Festlegung der Passage {a.get('side')} zugeschrieben, Anker sind {h['label']}")
+    return flags
+
+
 # ------------------------------------------------------------------ Validierung
 
 def _anchor_index(structure):
-    return {a["id"]: (side, a) for side, s in structure["sides"].items() for a in s["anchors"]}
+    return {a["id"]: (side, a) for side, s in structure["sides"].items() for a in s["anchors"] + s.get("sentences", [])}
 
 
 def _edges(structure):
@@ -216,7 +303,8 @@ def validate(result: dict, structure: dict) -> dict:
         anchors_ok(f"$.open_readings[{i}]", o.get("anchors"))
     status = "valid" if not (errors or quote_fail or side_err) else "invalid"
     return {"schema_valid": not errors, "errors": errors, "quote_failures": quote_fail, "side_errors": side_err,
-            "amplification_flags": amplif, "context_flags": context_flags, "consistency_flags": consistency, "status": status}
+            "amplification_flags": amplif, "context_flags": context_flags, "consistency_flags": consistency,
+            "attribution_flags": attribution_flags(result), "status": status}
 
 
 # ------------------------------------------------------------------ Ausführung
@@ -303,13 +391,17 @@ def render_report(result: dict, validation: dict, inputs: dict, meta: dict, with
     def q(x):
         return f" Beleg: „{x}“" if with_text and x else ""
 
+    def hl(ids):
+        return holder_text(ids, result)
+
     L = [f"# Argumentstufe: Werkzeugergebnis {meta['run_id']}", "",
          f"Prompt `{meta['prompt_version']}`, Modell `{meta.get('model')}`, Eingaben `{meta['inputs_sha256'][:16]}…`, "
          f"Extraktionsläufe {', '.join(meta['extraction_runs'])}. **Unbearbeitete Ausgabe** des Werkzeugs; "
          "Prüfanmerkungen stehen getrennt.", "",
          f"Validierung: **{validation.get('status')}** · Schemafehler {len(validation.get('errors', []))} · "
          f"Belegzitat nicht im Anker {len(validation.get('quote_failures', []))} · falsche Seite {len(validation.get('side_errors', []))} · "
-         f"Verstärkungshinweise {len(validation.get('amplification_flags', []))} · Kontext/Frage/Überschrift {len(validation.get('context_flags', []))}", ""]
+         f"Verstärkungshinweise {len(validation.get('amplification_flags', []))} · Kontext/Frage/Überschrift {len(validation.get('context_flags', []))} · "
+         f"Zuschreibung {len(validation.get('attribution_flags', []))}" + (f" ({validation['note']})" if validation.get("note") else ""), ""]
     L += ["## Sprechhandlungen", "", "| Anker | Einordnung | Sprecher | Anmerkung |", "|---|---|---|---|"]
     for s in result.get("speech_acts", []):
         L.append(f"| {', '.join(s.get('anchors', []))} | {s.get('act')}{' (Interpretation)' if s.get('interpretation') else ''} | "
@@ -318,7 +410,8 @@ def render_report(result: dict, validation: dict, inputs: dict, meta: dict, with
     for c in result.get("chains", []):
         con = c.get("conclusion", {})
         L += [f"### {c.get('id')} (Passage {c.get('side')}, Fragen {', '.join(c.get('questions', []))}) – {c.get('support')}", "",
-              f"**Schluss:** {con.get('rendering')} ({con.get('modality', '')}) — {ref(con.get('anchors'))}{q(con.get('evidence_quote'))}", ""]
+              f"**Schluss:** {con.get('rendering')} ({con.get('modality', '')}) — {ref(con.get('anchors'))}{q(con.get('evidence_quote'))}", "",
+              f"**Vertreten von** (aus den Sprechakten): {hl(con.get('anchors'))}", ""]
         for p in c.get("parts", []):
             L.append(f"- *{p.get('role')}*: {p.get('rendering')} — {ref(p.get('anchors'))}{q(p.get('evidence_quote'))}")
         for r in c.get("reconstructed_premises", []):
@@ -334,11 +427,12 @@ def render_report(result: dict, validation: dict, inputs: dict, meta: dict, with
     L += ["", "## Vergleich der Schlussfolgerungen", ""]
     for c in result.get("conclusion_comparison", []):
         L += [f"- **{', '.join(c.get('a', []))} ↔ {', '.join(c.get('b', []))}: {c.get('match')}.** Gemeinsam: {c.get('common')} "
-              f"Unterschied: {c.get('difference')} Gründe A: {', '.join(c.get('reasons_a', [])) or '–'}; Gründe B: {', '.join(c.get('reasons_b', [])) or '–'}."]
-    L += ["", "## Zusätzliche Gedanken", "", "| | Gedanke | Art | in der anderen Passage? | verändert den Gedankengang? | Grundlage | Anker |",
-          "|---|---|---|---|---|---|---|"]
+              f"Unterschied: {c.get('difference')} Gründe A: {', '.join(c.get('reasons_a', [])) or '–'}; Gründe B: {', '.join(c.get('reasons_b', [])) or '–'}.",
+              f"  Vertreten von (aus den Sprechakten): A {hl(c.get('a'))} · B {hl(c.get('b'))}"]
+    L += ["", "## Zusätzliche Gedanken", "", "| | Gedanke | Art | vertreten von | in der anderen Passage? | verändert den Gedankengang? | Grundlage | Anker |",
+          "|---|---|---|---|---|---|---|---|"]
     for a in result.get("additions", []):
-        L.append(f"| {a.get('id')} ({a.get('side')}) | {a.get('thought')} | {a.get('kind')} | {a.get('contained_in_other')} | "
+        L.append(f"| {a.get('id')} ({a.get('side')}) | {a.get('thought')} | {a.get('kind')} | {hl(a.get('anchors'))} | {a.get('contained_in_other')} | "
                  f"{a.get('changes_line')} | {a.get('textual_basis')} | {ref(a.get('anchors'))}{q(a.get('evidence_quote'))} |")
     L += ["", "## Nicht ausreichend gestützte Beziehungen", ""]
     for w in result.get("weak_relations", []):
@@ -348,7 +442,8 @@ def render_report(result: dict, validation: dict, inputs: dict, meta: dict, with
     L += [f"- {u}" for u in result.get("uncertainties", [])]
     L += ["", "## Validierung im Einzelnen (deterministisch)", ""]
     for k, label in (("errors", "Schemafehler"), ("quote_failures", "Belegzitat nicht im Anker"), ("side_errors", "falsche Seite"),
-                     ("context_flags", "Kontext/Frage/Überschrift"), ("consistency_flags", "Bezugsfragen inkonsistent")):
+                     ("context_flags", "Kontext/Frage/Überschrift"), ("consistency_flags", "Bezugsfragen inkonsistent"),
+                     ("attribution_flags", "Zuschreibung im Freitext weicht von den Sprechakten ab")):
         items = validation.get(k, [])
         L.append(f"**{label}:** " + ("keine" if not items else ""))
         L += [f"- {x}" for x in items]
@@ -374,19 +469,85 @@ def mask_source_quotes(text: str, documents: list[str], max_words: int = 4) -> s
     return QUOTED.sub(repl, text)
 
 
-def write_reports(run_dir: Path, public_out: Path | None = None) -> list[Path]:
-    """Vollfassung lokal (mit Originalzitaten); optional eine Fassung ohne Originalzitate zum Versionieren."""
+RENDER_VERSION = "r2"  # r1: ohne Sprecherzuordnung in Ketten/Vergleichen; r1-Dateien bleiben unverändert liegen
+
+
+def render_short(result: dict, validation: dict, inputs: dict, meta: dict, with_text: bool) -> str:
+    """Kurzbericht zu drei Fragen. Wer eine Aussage vertritt, kommt nur aus den Sprechakten (holder), nie aus dem
+    Seitenetikett; offene Sprecher bleiben als offen markiert."""
+    idx = _anchor_index(inputs["structure"])
+
+    def ref(ids):
+        return "; ".join(f"{i} [{idx[i][1]['region']}" + (", Satz ohne Claim" if idx[i][1].get("kind") else "") + "]"
+                         + (f" „{idx[i][1]['span']}“" if with_text else "") if i in idx else f"{i} [unbekannt]" for i in ids or []) or "–"
+
+    def who(ids):
+        return holder_text(ids, result)
+
+    chains = {c.get("id"): c for c in result.get("chains", [])}
+    L = [f"# Kurzbericht {meta['run_id']}", "",
+         f"Abgeleitet aus dem unveränderten Werkzeugergebnis (Prompt `{meta['prompt_version']}`), Darstellung {RENDER_VERSION}. "
+         "„Vertreten von“ stammt aus den Sprechakten des Ergebnisses, nicht aus der Passage, in der die Aussage steht.", "",
+         "## 1. Welche Frage behandelt jede Passage, und wer vertritt die Aussage?", ""]
+    for side in ("A", "B"):
+        L.append(f"**Passage {side}**")
+        for qn in result.get("questions", []):
+            for cid in qn.get(side) or []:
+                c = chains.get(cid, {})
+                con = c.get("conclusion", {})
+                L.append(f"- {qn.get('id')} ({qn.get('relation')}): {qn.get('text')} — Schluss {cid}: {con.get('rendering')} "
+                         f"— vertreten von: {who(con.get('anchors'))} — {ref(con.get('anchors'))}")
+        unasked = [c for c in chains.values() if c.get("side") == side and not any(c.get("id") in (qn.get(side) or []) for qn in result.get("questions", []))]
+        L += [f"- ohne Frage: Schluss {c.get('id')}: {c.get('conclusion', {}).get('rendering')} — vertreten von: {who(c.get('conclusion', {}).get('anchors'))}" for c in unasked]
+        L.append("")
+    L += ["Vergleich der Schlüsse:", ""]
+    for c in result.get("conclusion_comparison", []):
+        L.append(f"- {', '.join(c.get('a', []))} ↔ {', '.join(c.get('b', []))}: {c.get('match')}. A vertreten von: {who(c.get('a'))}; "
+                 f"B vertreten von: {who(c.get('b'))}.")
+    L += ["", "## 2. Welcher Gedanke kommt hinzu, welche Textstelle begründet ihn, ändert er eine Schlussfolgerung?", ""]
+    for a in result.get("additions", []) or []:
+        L += [f"- **{a.get('id')} ({a.get('kind')})**: {a.get('thought')}",
+              f"  - vertreten von: {who(a.get('anchors'))}",
+              f"  - Textstelle: {ref(a.get('anchors'))}" + (f"; Beleg „{a.get('evidence_quote')}“" if with_text and a.get("evidence_quote") else ""),
+              f"  - in der anderen Passage: {a.get('contained_in_other')}",
+              f"  - ändert den Gedankengang/Schluss: {a.get('changes_line')}"]
+    if not result.get("additions"):
+        L.append("- Kein zusätzlicher Gedanke ausgewiesen.")
+    L += ["", "## 3. Wo erlauben Wortlaut oder Kontext mehrere Lesarten?", ""]
+    L += [f"- {', '.join(o.get('anchors', []))}: {o.get('text')}" for o in result.get("open_readings", [])] or ["- keine ausgewiesen"]
+    flags = validation.get("attribution_flags") or []
+    if flags:
+        L += ["", "Prüfhinweise zur Zuschreibung (Freitext des Modells weicht von seinen Sprechakten ab):", ""] + [f"- {f}" for f in flags]
+    ctx = validation.get("context_flags") or []
+    if ctx:
+        L += ["", "Schlüsse, die nur auf Kontext, Frage oder Überschrift beruhen:", ""] + [f"- {f}" for f in ctx]
+    return "\n".join(L) + "\n"
+
+
+def write_reports(run_dir: Path, public_out: Path | None = None, public_short: Path | None = None,
+                  revalidate: bool = False) -> list[Path]:
+    """Vollfassung und Kurzbericht lokal (mit Originalzitaten); optional Fassungen ohne längere Originalzitate zum
+    Versionieren. revalidate: aktuelle Prüfregeln auf das gespeicherte Ergebnis anwenden und getrennt ablegen
+    (validation.json bleibt unverändert)."""
     meta = json.loads((run_dir / "meta.json").read_text("utf-8"))
     inputs = json.loads((run_dir / "inputs.json").read_text("utf-8"))
     validation = json.loads((run_dir / "validation.json").read_text("utf-8"))
     rp = run_dir / "result.json"
     result = json.loads(rp.read_text("utf-8")) if rp.exists() else {}
-    full = run_dir / "report_full.md"
-    full.write_text(render_report(result, validation, inputs, meta, with_text=True), "utf-8")
-    out = [full]
-    if public_out is not None:
-        public_out.parent.mkdir(parents=True, exist_ok=True)
-        docs = [p["document"] for p in inputs["passages"].values()]
-        public_out.write_text(mask_source_quotes(render_report(result, validation, inputs, meta, with_text=False), docs), "utf-8")
-        out.append(public_out)
+    if revalidate and result:
+        from .config import code_version
+        validation = validate(result, inputs["structure"])
+        validation.update({"note": f"Nachprüfung {RENDER_VERSION} mit aktuellen Prüfregeln; validation.json ist der Stand zum Laufzeitpunkt",
+                           "code_version": code_version()})
+        (run_dir / f"validation_recheck.{RENDER_VERSION}.json").write_text(json.dumps(validation, ensure_ascii=False, indent=1), "utf-8")
+    docs = [p["document"] for p in inputs["passages"].values()]
+    out = []
+    for name, fn, pub in (("report_full", render_report, public_out), ("report_short", render_short, public_short)):
+        local = run_dir / f"{name}.{RENDER_VERSION}.md"
+        local.write_text(fn(result, validation, inputs, meta, with_text=True), "utf-8")
+        out.append(local)
+        if pub is not None:
+            pub.parent.mkdir(parents=True, exist_ok=True)
+            pub.write_text(mask_source_quotes(fn(result, validation, inputs, meta, with_text=False), docs), "utf-8")
+            out.append(pub)
     return out

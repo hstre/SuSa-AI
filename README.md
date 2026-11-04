@@ -12,7 +12,7 @@ Grundlage ist der Bauauftrag `Claude_Uebergabe_Argumentanalyse.md` (Arbeitsfassu
 Ausgangsdaten: öffentlicher Metadatenexport von Mike Thickes Projekt
 [mc-lit-review](https://github.com/Epistemic-Technology/mc-lit-review) (siehe [NOTICE.md](NOTICE.md)).
 
-## Stand (4. November 2026, Version 0.4.0)
+## Stand (4. November 2026, Version 0.4.1)
 
 | Bereich | Stand |
 |---|---|
@@ -93,7 +93,7 @@ python -m susa budget status <ID>
 # Paar zerlegen (Budget-Review-Komponenten), dann Argumentstufe (Prompt D) auf die gespeicherten Läufe
 python -m susa br-pair <set_id> <position> --adapter claude_cli --budget <ID> --repeats 1 --no-relations
 python -m susa argument <set_id> <position> --adapter claude_cli --budget <ID> --public-out docs/pairN/ARGUMENT_STAGE_RAW.md
-python -m susa argument <set_id> <position> --render <run_id>   # Bericht neu erzeugen, kein Aufruf
+python -m susa argument <set_id> <position> --render <run_id> [--revalidate] [--public-short …]   # Berichte neu, kein Aufruf
 ```
 
 Die **Argumentstufe** (`susa/argument_stage.py`, Prompt `D_argument`) rekonstruiert Sprechhandlungen,
@@ -102,7 +102,13 @@ gespeicherten Passagen, Extraktionsläufe und die deterministische Ankerstruktur
 Logik. Je Lauf liegen unter `data/semantic/<set>-p<pos>/argument-<run_id>/` Eingaben, Prompt, Rohantwort,
 Validierung und Ergebnis. Die Validierung prüft Schema, Anker, Seiten, Kanten, ob jedes Belegzitat im genannten
 Anker steht, und gibt markerbasierte Hinweise auf Bedeutungsverstärkung (nur Hinweise). Die versionierbare Fassung
-ersetzt wörtliche Quellzitate über vier Wörter durch einen Platzhalter.
+ersetzt wörtliche Quellzitate über vier Wörter durch einen Platzhalter. Der Kurzbericht nennt, wer eine Aussage
+vertritt; das wird aus den Sprechakten abgeleitet, nicht aus der Passage, und ein offener Sprecher bleibt offen.
+
+Der Claude-CLI-Adapter ruft nur bei bestätigter reiner Abo-Nutzung auf (`llm.subscription_only`, Standard an):
+OAuth-Anmeldung, kein API-Schlüssel, Zusatznutzung abgeschaltet, und keine frühere Antwort im Budget mit
+nutzbarer oder genutzter Zusatznutzung oder ohne Rate-Limit-Angaben. Das von der CLI ausgewiesene
+`total_cost_usd` ist ein Listenpreis-Äquivalent (Rechengröße), keine Abrechnung.
 
 Der Zähler liegt in der Datenbank (`model_calls`). Jeder Versuch, auch Fehlversuche und Wiederholungen, wird vor dem
 Aufruf eingetragen und zählt. Neue Adapterinstanzen, die Oberfläche oder ein Neustart setzen ihn nicht zurück. Bei

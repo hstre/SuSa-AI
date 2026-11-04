@@ -156,6 +156,7 @@ class Adapter:
         while True:
             attempt += 1
             call_id = None
+            self.preflight()  # vor der Reservierung: eine Verweigerung zählt nicht als Aufruf
             if self.budget is not None:
                 call_id = self.budget.reserve(adapter=self.name, model=self.model, is_real=self.is_real, purpose=purpose, run_id=run_id,
                                               attempt=attempt, est_input_tokens=estimate_tokens(system + user),
@@ -187,6 +188,9 @@ class Adapter:
                 self.budget.finish(call_id, "success", model_reported=res.model, usage=res.usage, raw_path=raw_path)
             res.call_id, res.attempts = call_id, attempt
             return res
+
+    def preflight(self) -> None:
+        """Bedingungen, die vor jedem Aufruf erfüllt sein müssen (z. B. reine Abo-Nutzung). Standard: keine."""
 
     def _complete(self, system: str, user: str) -> LLMResult:
         raise NotImplementedError
@@ -260,8 +264,18 @@ class ClaudeCLIAdapter(Adapter):
         if shutil.which(self.bin) is None:
             raise NotConfigured(f"CLI '{self.bin}' nicht gefunden")
 
+    def preflight(self) -> None:
+        """Nur reine Abo-Nutzung (llm.subscription_only, Standard an). Vor dem Aufruf: OAuth-Anmeldung, kein
+        API-Schlüssel, Zusatznutzung laut CLI-Zustand abgeschaltet; dazu darf kein früherer Aufruf dieses Budgets
+        eine nutzbare oder genutzte Zusatznutzung oder fehlende Rate-Limit-Angaben gezeigt haben."""
+        if not self.cfg.get("subscription_only", True):
+            return
+        problems = check_subscription_only(self.bin, self.conn, self.budget.id if self.budget else None)
+        if problems:
+            raise NotConfigured("Abrechnung nicht als reine Abo-Nutzung bestätigt, kein Aufruf: " + "; ".join(problems))
+
     def command(self, system: str) -> list[str]:
-        return [self.bin, "-p", "--output-format", "json", "--model", self.cfg.get("model", "claude-opus-5-5"),
+        return [self.bin, "-p", "--output-format", "stream-json", "--verbose", "--model", self.cfg.get("model", "claude-opus-5-5"),
                 "--effort", self.cfg.get("effort", "medium"), "--system-prompt", system, "--tools", "",
                 "--strict-mcp-config", "--disable-slash-commands", "--no-session-persistence"]
 
@@ -273,10 +287,18 @@ class ClaudeCLIAdapter(Adapter):
                                    timeout=int(self.cfg.get("timeout_seconds", 300)))
             except subprocess.TimeoutExpired as e:
                 raise TransientError(f"Zeitüberschreitung nach {e.timeout} s") from e
-        try:
-            d = json.loads(r.stdout)
-        except json.JSONDecodeError:
-            raise RuntimeError(f"CLI-Ausgabe kein JSON (rc={r.returncode}): {r.stdout[:300]} {r.stderr[:500]}")
+        d, rate_limit = None, None
+        for line in r.stdout.splitlines():
+            try:
+                ev = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if ev.get("type") == "result":
+                d = ev
+            elif ev.get("type") == "rate_limit_event":
+                rate_limit = ev.get("rate_limit_info")
+        if d is None:
+            raise RuntimeError(f"CLI-Ausgabe ohne Ergebnis (rc={r.returncode}): {r.stdout[-300:]} {r.stderr[:500]}")
         if r.returncode != 0 or d.get("is_error"):
             msg = f"CLI-Fehler rc={r.returncode} subtype={d.get('subtype')}: {str(d.get('result'))[:500]} {r.stderr[:300]}"
             if any(k in msg.lower() for k in ("rate", "overloaded", "timeout", "529", "503")):
@@ -285,11 +307,44 @@ class ClaudeCLIAdapter(Adapter):
         mu = d.get("modelUsage") or {}
         main = max(mu, key=lambda k: (mu[k] or {}).get("outputTokens", 0)) if mu else None
         usage = {"usage": d.get("usage"), "modelUsage": mu, "total_cost_usd_list_price": d.get("total_cost_usd"),
-                 "duration_ms": d.get("duration_ms"), "num_turns": d.get("num_turns")}
+                 "duration_ms": d.get("duration_ms"), "num_turns": d.get("num_turns"), "rate_limit_info": rate_limit}
         # Erreicht die Ausgabe die Grenze, setzt die CLI in einem weiteren Zug fort und liefert in "result" nur dessen
         # Text. Die Antwort ist dann unvollständig und wird so markiert (nicht stillschweigend weiterverarbeitet).
         stop = "output_split" if (d.get("num_turns") or 1) > 1 else d.get("subtype")
         return LLMResult(text=d.get("result") or "", model=main or "unbekannt", usage=usage, stop_reason=stop)
+
+
+OVERAGE_ACTIVE = ("allowed", "allowed_warning")
+
+
+def check_subscription_only(cli_bin: str, conn=None, budget_id: str | None = None) -> list[str]:
+    """Belege für reine Abo-Nutzung ohne kostenpflichtige Zusatznutzung. Leere Liste = bestätigt."""
+    problems = []
+    for k in ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN"):
+        if os.environ.get(k):
+            problems.append(f"{k} gesetzt (API-Abrechnung möglich)")
+    try:
+        st = json.loads(subprocess.run([cli_bin, "auth", "status"], capture_output=True, text=True, timeout=60).stdout)
+        if not (st.get("loggedIn") and st.get("authMethod") == "oauth_token" and st.get("apiProvider") == "firstParty"):
+            problems.append(f"Anmeldung nicht OAuth/firstParty: {st.get('authMethod')}/{st.get('apiProvider')}")
+    except (OSError, ValueError, subprocess.SubprocessError) as e:
+        problems.append(f"Anmeldestatus nicht lesbar: {e}")
+    try:
+        state = json.loads((Path.home() / ".claude.json").read_text("utf-8"))
+        if not state.get("cachedExtraUsageDisabledReason"):
+            problems.append("Zusatznutzung laut CLI-Zustand nicht als abgeschaltet vermerkt")
+    except (OSError, ValueError):
+        problems.append("CLI-Zustand (~/.claude.json) nicht lesbar")
+    if conn is not None and budget_id:
+        for row in conn.execute("SELECT id, usage_json FROM model_calls WHERE budget_id=? AND outcome='success' AND adapter='claude_cli'",
+                                (budget_id,)):
+            rl = (json.loads(row[1] or "{}") or {}).get("rate_limit_info")
+            if not rl:
+                problems.append(f"Aufruf {row[0]} ohne Rate-Limit-Angaben, Abrechnung unklar")
+            elif rl.get("isUsingOverage") or rl.get("overageInUse") or rl.get("overageStatus") in OVERAGE_ACTIVE:
+                problems.append(f"Aufruf {row[0]} meldet Zusatznutzung (overageStatus={rl.get('overageStatus')}, "
+                                f"isUsingOverage={rl.get('isUsingOverage')})")
+    return problems
 
 
 ADAPTERS = {"none": NoneAdapter, "replay": ReplayAdapter, "anthropic_api": AnthropicAPIAdapter, "claude_cli": ClaudeCLIAdapter}

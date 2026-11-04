@@ -322,3 +322,23 @@ def test_judge_compare_requires_expected_content(pair):
     assert judge_compare(conn, CASES["case02"], _hyp(conn, hid))["result"] == "bestanden"
     hid = analysis.compare(cfg, conn, cid, adapter=ReplayAdapter({}, [json.dumps(compare_payload(relation_types=["apparent_conflict_due_to_definition"], right_quotes=[]))]), reuse=False)["hypothesis_id"]
     assert judge_compare(conn, CASES["case02"], _hyp(conn, hid))["result"] == "gescheitert"
+
+
+def test_subscription_guard_blocks_after_overage_or_missing_rate_limit(tmp_path, monkeypatch):
+    """Nach einem Aufruf, der nutzbare Zusatznutzung meldet oder keine Rate-Limit-Angaben hat, wird nicht weiter aufgerufen."""
+    from susa.llm import check_subscription_only
+    conn = db.connect(tmp_path / "t.sqlite")
+    bid = create_budget(conn, "t", 4, adapter="claude_cli")
+    for usage in ({"rate_limit_info": {"status": "allowed", "overageStatus": "rejected", "overageDisabledReason": "org_level_disabled"}},):
+        conn.execute("INSERT INTO model_calls(budget_id, attempt, adapter, is_real_service, started_at, outcome, usage_json) VALUES(?,?,?,?,?,?,?)",
+                     (bid, 1, "claude_cli", 1, db.now(), "success", json.dumps(usage)))
+    conn.commit()
+    base = [p for p in check_subscription_only("claude-gibt-es-nicht", conn, bid) if p.startswith("Aufruf")]
+    assert base == []
+    conn.execute("INSERT INTO model_calls(budget_id, attempt, adapter, is_real_service, started_at, outcome, usage_json) VALUES(?,?,?,?,?,?,?)",
+                 (bid, 1, "claude_cli", 1, db.now(), "success", json.dumps({"rate_limit_info": {"status": "allowed", "overageStatus": "allowed"}})))
+    conn.execute("INSERT INTO model_calls(budget_id, attempt, adapter, is_real_service, started_at, outcome, usage_json) VALUES(?,?,?,?,?,?,?)",
+                 (bid, 1, "claude_cli", 1, db.now(), "success", json.dumps({})))
+    conn.commit()
+    p = [x for x in check_subscription_only("claude-gibt-es-nicht", conn, bid) if x.startswith("Aufruf")]
+    assert len(p) == 2 and "Zusatznutzung" in p[0] and "ohne Rate-Limit" in p[1]

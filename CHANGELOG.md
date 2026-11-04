@@ -1,5 +1,22 @@
 # Änderungsprotokoll
 
+## 0.4.1 – 4. November 2026 (Sprecherzuordnung, Paar 3)
+
+- **Sprecherzuordnung beim Zusammenfassen:** `argument_stage.holder()` leitet für Ketten, Fragen, Vergleiche und
+  Zusätze aus den Sprechakten ab, wer eine Aussage vertritt. Das Seitenetikett zählt dafür nicht. Offener Sprecher,
+  gemischte Einordnung und offene Lesart bleiben markiert. Neuer **Kurzbericht** (Darstellung r2) zu drei Fragen.
+  Prüfregel `attribution_flags` für Freitext, der eine berichtete Aussage der Passage selbst zuschreibt. Anlass war
+  Paar 2, Spur in `docs/pair2/ZUSCHREIBUNG.md`. Die Ausgabe r1 bleibt unverändert erhalten.
+- **Sätze ohne Claim** (z. B. Rahmensätze, Fragen, Überschriften) sind als Stellen `<Seite>S<nn>` zitierbar.
+  Dadurch ändern sich die Eingaben der Argumentstufe und ihr Hash; gespeicherte Läufe behalten ihre Eingaben.
+- **Claude-CLI nur mit Abo:**
+  - vor jedem Aufruf: OAuth-Anmeldung, kein API-Schlüssel, Zusatznutzung laut CLI-Zustand abgeschaltet;
+  - Ausgabe als `stream-json`, die Rate-Limit-Angaben jeder Antwort werden gespeichert;
+  - meldet ein Aufruf nutzbare oder genutzte Zusatznutzung oder fehlen die Angaben, wird jeder weitere Aufruf
+    im Budget vor der Reservierung verweigert (`llm.subscription_only`, Standard an).
+- Paar 3: unverändertes Werkzeugergebnis (`docs/pair3/ARGUMENT_STAGE_RAW.md`, `KURZBERICHT.md`) und getrennte
+  Durchsicht (`docs/pair3/REVIEW_NOTES.md`).
+
 ## 0.4.0 – 4. November 2026 (Argumentstufe)
 
 - **Argumentstufe** als wiederverwendbare, werkzeugseitig ausgeführte Stufe (`susa/argument_stage.py`, Prompt
