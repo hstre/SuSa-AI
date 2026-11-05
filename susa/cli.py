@@ -42,6 +42,9 @@ def main(argv=None):
     g.add_argument("--pilot", action="store_true")
     g.add_argument("--doc", nargs="+")
     p.add_argument("--refetch", action="store_true")
+    p = sub.add_parser("add-url", help="Einzelnen Substack-Beitrag als zusätzlichen Prüftext eintragen und abrufen (getrennt vom Ausgangsdatensatz)")
+    p.add_argument("url")
+    p.add_argument("--note", required=True, help="Anlass/Herkunft der Aufnahme")
     p = sub.add_parser("import-text", help="TXT/Markdown/HTML-Datei als Textversion importieren")
     p.add_argument("path")
     p.add_argument("--doc-id")
@@ -151,6 +154,13 @@ def main(argv=None):
     p.add_argument("--adapter")
     p.add_argument("--budget", required=True)
     p.add_argument("--retry-failed", action="store_true")
+    p = sub.add_parser("argument-units", help="Extraktion (falls nötig) und Argumentstufe für ein frei gewähltes Einheitenpaar")
+    p.add_argument("name", help="Verzeichnisname unter data/semantic/")
+    p.add_argument("left_unit")
+    p.add_argument("right_unit")
+    p.add_argument("--adapter")
+    p.add_argument("--budget", required=True)
+    p.add_argument("--public-dir", default=None)
     p = sub.add_parser("review-sheet", help="Beurteilungsheft (lokale HTML-Datei: blind lesen, urteilen, dann Werkzeugergebnis)")
     p.add_argument("set_id")
     p.add_argument("--out", default=None)
@@ -185,6 +195,21 @@ def main(argv=None):
         for r in res:
             c[r["status"]] = c.get(r["status"], 0) + 1
         print(json.dumps(c, ensure_ascii=False))
+    elif a.cmd == "add-url":
+        from urllib.parse import urlparse
+        from .fetch import fetch_many
+        conn = _conn(cfg)
+        u = urlparse(a.url)
+        slug = u.path.rstrip("/").split("/p/")[-1] if "/p/" in u.path else None
+        doc_id = f"added:{u.netloc}:{slug}"
+        if conn.execute("SELECT 1 FROM documents WHERE id=?", (doc_id,)).fetchone() is None:
+            ts = db.now()
+            conn.execute("INSERT INTO documents(id, origin, is_synthetic, canonical_url, host, slug, upstream_payload, first_seen_at, updated_at) "
+                         "VALUES(?,?,?,?,?,?,?,?,?)", (doc_id, "added_review_text", 0, a.url, u.netloc, slug,
+                                                       db.dumps({"note": a.note, "added_at": ts}), ts, ts))
+            conn.commit()
+        for r in fetch_many(cfg, conn, [doc_id]):
+            print(json.dumps(r, ensure_ascii=False))
     elif a.cmd == "import-text":
         from .fetch import import_text_file
         vid = import_text_file(cfg, _conn(cfg), Path(a.path), doc_id=a.doc_id, url=a.url, title=a.title, author=a.author,
@@ -370,6 +395,31 @@ def main(argv=None):
             return
         st = batch.run(cfg, conn, ad, a.set_id, pos, Path("docs"), retry_failed=a.retry_failed)
         print(json.dumps(st, ensure_ascii=False, indent=1))
+    elif a.cmd == "argument-units":
+        from . import argument_stage, br_bridge
+        from .batch import extraction_ok, stage_runs
+        from .llm import CallLimitReached, NotConfigured, get_adapter
+        conn = _conn(cfg)
+        pair_dir = cfg.subdir(f"semantic/{a.name}")
+        try:
+            ad = get_adapter({**cfg.section("llm"), "max_retries": 0}, a.adapter, conn=conn, budget_id=a.budget)
+            cur = {"A": br_bridge.passage(cfg, conn, a.left_unit), "B": br_bridge.passage(cfg, conn, a.right_unit)}
+            if not extraction_ok(pair_dir, cur):
+                br_bridge.run_pair(cfg, conn, ad, a.left_unit, a.right_unit, 1, pair_dir, relations=False)
+                rep = br_bridge.evaluate(pair_dir)
+                (pair_dir / "evaluation.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1, default=str), "utf-8")
+            if not extraction_ok(pair_dir, cur):
+                print("GESTOPPT: Extraktion ungültig"); return
+            if not any(m.get("status") == "valid" for m in stage_runs(pair_dir)):
+                meta = argument_stage.run(cfg, conn, ad, pair_dir, label=a.name)
+                print(json.dumps({k: meta.get(k) for k in ("run_id", "status", "error")}, ensure_ascii=False))
+        except (NotConfigured, CallLimitReached) as e:
+            print("GESTOPPT:", e); return
+        valid = [m for m in stage_runs(pair_dir) if m.get("status") == "valid"]
+        if valid:
+            pub = Path(a.public_dir) if a.public_dir else None
+            print(argument_stage.write_reports(Path(valid[-1]["dir"]), pub / "ARGUMENT_STAGE_RAW.md" if pub else None,
+                                               pub / "KURZBERICHT.md" if pub else None))
     elif a.cmd == "review-sheet":
         from . import judgment_sheet
         out = Path(a.out) if a.out else cfg.subdir("export") / f"beurteilungsheft_{a.set_id}.html"

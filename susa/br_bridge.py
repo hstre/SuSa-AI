@@ -157,6 +157,15 @@ def run_pair(cfg, conn, adapter, left_unit: str, right_unit: str, repeats: int, 
             if cached and cached.get("dossier") and cached.get("document_sha256") == p["document_sha256"]:
                 sides[key] = cached
                 continue
+            if not relations:  # gespeicherte gültige Extraktion derselben Textfassung aus einem anderen Paar übernehmen
+                for other in sorted(out_dir.parent.glob(f"*/run-{k}.{key}.json")):
+                    o = json.loads(other.read_text("utf-8"))
+                    if o.get("dossier") and o.get("document_sha256") == p["document_sha256"]:
+                        sides[key] = {**o, "reused_from": str(other.parent.name)}
+                        cache.write_text(json.dumps(sides[key], ensure_ascii=False, indent=1, default=str), "utf-8")
+                        break
+                if key in sides:
+                    continue
             sides[key] = extract_side(adapter, key, p, run_id)
             if not relations:
                 cache.write_text(json.dumps({**{x: y for x, y in sides[key].items() if x != "_claims"},
