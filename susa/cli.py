@@ -151,6 +151,9 @@ def main(argv=None):
     p.add_argument("--adapter")
     p.add_argument("--budget", required=True)
     p.add_argument("--retry-failed", action="store_true")
+    p = sub.add_parser("review-sheet", help="Beurteilungsheft (lokale HTML-Datei: blind lesen, urteilen, dann Werkzeugergebnis)")
+    p.add_argument("set_id")
+    p.add_argument("--out", default=None)
     p = sub.add_parser("serve", help="lokale Oberfläche starten")
     p.add_argument("--port", type=int, default=5005)
     p.add_argument("--host", default="127.0.0.1")
@@ -367,6 +370,10 @@ def main(argv=None):
             return
         st = batch.run(cfg, conn, ad, a.set_id, pos, Path("docs"), retry_failed=a.retry_failed)
         print(json.dumps(st, ensure_ascii=False, indent=1))
+    elif a.cmd == "review-sheet":
+        from . import judgment_sheet
+        out = Path(a.out) if a.out else cfg.subdir("export") / f"beurteilungsheft_{a.set_id}.html"
+        print(judgment_sheet.build(cfg, _conn(cfg), a.set_id, Path("docs"), out))
     elif a.cmd == "serve":
         from .web.app import create_app
         create_app(cfg).run(host=a.host, port=a.port, debug=False)
